@@ -1,19 +1,10 @@
 package com.NEU23FallGroup7.jobtrackpro;
 
-import android.content.Context;
-import android.util.AttributeSet;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 
 public class ResumeAdapter extends RecyclerView.Adapter<ResumeAdapter.MyViewHolder> {
