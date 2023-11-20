@@ -105,5 +105,5 @@ fun SignInScreen(
     if (accountViewModel.isSignedIn) {
         onNavigateToHome()
     }
-//    Log.d("debug", "Sign in render finished")
+    Log.d("debug", "Sign in render finished")
 }

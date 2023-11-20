@@ -17,5 +17,5 @@ fun LaunchScreen(
     } else {
         onNavigateToSignIn()
     }
-//    Log.d("debug", "Launch render finished")
+    Log.d("debug", "Launch render finished")
 }

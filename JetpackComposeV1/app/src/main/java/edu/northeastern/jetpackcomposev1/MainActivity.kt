@@ -78,6 +78,9 @@ import edu.northeastern.jetpackcomposev1.screens.JobAppliedScreen
 import edu.northeastern.jetpackcomposev1.screens.JobSavedScreen
 import edu.northeastern.jetpackcomposev1.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.screens.LaunchScreen
+import edu.northeastern.jetpackcomposev1.screens.ProfileScreen
+import edu.northeastern.jetpackcomposev1.screens.ResumesScreen
+import edu.northeastern.jetpackcomposev1.screens.SettingsScreen
 
 
 import edu.northeastern.jetpackcomposev1.screens.SignInScreen
@@ -153,36 +156,36 @@ fun MyApp() {
         composable("Launch") {
             LaunchScreen(
                 accountViewModel = accountViewModel,
-                onNavigateToHome = { navController.navigate("Home") { popUpTo("Launch") {inclusive = true} } },
-                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("Launch") {inclusive = true} } }
+                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
+                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             ) }
         composable("SignIn") {
             SignInScreen(
                 accountViewModel = accountViewModel,
-                onNavigateToSignUp = { navController.navigate("SignUp") { popUpTo("SignIn") {inclusive = true} } },
-                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo("SignIn") {inclusive = true} } },
-                onNavigateToHome = { navController.navigate("Home") { popUpTo("SignIn") {inclusive = true} } }
+                onNavigateToSignUp = { navController.navigate("SignUp") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
+                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
+                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
         }
         composable("SignUp") {
             SignUpScreen(
                 accountViewModel = accountViewModel,
-                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("SignUp") {inclusive = true} } },
-                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo("SignUp") {inclusive = true} } },
-                onNavigateToHome = { navController.navigate("Home") { popUpTo("SignUp") {inclusive = true} } }
+                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
+                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
+                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
         }
         composable("ForgotPassword") {
             ForgotPasswordScreen(
                 accountViewModel = accountViewModel,
-                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("ForgotPassword") {inclusive = true} } },
-                onNavigateToSignUp = { navController.navigate("SignUp") { popUpTo("ForgotPassword") {inclusive = true} } }
+                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
+                onNavigateToSignUp = { navController.navigate("SignUp") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
         }
         composable("Home") {
             HomeScreen(
                 accountViewModel = accountViewModel,
-                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("Home") {inclusive = true} } }
+                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
         }
     }
@@ -280,6 +283,9 @@ fun HomeScreen(
                     composable("SearchJobs") { JobSearchScreen() }
                     composable("SavedJobs") { JobSavedScreen() }
                     composable("AppliedJobs") { JobAppliedScreen() }
+                    composable("Resumes") { ResumesScreen() }
+                    composable("Profile") { ProfileScreen() }
+                    composable("Settings") { SettingsScreen() }
                 }
             }
         }
@@ -287,5 +293,5 @@ fun HomeScreen(
     if (!accountViewModel.isSignedIn) {
         onNavigateToSignIn()
     }
-//    Log.d("debug", "Home render finished")
+    Log.d("debug", "Home render finished")
 }

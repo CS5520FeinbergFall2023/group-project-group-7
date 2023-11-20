@@ -76,5 +76,5 @@ fun ForgotPasswordScreen(
             accountViewModel.authMessage = ""
         }
     }
-//    Log.d("debug", "Forgot password render finished")
+    Log.d("debug", "Forgot password render finished")
 }
