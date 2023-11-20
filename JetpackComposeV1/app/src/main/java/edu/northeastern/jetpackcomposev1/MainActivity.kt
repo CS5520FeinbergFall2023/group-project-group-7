@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -72,6 +74,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import edu.northeastern.jetpackcomposev1.models.AccountViewModel
 import edu.northeastern.jetpackcomposev1.screens.ForgotPasswordScreen
+import edu.northeastern.jetpackcomposev1.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.screens.LaunchScreen
 
 
@@ -191,16 +194,6 @@ fun MyApp() {
 //    }
 //}
 
-
-//@Composable
-//inline fun <reified T: ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-//    val navGraphRoute = destination.parent?.route ?: return viewModel()
-//    val parentEntry = remember(this) {
-//        navController.getBackStackEntry(navGraphRoute)
-//    }
-//    return viewModel(parentEntry)
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -214,21 +207,25 @@ fun HomeScreen(
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_launcher_background),
-                        contentDescription = "Avatar",
-                        modifier = Modifier
-                            // Set image size to 40 dp
-                            .size(40.dp)
-                            // Clip image to be shaped as a circle
-                            .clip(CircleShape)
-                            .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                    )
-                    Text(text = "Your name here")
-                    Divider()
-                    Spacer(modifier = Modifier.height(12.dp))
-                    items.forEachIndexed {index, item ->
+                LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // sheet head
+                    item {
+                        Image(
+                            painter = painterResource(R.drawable.ic_launcher_background),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                // Set image size to 40 dp
+                                .size(40.dp)
+                                // Clip image to be shaped as a circle
+                                .clip(CircleShape)
+                                .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        )
+                        Text(text = "Your name here", modifier = Modifier.padding(12.dp))
+                        Divider()
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                    // sheet body
+                    itemsIndexed(items) {index, item ->
                         NavigationDrawerItem(
                             label = { Text(text = item.title) },
                             selected = (index == selectedItemIndex),
@@ -240,17 +237,19 @@ fun HomeScreen(
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Divider()
-                    TextButton(
-                        onClick = { accountViewModel.signOut() }
-                    ) {
-                        Text(text = "Sign Out")
+                    // sheet foot
+                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Divider()
+                        TextButton(onClick = { accountViewModel.signOut() }) {
+                            Text(text = "Sign Out")
+                        }
                     }
                 }
             }
         },
-        drawerState = drawerState
+        drawerState = drawerState,
+        gesturesEnabled = false
     ) {
         // add screen content here
         Scaffold(
@@ -258,9 +257,7 @@ fun HomeScreen(
                 TopAppBar(
                     title = { Text(text = "Job Track Pro") },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch { drawerState.open() }
-                        }) {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Menu"
@@ -271,7 +268,20 @@ fun HomeScreen(
             }
         ) {
             contentPadding -> contentPadding
-            Text("here is the body")
+            // navigate between different app screens
+//            val navController = rememberNavController()
+//            NavHost(navController = navController, startDestination = "") {
+//                composable() {}
+//            }
+            Column(
+                modifier = Modifier.padding(contentPadding),
+
+            ) {
+                JobSearchScreen()
+
+
+
+            }
         }
     }
     if (!accountViewModel.isSignedIn) {

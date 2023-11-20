@@ -9,8 +9,8 @@ import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 
 @Composable
 fun JobSearchScreen(modifier: Modifier = Modifier) {
-    SearchSection()
-
+//    SearchSection()
+    Text("This is the job search screen")
 }
 
 @Composable
@@ -21,9 +21,9 @@ fun SearchSection(modifier: Modifier = Modifier) {
 // we can preview individual UI also
 @Preview
 @Composable
-fun PreviewSearchSection(){
+fun PreviewJobSearchScreen(){
     JetpackComposeV1Theme {
-        SearchSection()
+        JobSearchScreen()
     }
 }
 
@@ -52,4 +52,6 @@ data class Job(
     val title: String,
     val company: String,
     val location: String,
+    val salary: String,
+    val date: String
     )

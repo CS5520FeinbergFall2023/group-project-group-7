@@ -17,7 +17,7 @@ class AccountViewModel: ViewModel() {
     var email by mutableStateOf("")
     var password by mutableStateOf("")
     var name by mutableStateOf("")
-    var authMessage by mutableStateOf("")
+    var authMessage = ""
     var messageReturned by mutableIntStateOf(0)
 
     fun signUp() {
