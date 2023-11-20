@@ -12,15 +12,15 @@ import com.google.firebase.auth.auth
 
 class AccountViewModel: ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
+    var isSignedIn by mutableStateOf( auth.currentUser != null)
     var userId by mutableStateOf("")
     var email by mutableStateOf("")
     var password by mutableStateOf("")
     var name by mutableStateOf("")
     var authMessage by mutableStateOf("")
-    var buttonClickCount by mutableIntStateOf(0)
+    var messageReturned by mutableIntStateOf(0)
 
     fun signUp() {
-        buttonClickCount++
         auth.createUserWithEmailAndPassword(email.trim(), password.trim())
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -28,18 +28,18 @@ class AccountViewModel: ViewModel() {
                     Log.d("debug", "createUserWithEmail: success")
                     authMessage = ""
                     userId = auth.currentUser?.uid.toString()
-                    /*TODO*/
-                    //navController.navigate("profile")
+                    /*TODO: add user to the realtime database*/
+                    isSignedIn = true
                 } else {
                     // If sign in fails, display a message to the user.
                     authMessage = task.exception?.message.toString()
                     Log.w("debug", authMessage)
+                    messageReturned++
                 }
             }
     }
 
     fun signIn() {
-        buttonClickCount++
         auth.signInWithEmailAndPassword(email.trim(), password.trim())
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -47,26 +47,41 @@ class AccountViewModel: ViewModel() {
                     Log.d("debug", "signInUserWithEmail: success")
                     authMessage = ""
                     userId = auth.currentUser?.uid.toString()
-                    /*TODO*/
+                    /*TODO: get user name from realtime database*/
+                    isSignedIn = true
                 } else {
                     // If sign in fails, display a message to the user.
                     authMessage = task.exception?.message.toString()
                     Log.w("debug", authMessage)
+                    messageReturned++
                 }
             }
     }
 
     fun forgotPassword() {
-        buttonClickCount++
         auth.sendPasswordResetEmail(email.trim())
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("debug", "Email sent.")
                     authMessage = "Password reset email sent"
+                    messageReturned++
                 } else {
                     authMessage = task.exception?.message.toString()
                     Log.w("debug", authMessage)
+                    messageReturned++
                 }
             }
     }
+
+    fun signOut() {
+        auth.signOut()
+        isSignedIn = false
+        userId = ""
+        email = ""
+        password = ""
+        name = ""
+        authMessage = ""
+        messageReturned = 0
+    }
+
 }

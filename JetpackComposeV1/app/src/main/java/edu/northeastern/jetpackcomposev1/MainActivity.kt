@@ -1,6 +1,7 @@
 package edu.northeastern.jetpackcomposev1
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -71,6 +72,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import edu.northeastern.jetpackcomposev1.models.AccountViewModel
 import edu.northeastern.jetpackcomposev1.screens.ForgotPasswordScreen
+import edu.northeastern.jetpackcomposev1.screens.LaunchScreen
 
 
 import edu.northeastern.jetpackcomposev1.screens.SignInScreen
@@ -140,36 +142,45 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp() {
+    val accountViewModel: AccountViewModel = viewModel()
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "SignIn") {
+    NavHost(navController = navController, startDestination = "Launch") {
+        composable("Launch") {
+            LaunchScreen(
+                accountViewModel = accountViewModel,
+                onNavigateToHome = { navController.navigate("Home") { popUpTo("Launch") {inclusive = true} } },
+                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("Launch") {inclusive = true} } }
+            ) }
         composable("SignIn") {
             SignInScreen(
+                accountViewModel = accountViewModel,
                 onNavigateToSignUp = { navController.navigate("SignUp") { popUpTo("SignIn") {inclusive = true} } },
-                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo("SignIn") {inclusive = true} } }
+                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo("SignIn") {inclusive = true} } },
+                onNavigateToHome = { navController.navigate("Home") { popUpTo("SignIn") {inclusive = true} } }
             )
         }
         composable("SignUp") {
             SignUpScreen(
+                accountViewModel = accountViewModel,
                 onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("SignUp") {inclusive = true} } },
-                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo("SignUp") {inclusive = true} } }
+                onNavigateToForgotPassword = { navController.navigate("ForgotPassword") { popUpTo("SignUp") {inclusive = true} } },
+                onNavigateToHome = { navController.navigate("Home") { popUpTo("SignUp") {inclusive = true} } }
             )
         }
         composable("ForgotPassword") {
             ForgotPasswordScreen(
+                accountViewModel = accountViewModel,
                 onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("ForgotPassword") {inclusive = true} } },
                 onNavigateToSignUp = { navController.navigate("SignUp") { popUpTo("ForgotPassword") {inclusive = true} } }
             )
         }
-        composable("SearchJobs") {  }
-        composable("JobDetails") {  }
-        composable("SavedJobs") {  }
-        composable("AppliedJobs") {  }
-        composable("Resumes") {  }
-        composable("Profile") {  }
-        composable("Settings") {  }
+        composable("Home") {
+            HomeScreen(
+                accountViewModel = accountViewModel,
+                onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo("Home") {inclusive = true} } }
+            )
+        }
     }
-
-        //RootNavigation()
 }
 
 //@Preview(showBackground = true)
@@ -192,7 +203,10 @@ fun MyApp() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RootHome() {
+fun HomeScreen(
+    accountViewModel: AccountViewModel,
+    onNavigateToSignIn: () -> Unit
+) {
     // add navigation drawer here
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -229,9 +243,9 @@ fun RootHome() {
                     Spacer(modifier = Modifier.height(12.dp))
                     Divider()
                     TextButton(
-                        onClick = { /*TODO*/ }
+                        onClick = { accountViewModel.signOut() }
                     ) {
-                        Text(text = "Sign out")
+                        Text(text = "Sign Out")
                     }
                 }
             }
@@ -260,4 +274,8 @@ fun RootHome() {
             Text("here is the body")
         }
     }
+    if (!accountViewModel.isSignedIn) {
+        onNavigateToSignIn()
+    }
+//    Log.d("debug", "Home render finished")
 }

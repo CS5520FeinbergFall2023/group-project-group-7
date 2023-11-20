@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,9 +28,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPasswordScreen(onNavigateToSignIn: () -> Unit, onNavigateToSignUp: () -> Unit, modifier: Modifier = Modifier) {
-    val accountViewModel: AccountViewModel = viewModel()
-    val scope = rememberCoroutineScope()
+fun ForgotPasswordScreen(
+    accountViewModel: AccountViewModel,
+    onNavigateToSignIn: () -> Unit,
+    onNavigateToSignUp: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+//    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {innerPadding ->
         Column(
@@ -64,10 +69,12 @@ fun ForgotPasswordScreen(onNavigateToSignIn: () -> Unit, onNavigateToSignUp: () 
                 Text("Sign Up")
             }
         }
-        LaunchedEffect(key1 = accountViewModel.buttonClickCount) {
-            if (accountViewModel.authMessage.isNotEmpty()) {
-                scope.launch { snackbarHostState.showSnackbar(accountViewModel.authMessage) }
-            }
-        }
     }// scaffold
+    LaunchedEffect(key1 = accountViewModel.messageReturned) {
+        if (accountViewModel.authMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(accountViewModel.authMessage)
+            accountViewModel.authMessage = ""
+        }
+    }
+//    Log.d("debug", "Forgot password render finished")
 }

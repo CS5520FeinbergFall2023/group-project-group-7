@@ -20,8 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,9 +40,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(onNavigateToSignIn: () -> Unit, onNavigateToForgotPassword: () -> Unit, modifier: Modifier = Modifier) {
-    val accountViewModel: AccountViewModel = viewModel()
-    val scope = rememberCoroutineScope()
+fun SignUpScreen(
+    accountViewModel: AccountViewModel,
+    onNavigateToSignIn: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+//    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {innerPadding ->
         Column(
@@ -60,7 +69,12 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit, onNavigateToForgotPassword: () 
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
+                singleLine = true,
+                supportingText = {
+                    if (accountViewModel.password.length < 6) {
+                        Text("Password must be more than 6 characters")
+                    }
+                }
             )
             OutlinedTextField(
                 modifier = modifier.padding(top = 8.dp),
@@ -90,10 +104,15 @@ fun SignUpScreen(onNavigateToSignIn: () -> Unit, onNavigateToForgotPassword: () 
                 Text("Forgot Password")
             }
         }
-        LaunchedEffect(key1 = accountViewModel.buttonClickCount) {
-            if (accountViewModel.authMessage.isNotEmpty()) {
-                scope.launch { snackbarHostState.showSnackbar(accountViewModel.authMessage) }
-            }
-        }
     }// scaffold
+    LaunchedEffect(key1 = accountViewModel.messageReturned) {
+        if (accountViewModel.authMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(accountViewModel.authMessage)
+            accountViewModel.authMessage = ""
+        }
+    }
+    if (accountViewModel.isSignedIn) {
+        onNavigateToHome()
+    }
+//    Log.d("debug", "Sign up render finished")
 }

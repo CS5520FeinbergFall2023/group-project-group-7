@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,9 +39,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(onNavigateToSignUp: () -> Unit, onNavigateToForgotPassword: () -> Unit, modifier: Modifier = Modifier) {
-    val accountViewModel: AccountViewModel = viewModel()
-    val scope = rememberCoroutineScope()
+fun SignInScreen(
+    accountViewModel: AccountViewModel,
+    onNavigateToSignUp: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+//    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {innerPadding ->
         Column(
@@ -62,7 +68,12 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onNavigateToForgotPassword: () 
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
+                singleLine = true,
+                supportingText = {
+                    if (accountViewModel.password.length < 6) {
+                        Text("Password must be more than 6 characters")
+                    }
+                }
             )
             Button(
                 modifier = modifier.padding(top = 32.dp),
@@ -84,10 +95,15 @@ fun SignInScreen(onNavigateToSignUp: () -> Unit, onNavigateToForgotPassword: () 
                 Text("Forgot Password")
             }
         }
-        LaunchedEffect(key1 = accountViewModel.buttonClickCount) {
-            if (accountViewModel.authMessage.isNotEmpty()) {
-                scope.launch { snackbarHostState.showSnackbar(accountViewModel.authMessage) }
-            }
-        }
     }// scaffold
+    LaunchedEffect(key1 = accountViewModel.messageReturned) {
+        if (accountViewModel.authMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(accountViewModel.authMessage)
+            accountViewModel.authMessage = ""
+        }
+    }
+    if (accountViewModel.isSignedIn) {
+        onNavigateToHome()
+    }
+//    Log.d("debug", "Sign in render finished")
 }
