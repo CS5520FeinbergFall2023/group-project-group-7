@@ -74,6 +74,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import edu.northeastern.jetpackcomposev1.models.AccountViewModel
 import edu.northeastern.jetpackcomposev1.screens.ForgotPasswordScreen
+import edu.northeastern.jetpackcomposev1.screens.JobAppliedScreen
+import edu.northeastern.jetpackcomposev1.screens.JobSavedScreen
 import edu.northeastern.jetpackcomposev1.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.screens.LaunchScreen
 
@@ -200,6 +202,8 @@ fun HomeScreen(
     accountViewModel: AccountViewModel,
     onNavigateToSignIn: () -> Unit
 ) {
+    // define nav controller
+    val navController = rememberNavController()
     // add navigation drawer here
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -232,6 +236,7 @@ fun HomeScreen(
                             onClick = {
                                 selectedItemIndex = index
                                 scope.launch { drawerState.close() }
+                                navController.navigate(item.route) { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} }
                             },
                             icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -267,20 +272,15 @@ fun HomeScreen(
                 )
             }
         ) {
-            contentPadding -> contentPadding
-            // navigate between different app screens
-//            val navController = rememberNavController()
-//            NavHost(navController = navController, startDestination = "") {
-//                composable() {}
-//            }
+            contentPadding ->
             Column(
-                modifier = Modifier.padding(contentPadding),
-
+                modifier = Modifier.padding(contentPadding)
             ) {
-                JobSearchScreen()
-
-
-
+                NavHost(navController = navController, startDestination = "SearchJobs") {
+                    composable("SearchJobs") { JobSearchScreen() }
+                    composable("SavedJobs") { JobSavedScreen() }
+                    composable("AppliedJobs") { JobAppliedScreen() }
+                }
             }
         }
     }
