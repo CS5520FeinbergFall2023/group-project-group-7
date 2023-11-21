@@ -12,18 +12,26 @@ fun parseDateTime(isoString: String): ZonedDateTime {
     return ZonedDateTime.parse(isoString)
 }
 
-fun parseDate(isoString: String): LocalDate {
-    return parseDateTime(isoString).toLocalDate()
-}
-
-fun parseTime(isoString: String): LocalTime {
-    return parseDateTime(isoString).toLocalTime()
-}
-
 fun convertDateTime(created: String): String {
     val createdDateTime: ZonedDateTime = parseDateTime(created)
     val currentDateTime: ZonedDateTime = ZonedDateTime.now()
     val duration = Duration.between(createdDateTime, currentDateTime)
     val days = duration.toDays()
-    return if(days == 0L) "Posted today" else "Posted $days days ago"
+    var output = ""
+    output = if(days == 0L) {
+        "Posted today"
+    } else if(days == 1L) {
+        "Posted 1 day ago"
+    } else {
+        "Posted $days days ago"
+    }
+    return output
+}
+
+fun checkIfNew(created: String): Boolean {
+    val createdDateTime: ZonedDateTime = parseDateTime(created)
+    val currentDateTime: ZonedDateTime = ZonedDateTime.now()
+    val duration = Duration.between(createdDateTime, currentDateTime)
+    val days = duration.toDays()
+    return days <= 7L
 }
