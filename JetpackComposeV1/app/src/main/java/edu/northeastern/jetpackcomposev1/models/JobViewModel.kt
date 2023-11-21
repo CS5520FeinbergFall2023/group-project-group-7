@@ -5,6 +5,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import edu.northeastern.jetpackcomposev1.utility.dummyJson
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import java.time.LocalDateTime
 
 class JobViewModel: ViewModel() {
     var country = mutableStateOf(CountryCode.US.code)
@@ -30,27 +34,90 @@ class JobViewModel: ViewModel() {
     var part_time = mutableStateOf(false)
     var requestURL = ""
 
-    enum class CountryCode(val fullName: String, val code: String) {
-        GB("United Kingdom", "gb"),
-        US("United States", "us"),
-        CA("Canada", "ca")
-    }
-    enum class SortDirection(val code: String) {
-        ASCENDING("up"),
-        DESCENDING("down")
-    }
-    enum class SortBy(val code: String) {
-        RELEVANCE("relevance"),
-        DATE("date"),
-        SALARY("salary")
-    }
+    var response: ApiResponse = parseJson(dummyJson)
 
 
 
 }
 
-//class Job() {
-//    val job_id: String
-//    val title: String
-//    val company: String
-//}
+/*************************************************************/
+enum class CountryCode(val displayName: String, val code: String) {
+    GB("United Kingdom", "gb"),
+    US("United States", "us"),
+    CA("Canada", "ca")
+}
+enum class SortDirection(val displayName: String, val code: String) {
+    ASCENDING("Ascending", "up"),
+    DESCENDING("Descending", "down")
+}
+enum class SortBy(val displayName: String, val code: String) {
+    HYBRID("Hybrid", "hybrid"),
+    DATE("Date", "date"),
+    SALARY("Salary", "salary"),
+    RELEVANCE("Relevance", "relevance")
+}
+/*************************************************************/
+fun parseJson(jsonString: String): ApiResponse {
+    val json = Json { ignoreUnknownKeys = true }
+    return json.decodeFromString<ApiResponse>(jsonString)
+}
+
+@Serializable
+data class ApiResponse(
+    val mean: Double = 0.0,
+    val results: List<ApiResult> = emptyList(),
+    val count: Int = 0
+)
+
+@Serializable
+data class ApiResult(
+    val location: ApiLocation,
+    val redirect_url: String = "",
+    val salary_is_predicted: String = "",
+    val description: String = "",
+    val longitude: Double = 0.0,
+    val title: String = "",
+    val id: String = "",
+    val created: String = "",
+    val company: ApiCompany,
+    val contract_time: String = "full_time",
+    val category: ApiCategory,
+    val contract_type: String = "",
+    val latitude: Double = 0.0,
+    val salary_max: Double = 0.0,
+    val salary_min: Double = 0.0,
+)
+
+@Serializable
+data class ApiLocation(
+    val area: List<String> = emptyList(),
+    val display_name: String = ""
+)
+
+@Serializable
+data class ApiCompany(
+    val display_name: String = ""
+)
+
+@Serializable
+data class ApiCategory(
+    val tag: String = "",
+    val label: String = ""
+)
+/*************************************************************/
+class Job(
+
+    val job_id: String,
+    val title: String,
+    val company: String,
+    val category: String,
+    val latitude: Double,
+    val longitude: Double,
+    val time: LocalDateTime,
+    val contract_time: String, // full_time or part_time
+    val description: String,
+    val url: String,
+    val salary_is_predicted: Boolean,
+    val location_display_name: String,
+    val location_area: String
+) {}

@@ -73,6 +73,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import edu.northeastern.jetpackcomposev1.models.AccountViewModel
+import edu.northeastern.jetpackcomposev1.models.JobViewModel
 import edu.northeastern.jetpackcomposev1.screens.ForgotPasswordScreen
 import edu.northeastern.jetpackcomposev1.screens.JobAppliedScreen
 import edu.northeastern.jetpackcomposev1.screens.JobSavedScreen
@@ -95,7 +96,7 @@ data class NavigationItem(
     val route: String
 )
 
-val items: List<NavigationItem> = listOf(
+val navItems: List<NavigationItem> = listOf(
     NavigationItem(
         title = "Search",
         icon = Icons.Outlined.Search,
@@ -151,6 +152,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val accountViewModel: AccountViewModel = viewModel()
+    val jobViewModel: JobViewModel = viewModel()
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Launch") {
         composable("Launch") {
@@ -185,6 +187,7 @@ fun MyApp() {
         composable("Home") {
             HomeScreen(
                 accountViewModel = accountViewModel,
+                jobViewModel = jobViewModel,
                 onNavigateToSignIn = { navController.navigate("SignIn") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
         }
@@ -203,6 +206,7 @@ fun MyApp() {
 @Composable
 fun HomeScreen(
     accountViewModel: AccountViewModel,
+    jobViewModel: JobViewModel,
     onNavigateToSignIn: () -> Unit
 ) {
     // define nav controller
@@ -232,7 +236,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                     // sheet body
-                    itemsIndexed(items) {index, item ->
+                    itemsIndexed(navItems) {index, item ->
                         NavigationDrawerItem(
                             label = { Text(text = item.title) },
                             selected = (index == selectedItemIndex),
@@ -280,9 +284,9 @@ fun HomeScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 NavHost(navController = navController, startDestination = "SearchJobs") {
-                    composable("SearchJobs") { JobSearchScreen() }
-                    composable("SavedJobs") { JobSavedScreen() }
-                    composable("AppliedJobs") { JobAppliedScreen() }
+                    composable("SearchJobs") { JobSearchScreen(jobViewModel) }
+                    composable("SavedJobs") { JobSavedScreen(jobViewModel) }
+                    composable("AppliedJobs") { JobAppliedScreen(jobViewModel) }
                     composable("Resumes") { ResumesScreen() }
                     composable("Profile") { ProfileScreen() }
                     composable("Settings") { SettingsScreen() }
