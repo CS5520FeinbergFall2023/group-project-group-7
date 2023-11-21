@@ -31,7 +31,9 @@ public class FavoriteJobsFragment extends Fragment {
             "Microsoft", "Vancouver", "BC", "Canada", now,
             "90000/year", "USD", "Microsoft Teams is the hub for teamwork in Office 365 that integrates all the people, content, and tools your team needs to be more engaged and effective. It is core to Microsoft’s modern work, modern life & modern education value proposition. The Microsoft Teams Calling & Meetings group is focused on intelligent, real-time connected/collaboration experiences. This is also the group which will work with partner teams on device (Surface, Rigel, HoloLens) efforts which could involve Teams.",
             "Remote",
-            "", "https://www.google.com");
+            "", "https://www.google.com", true);
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -7,7 +7,7 @@
     <color name="light_gray">#FFA0A0A0</color>
     <color name="blue">#FF0000FF</color>
     <color name="green">#075307</color>
-    <color name="chip_neutral">#BCD6C6CB</color>
+    <color name="chip_neutral">#B4D3CBD0</color>
     <color name="chip_green">#D8257E27</color>
-    <color name="chip_blue">#009688</color>
+    <color name="chip_blue">#B4009688</color>
 </resources>

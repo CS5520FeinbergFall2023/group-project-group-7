@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -81,21 +82,39 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
         } else {
             holder.salaryChip.setVisibility(View.GONE);
         }
+
+        if (currentJob.isFavorite()) {
+            holder.favoriteButton.setImageResource(R.drawable.baseline_star_rate_24);
+        } else {
+            holder.favoriteButton.setImageResource(R.drawable.baseline_star_outline_24);
+        }
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Todo: go to job details page
+                JobDetailsFragment jobDetailsFragment = new JobDetailsFragment();
+                //pass the job id to the job details page
+                Bundle bundle = new Bundle();
+                bundle.putString("job_id", currentJob.getJob_id());
+                jobDetailsFragment.setArguments(bundle);
+                ((MainActivity) context).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment, jobDetailsFragment)
+                        .addToBackStack(null)
+                        .commit();
             }
-
         });
-
-
         holder.favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Todo: toggle the favorite state
+                //TODO: toggle the favorite state
                 // add to or delete from the  favorite list
-
+                // change the icon
+                currentJob.setFavorite();
+                if (currentJob.isFavorite()) {
+                    holder.favoriteButton.setImageResource(R.drawable.baseline_star_rate_24);
+                } else {
+                    holder.favoriteButton.setImageResource(R.drawable.baseline_star_outline_24);
+                }
             }
         });
         holder.shareButton.setOnClickListener(new View.OnClickListener() {
@@ -156,10 +175,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
             intent.setType("image/jpeg");
             intent.putExtra(Intent.EXTRA_STREAM, contentUri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // Grant read permission
-
             view.getContext().startActivity(Intent.createChooser(intent, "Share Job"));
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -176,6 +192,5 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
     }
 
 }
-
 
 

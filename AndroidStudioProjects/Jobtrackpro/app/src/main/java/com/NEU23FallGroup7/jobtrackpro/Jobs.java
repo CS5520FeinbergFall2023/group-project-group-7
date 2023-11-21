@@ -17,9 +17,10 @@ public class Jobs {
     String url;
     String remote;
     String full_time;
+    Boolean isFavorite = false;
 
 
-    public Jobs(String job_id, String title, String company, String city, String state, String country, Time date, String salary, String currency, String description, String remote, String full_time, String url) {
+    public Jobs(String job_id, String title, String company, String city, String state, String country, Time date, String salary, String currency, String description, String remote, String full_time, String url, Boolean isFavorite) {
         this.job_id = job_id;
         this.title = title;
         this.company = company;
@@ -33,6 +34,7 @@ public class Jobs {
         this.url = url;
         this.remote = remote;
         this.full_time = full_time;
+        this.isFavorite = isFavorite;
     }
 
     public String getJob_id() {
@@ -87,6 +89,12 @@ public class Jobs {
     }
     public String getFull_time() {
         return full_time;
+    }
+    public Boolean isFavorite() {
+        return isFavorite;
+    }
+    public void setFavorite(){
+        isFavorite = !isFavorite;
     }
 }
 

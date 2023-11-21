@@ -163,7 +163,7 @@
                     android:background="@color/white"
                     android:contentDescription="@string/add_to_favorites"
                     android:scaleType="centerInside"
-                    android:src="@drawable/star" />
+                    android:src="@drawable/baseline_star_outline_24" />
 
                 <ImageButton
                     android:id="@+id/share_btn"
