@@ -16,6 +16,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:background="@color/white"
+        android:id="@+id/resumeCard"
         app:cardCornerRadius="3dp"
         app:cardElevation="3dp"
         app:cardUseCompatPadding="true">
@@ -46,11 +47,21 @@
                 tools:text="Date"
                 android:textAlignment="center"
             />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/view_24"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/imageView"
+                android:clickable="true"/>
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/delete_24"
-                android:id="@+id/imageDelete" />
+                android:id="@+id/imageDelete"
+                android:clickable="true"/>
 
         </LinearLayout>
 

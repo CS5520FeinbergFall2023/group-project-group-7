@@ -1,10 +1,12 @@
 package com.NEU23FallGroup7.jobtrackpro;
 
+import static android.app.Activity.RESULT_OK;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.NEU23FallGroup7.jobtrackpro.util.GetCurTime;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -24,27 +27,31 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import java.text.SimpleDateFormat;
 
-public class UploadResume extends AppCompatActivity {
-    private ActivityResultLauncher<Intent> filePickerLauncher;
+import android.view.ViewGroup;
+import androidx.annotation.Nullable;
 
+public class UploadResume extends androidx.fragment.app.DialogFragment{
     Button upload_btn;
     EditText resume_name;
-
     StorageReference storageReference;
     DatabaseReference databaseReference;
+    private ActivityResultLauncher<Intent> filePickerLauncher;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_upload);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.activity_upload,container,false);
+    }
 
-        upload_btn = findViewById(R.id.uploadButton);
-        resume_name = findViewById(R.id.resumeName);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        upload_btn = view.findViewById(R.id.uploadButton);
+        resume_name = view.findViewById(R.id.resumeName);
 
         storageReference = FirebaseStorage.getInstance().getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference("Resumes");
+
 
         upload_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,15 +77,16 @@ public class UploadResume extends AppCompatActivity {
         filePickerLauncher.launch(intent);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null){
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             UploadFiles(data.getData());
         }
     }
 
     private void UploadFiles(Uri data) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Uploading");
         builder.setCancelable(false);
 
@@ -98,11 +106,11 @@ public class UploadResume extends AppCompatActivity {
                 Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
                 while(!uriTask.isComplete());
                 Uri uri = uriTask.getResult();
-                SimpleDateFormat formatter  = new SimpleDateFormat("HH:MM:SS");
-                Resumes resumes = new Resumes(resume_name.getText().toString(), uri.toString(), formatter.format(System.currentTimeMillis()));
+                String formattedDateTime = GetCurTime.getTime();;
+                Resumes resumes = new Resumes(resume_name.getText().toString(), uri.toString(), formattedDateTime);
                 databaseReference.child(databaseReference.push().getKey()).setValue(resumes);
 
-                Toast.makeText(UploadResume.this, "File uploaded successfully !", Toast.LENGTH_SHORT);
+                Toast.makeText(requireContext(), "File uploaded successfully !", Toast.LENGTH_SHORT);
 
                 progressDialog.dismiss();
 

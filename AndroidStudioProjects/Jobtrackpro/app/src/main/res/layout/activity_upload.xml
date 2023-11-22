@@ -7,6 +7,20 @@
     tools:context=".UploadResume"
     android:padding="10dp">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleResume"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/filledTextField"
+        android:text="Upload Resume"
+        app:layout_constraintVertical_bias="0.6"
+        android:textAlignment="center"
+        />
+
     <com.google.android.material.textfield.TextInputLayout
         style="?attr/textInputFilledStyle"
         android:id="@+id/filledTextField"
@@ -16,13 +30,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="40dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:id="@+id/resumeName"/>
+            android:id="@+id/resumeName"
+            android:layout_gravity="center"
+        />
 
         <Button
             style="@style/Widget.Material3.Button.ElevatedButton"
@@ -31,7 +47,7 @@
             android:layout_height="wrap_content"
             android:text="Upload"
             android:layout_gravity="center"
-            android:layout_marginTop="50dp"/>
+            android:layout_marginTop="20dp"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
