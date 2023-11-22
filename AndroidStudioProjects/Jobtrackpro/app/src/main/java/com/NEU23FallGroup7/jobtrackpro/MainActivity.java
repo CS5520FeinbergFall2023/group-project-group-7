@@ -1,14 +1,13 @@
 package com.NEU23FallGroup7.jobtrackpro;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // tool bar
         setSupportActionBar(menuToolbar);
 
-        // to do: if not login profile part would be invisible and "login" shows
+        //TODO: if not login profile part would be invisible and "login" shows
 
         // drawer menu
         navigationView.bringToFront();
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem){
         int itemId = menuItem.getItemId();
+        drawerLayout.closeDrawer(navigationView);
         if (itemId == R.id.Resumes) {
             ResumeManagementFragment resumeManagementFragment = new ResumeManagementFragment();
             getSupportFragmentManager().beginTransaction()
@@ -50,6 +50,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .addToBackStack(null)
                     .commit();
         } else if (itemId == R.id.Applications) {
+            ApplicationManagementFragment applicationManagementFragment = new ApplicationManagementFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment, applicationManagementFragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else if (itemId == R.id.jobSearch) {
+            JobSearchFragment jobSearchFragment = new JobSearchFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment, jobSearchFragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else if(itemId==R.id.Favorites){
+            FavoriteJobsFragment favoriteJobsFragment = new FavoriteJobsFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment, favoriteJobsFragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else if(itemId == R.id.Posts) {
+
+        } else if(itemId == R.id.Chat) {
+
+        }else if(itemId == R.id.Profile) {
+
+        } else if (itemId == R.id.SignOut) {
 
         }
         return true;
