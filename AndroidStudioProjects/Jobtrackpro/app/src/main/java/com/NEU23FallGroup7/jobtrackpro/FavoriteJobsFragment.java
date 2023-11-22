@@ -9,11 +9,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.NEU23FallGroup7.jobtrackpro.Models.Category;
+import com.NEU23FallGroup7.jobtrackpro.Models.Company;
+import com.NEU23FallGroup7.jobtrackpro.Models.Jobs;
+import com.NEU23FallGroup7.jobtrackpro.Models.Location;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class FavoriteJobsFragment extends Fragment {
     RecyclerView recyclerView;
@@ -22,17 +26,33 @@ public class FavoriteJobsFragment extends Fragment {
     DatabaseReference myRef = database.getReference("favoriteJobs");
 
     public FavoriteJobsFragment() {
-
     }
 
-    Time now = new Time(System.currentTimeMillis());
+    Date now = new Date();
+    ArrayList<String> area = new ArrayList<>();
 
-    Jobs job = new Jobs("123456789", "Software Engineer",
-            "Microsoft", "Vancouver", "BC", "Canada", now,
-            "90000/year", "USD", "Microsoft Teams is the hub for teamwork in Office 365 that integrates all the people, content, and tools your team needs to be more engaged and effective. It is core to Microsoft’s modern work, modern life & modern education value proposition. The Microsoft Teams Calling & Meetings group is focused on intelligent, real-time connected/collaboration experiences. This is also the group which will work with partner teams on device (Surface, Rigel, HoloLens) efforts which could involve Teams.",
-            "Remote",
-            "", "https://www.google.com", true);
 
+    Location location = new Location(area, "Boston, MA");
+
+
+    Jobs job = new Jobs(
+            "We are looking for an IT Solutions Architect who is a self-starter, passionate about developing and managing cutting-edge IT solutions. Reporting directly to the president, you will have the autonomy to strategize, implement, and manage IT projects with a significant focus on GPT AI integration. You will maintain our existing systems while also spearheading the development of new, innovative solutions to streamline business operations.",
+            "salary_is_predicted",
+            "permanent",
+            now,
+            "id",
+            "redirect_url",
+            location,
+            new Category("java","java"),
+            "Full Stack Developer",
+            new Company("Microsoft"),
+            "full_time",
+            100000,
+            200000,
+            1.1,
+            1.1,
+            true
+    );
 
 
     @Override
@@ -46,6 +66,8 @@ public class FavoriteJobsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         JobAdapter adapter = new JobAdapter(jobList,getContext());
         recyclerView.setAdapter(adapter);
+        //TODO: add favorite jobs to firebase
+        //TODO: Retrieve favorite jobs from firebase
 
         return view;
     }

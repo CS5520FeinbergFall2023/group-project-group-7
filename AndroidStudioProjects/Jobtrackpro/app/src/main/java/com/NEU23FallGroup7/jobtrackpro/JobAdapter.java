@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.NEU23FallGroup7.jobtrackpro.Models.Jobs;
 import com.google.android.material.chip.Chip;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +38,6 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
         this.context = context;
         this.uiHandler = new Handler();
     }
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -49,41 +49,33 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Jobs currentJob = list.get(position);
         holder.titleTextView.setText(currentJob.getTitle());
-        holder.companyTextView.setText(currentJob.getCompany());
+        holder.companyTextView.setText(currentJob.getCompany().getDisplay_name());
         String des = currentJob.getDescription();
         holder.descriptionText.setText(des.substring(0, Math.min(des.length(), 160)) + "... More Details");
 
-        if (currentJob.getState().equals("")) {
-            holder.locationTextView.setText(currentJob.getCity());
-        } else if (!currentJob.getCountry().equals("")) {
-            holder.locationTextView.setText(currentJob.getCity() + ", " + currentJob.getState() + ", " + currentJob.getCountry());
-        } else if (!currentJob.getState().equals("")) {
-            holder.locationTextView.setText(currentJob.getCity() + ", " + currentJob.getState());
-        }
+        holder.locationTextView.setText(currentJob.getLocation().display_name);
 
-        if (!currentJob.getRemote().equals("")) {
+        if (currentJob.getContract_type()!=null && !currentJob.getContract_type().equals("")) {
             holder.remoteChip.setVisibility(View.VISIBLE);
-            holder.remoteChip.setText(currentJob.getRemote());
+            holder.remoteChip.setText(currentJob.getContract_type());
         } else {
             holder.remoteChip.setVisibility(View.GONE);
         }
-
-
-        if (!currentJob.getFull_time().equals("")) {
+        if (currentJob.getContract_time()!=null && !currentJob.getContract_time().equals("")) {
             holder.fullTimeChip.setVisibility(View.VISIBLE);
-            holder.fullTimeChip.setText(currentJob.getFull_time());
+            holder.fullTimeChip.setText(currentJob.getContract_time());
         } else {
             holder.fullTimeChip.setVisibility(View.GONE);
         }
 
-        if (!currentJob.getSalary().equals("")) {
+        if (currentJob.getSalary_max()!=0) {
             holder.salaryChip.setVisibility(View.VISIBLE);
-            holder.salaryChip.setText(currentJob.getSalary());
+            holder.salaryChip.setText(String.valueOf(currentJob.getSalary_max()));
         } else {
             holder.salaryChip.setVisibility(View.GONE);
         }
 
-        if (currentJob.isFavorite()) {
+        if (currentJob.isFavourite()) {
             holder.favoriteButton.setImageResource(R.drawable.baseline_star_rate_24);
         } else {
             holder.favoriteButton.setImageResource(R.drawable.baseline_star_outline_24);
@@ -95,7 +87,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
                 JobDetailsFragment jobDetailsFragment = new JobDetailsFragment();
                 //pass the job id to the job details page
                 Bundle bundle = new Bundle();
-                bundle.putString("job_id", currentJob.getJob_id());
+                bundle.putString("job_url", currentJob.getRedirect_url());
                 jobDetailsFragment.setArguments(bundle);
                 ((MainActivity) context).getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment, jobDetailsFragment)
@@ -106,11 +98,17 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
         holder.favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: toggle the favorite state
-                // add to or delete from the  favorite list
-                // change the icon
-                currentJob.setFavorite();
-                if (currentJob.isFavorite()) {
+                //TODO:  add to or delete from the  favorite list to db
+
+                // toggle state
+                if(currentJob.isFavourite()){
+                    currentJob.setFavourite(false);
+                }
+                else{
+                    currentJob.setFavourite(true);
+                }
+                // update UI
+                if (currentJob.isFavourite()) {
                     holder.favoriteButton.setImageResource(R.drawable.baseline_star_rate_24);
                 } else {
                     holder.favoriteButton.setImageResource(R.drawable.baseline_star_outline_24);
@@ -129,7 +127,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list==null?0:list.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Job track pro</string>
+    <string name="app_name">Job Track Pro</string>
     <string name="Drawer_closing">Drawer is closed</string>
     <string name="Drawer_opening">Drawer is open</string>
     <string name="Upload_resume_title">Upload Resume</string>

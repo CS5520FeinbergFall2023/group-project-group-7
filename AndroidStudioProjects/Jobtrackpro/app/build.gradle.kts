@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     id("com.android.application")
     id ("com.google.gms.google-services")
@@ -6,6 +7,9 @@ plugins {
 android {
     namespace = "com.NEU23FallGroup7.jobtrackpro"
     compileSdk = 33
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.NEU23FallGroup7.jobtrackpro"
@@ -15,6 +19,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        Properties().apply {
+            load(project.rootProject.file("local.properties").reader())
+            buildConfigField("String", "API_KEY", "\"${getProperty("API_KEY")}\"")
+            buildConfigField("String", "API_ID", "\"${getProperty("API_ID")}\"")
+        }
+
     }
 
     buildTypes {
@@ -44,4 +54,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
     implementation("com.google.firebase:firebase-database")
+    implementation("com.android.volley:volley:1.2.1")
+    implementation("com.google.code.gson:gson:2.8.9")
+
 }
