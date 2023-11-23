@@ -1,4 +1,4 @@
-package edu.northeastern.jetpackcomposev1.screens
+package edu.northeastern.jetpackcomposev1.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -17,19 +17,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import edu.northeastern.jetpackcomposev1.models.AccountViewModel
+import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
-    accountViewModel: AccountViewModel,
+    userViewModel: UserViewModel,
     onNavigateToSignIn: () -> Unit,
     onNavigateToSignUp: () -> Unit,
     modifier: Modifier = Modifier
@@ -43,16 +43,16 @@ fun ForgotPasswordScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
-                value = accountViewModel.email,
-                onValueChange = { accountViewModel.email = it },
+                value = userViewModel.user.profile.email,
+                onValueChange = { userViewModel.user.profile.email = it.trim() },
                 label = { Text("Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true
             )
             Button(
                 modifier = modifier.padding(top = 32.dp),
-                onClick = { accountViewModel.forgotPassword() },
-                enabled = accountViewModel.email != ""
+                onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.forgotPassword() } },
+                enabled = userViewModel.user.profile.email != ""
             ) {
                 Text("Forgot Password")
             }
@@ -68,13 +68,14 @@ fun ForgotPasswordScreen(
             ) {
                 Text("Sign Up")
             }
+            ShowCircularProgressIndicator(userViewModel.running)
         }
     }// scaffold
-    LaunchedEffect(key1 = accountViewModel.messageReturned) {
-        if (accountViewModel.authMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(accountViewModel.authMessage)
-            accountViewModel.authMessage = ""
+    LaunchedEffect(key1 = userViewModel.messageReturned) {
+        if (userViewModel.authMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(userViewModel.authMessage)
+            userViewModel.authMessage = ""
         }
     }
-    Log.d("debug", "Forgot password render finished")
+//    Log.d("debug", "Forgot password render finished")
 }

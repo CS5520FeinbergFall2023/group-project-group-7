@@ -35,3 +35,7 @@ fun checkIfNew(created: String): Boolean {
     val days = duration.toDays()
     return days <= 7L
 }
+
+fun getCurrentZonedDateTime(): String {
+    return ZonedDateTime.now().toString()
+}

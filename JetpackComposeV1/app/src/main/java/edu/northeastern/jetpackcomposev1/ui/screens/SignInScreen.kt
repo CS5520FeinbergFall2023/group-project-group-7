@@ -1,16 +1,16 @@
-package edu.northeastern.jetpackcomposev1.screens
+package edu.northeastern.jetpackcomposev1.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -20,27 +20,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import edu.northeastern.jetpackcomposev1.models.AccountViewModel
-import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
+import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
-    accountViewModel: AccountViewModel,
+    userViewModel: UserViewModel,
     onNavigateToSignUp: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
     onNavigateToHome: () -> Unit,
@@ -55,30 +49,30 @@ fun SignInScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
-                value = accountViewModel.email,
-                onValueChange = { accountViewModel.email = it },
+                value = userViewModel.user.profile.email,
+                onValueChange = { userViewModel.user.profile.email = it.trim() },
                 label = { Text("Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true
             )
             OutlinedTextField(
                 modifier = modifier.padding(top = 8.dp),
-                value = accountViewModel.password,
-                onValueChange = { accountViewModel.password = it },
+                value = userViewModel.user.profile.password,
+                onValueChange = { userViewModel.user.profile.password = it.trim() },
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
                 supportingText = {
-                    if (accountViewModel.password.length < 6) {
-                        Text("Password must be more than 6 characters")
+                    if (userViewModel.user.profile.password.length in 1..5) {
+                        Text("At least 6 characters")
                     }
                 }
             )
             Button(
                 modifier = modifier.padding(top = 32.dp),
-                onClick = { accountViewModel.signIn() },
-                enabled = accountViewModel.email != "" && accountViewModel.password != ""
+                onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.signIn() } },
+                enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != ""
             ) {
                 Text("Sign In")
             }
@@ -94,16 +88,27 @@ fun SignInScreen(
             ) {
                 Text("Forgot Password")
             }
+            ShowCircularProgressIndicator(userViewModel.running)
         }
     }// scaffold
-    LaunchedEffect(key1 = accountViewModel.messageReturned) {
-        if (accountViewModel.authMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(accountViewModel.authMessage)
-            accountViewModel.authMessage = ""
+    LaunchedEffect(key1 = userViewModel.messageReturned) {
+        if (userViewModel.authMessage.isNotEmpty()) {
+            snackbarHostState.showSnackbar(userViewModel.authMessage)
+            userViewModel.authMessage = ""
         }
     }
-    if (accountViewModel.isSignedIn) {
+    if (userViewModel.isSignedIn) {
         onNavigateToHome()
     }
-    Log.d("debug", "Sign in render finished")
+//    Log.d("debug", "Sign in render finished")
+}
+
+@Composable
+fun ShowCircularProgressIndicator(status: Boolean, modifier: Modifier = Modifier) {
+    if (status) {
+        CircularProgressIndicator(
+            modifier = modifier.width(64.dp),
+            color = MaterialTheme.colorScheme.secondary,
+        )
+    }
 }

@@ -1,4 +1,4 @@
-package edu.northeastern.jetpackcomposev1.screens
+package edu.northeastern.jetpackcomposev1.ui.screens
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
