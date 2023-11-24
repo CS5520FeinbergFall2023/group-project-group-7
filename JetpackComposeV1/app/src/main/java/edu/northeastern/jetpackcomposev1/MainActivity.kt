@@ -208,6 +208,12 @@ fun HomeScreen(
     resumeViewModel: ResumeViewModel,
     onNavigateToSignIn: () -> Unit
 ) {
+    // fetch data from DB again
+    jobViewModel.getJobSearchHistoryFromDB()
+    jobViewModel.getJobViewedHistoryFromDB()
+    jobViewModel.getJobFavoriteFromDB()
+    applicationViewModel.getJobApplicationFromDB()
+    resumeViewModel.getResumeFromDB()
     // define nav controller
     val navController = rememberNavController()
     // add navigation drawer here
