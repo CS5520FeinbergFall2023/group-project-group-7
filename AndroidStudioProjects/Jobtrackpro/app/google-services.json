@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "219462833741",
+    "firebase_url": "https://jobtrack-14a85-default-rtdb.firebaseio.com",
+    "project_id": "jobtrack-14a85",
+    "storage_bucket": "jobtrack-14a85.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219462833741:android:14757e0126516963f8ee04",
+        "android_client_info": {
+          "package_name": "com.NEU23FallGroup7.jobtrackpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrpUvl-ACSd4LpC7Y403WdypnspKdLywM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219462833741:android:75241c8a10f8d34df8ee04",
+        "android_client_info": {
+          "package_name": "edu.northeastern.groupa6group7"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrpUvl-ACSd4LpC7Y403WdypnspKdLywM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219462833741:android:94347686640e0dacf8ee04",
+        "android_client_info": {
+          "package_name": "edu.northeastern.jetpackcomposev1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrpUvl-ACSd4LpC7Y403WdypnspKdLywM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
