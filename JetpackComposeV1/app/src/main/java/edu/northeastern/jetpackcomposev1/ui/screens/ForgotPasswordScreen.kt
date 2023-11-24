@@ -42,6 +42,7 @@ fun ForgotPasswordScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            ShowCircularProgressIndicator(userViewModel.running)
             OutlinedTextField(
                 value = userViewModel.user.profile.email,
                 onValueChange = { userViewModel.user.profile.email = it.trim() },
@@ -68,7 +69,6 @@ fun ForgotPasswordScreen(
             ) {
                 Text("Sign Up")
             }
-            ShowCircularProgressIndicator(userViewModel.running)
         }
     }// scaffold
     LaunchedEffect(key1 = userViewModel.messageReturned) {

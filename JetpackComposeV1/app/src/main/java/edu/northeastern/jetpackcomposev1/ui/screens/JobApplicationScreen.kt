@@ -8,8 +8,8 @@ import androidx.compose.ui.unit.dp
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 
 @Composable
-fun JobAppliedScreen(jobViewModel: JobViewModel, modifier: Modifier = Modifier) {
+fun JobApplicationScreen(jobViewModel: JobViewModel, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-        item { JobLists(jobViewModel.response.results) }
+        //item { JobLists(jobViewModel.response.results) }
     }
 }

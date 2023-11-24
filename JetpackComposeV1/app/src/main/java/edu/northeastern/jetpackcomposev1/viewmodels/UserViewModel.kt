@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import edu.northeastern.jetpackcomposev1.models.UserModel
@@ -18,8 +19,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class UserViewModel: ViewModel() {
-    val database = Firebase.database
     val auth: FirebaseAuth = Firebase.auth
+    val database: FirebaseDatabase = Firebase.database
     var running: Boolean by mutableStateOf(false)
     var isSignedIn: Boolean by mutableStateOf(auth.currentUser != null)
     var authMessage = ""
@@ -57,31 +58,7 @@ class UserViewModel: ViewModel() {
                 if (task.isSuccessful) {
                     // Sign in success
                     Log.d("debug", "signInUserWithEmail: success")
-                    user.id = auth.currentUser?.uid.toString()
-                    val myRef = database.getReference("users/${user.id}")
-                    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            val userModel: UserModel? = dataSnapshot.getValue(UserModel::class.java)
-                            if (userModel != null) {
-                                user = userModel
-                            } else {
-                                // rebuild the account in DB
-                                myRef.setValue(user)
-                                Log.d("debug", "Recover user to the DB: success")
-                            }
-                            authMessage = ""
-                            isSignedIn = true
-                            running = false
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            // Failed to read value
-                            authMessage = error.message
-                            Log.w("debug", authMessage)
-                            messageReturned++
-                            running = false
-                        }
-                    })
+                    getCurrentUser()
                 } else {
                     // If sign in fails, display a message to the user.
                     authMessage = task.exception?.message.toString()
@@ -117,4 +94,31 @@ class UserViewModel: ViewModel() {
         user = UserModel()
     }
 
+    fun getCurrentUser() {
+        user.id = auth.currentUser?.uid.toString()
+        val myRef = database.getReference("users/${user.id}")
+        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val userModel: UserModel? = dataSnapshot.getValue(UserModel::class.java)
+                if (userModel != null) {
+                    user = userModel
+                } else {
+                    // rebuild the account in DB
+                    myRef.setValue(user)
+                    Log.d("debug", "Recover user to the DB: success")
+                }
+                authMessage = ""
+                isSignedIn = true
+                running = false
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read value
+                authMessage = error.message
+                Log.w("debug", authMessage)
+                messageReturned++
+                running = false
+            }
+        })
+    }
 }
