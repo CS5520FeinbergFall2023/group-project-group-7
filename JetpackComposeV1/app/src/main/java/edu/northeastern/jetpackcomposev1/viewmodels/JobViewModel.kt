@@ -38,8 +38,8 @@ class JobViewModel: ViewModel() {
     var jobSearchHistoryList: SnapshotStateList<JobSearchHistoryModel> = mutableStateListOf()
     var jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel> = mutableStateListOf()
     var jobFavoriteList: SnapshotStateList<JobFavoriteModel> = mutableStateListOf()
-    var jobApplicationList: SnapshotStateList<JobApplicationModel> = mutableStateListOf()
-    var resumeList: SnapshotStateList<ResumeModel> = mutableStateListOf()
+
+
 
     /**********************************************************************************************/
     fun getJobSearchHistoryFromDB() {
@@ -125,67 +125,9 @@ class JobViewModel: ViewModel() {
         database.getReference("users/${auth.currentUser?.uid}/jobFavorites").setValue(jobFavoriteList.toList())
     }
     /**********************************************************************************************/
-    fun getJobApplicationFromDB() {
-        val myRef = database.getReference("users/${auth.currentUser?.uid}/jobApplications")
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (snapshot in dataSnapshot.children) {
-                    val jobApplicationModel = snapshot.getValue(JobApplicationModel::class.java)
-                    if (jobApplicationModel != null) {
-                        jobApplicationList.add(jobApplicationModel)
-                    }
-                }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
-                Log.w("debug", "Failed to read applications from DB.", error.toException())
-            }
-        })
-    }
-    fun setJobApplicationToDB(job: JobModel) {
-        // there is a default resume object which is empty, if you do not want to pass the resume, it will still work, nice!
-        val jobApplication = JobApplicationModel(job = job.copy())
-        jobApplicationList.add(jobApplication)
-        database.getReference("users/${auth.currentUser?.uid}/jobApplications").setValue(jobApplicationList.toList())
-    }
-    /**********************************************************************************************/
 
-    fun getResumeFromStorage(resumeId: String, filePath: String) {
-        /*TODO: get .pdf from the google storage for preview*/
-    }
-    fun setResumeToStorage(pdfUri: Uri) {
-        /*TODO: read .pdf from phone, save to google storage*/
-        val fileName: String = ""
-        val filePath: String = "users/${auth.currentUser?.uid}/resumes/$fileName"
-        val storageRef = storage.reference.child(filePath)
-        /*TODO: convert file data and upload*/
-        //val uploadTask = storageRef.putBytes(pdfData)
-    }
 
-    fun getResumeFromDB() {
-        val myRef = database.getReference("users/${auth.currentUser?.uid}/resumes")
-        myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (snapshot in dataSnapshot.children) {
-                    val resumeModel = snapshot.getValue(ResumeModel::class.java)
-                    if (resumeModel != null) {
-                        resumeList.add(resumeModel)
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
-                Log.w("debug", "Failed to read resumes from DB.", error.toException())
-            }
-        })
-    }
-    fun setResumeToDB(resume: ResumeModel) {
-        // TODO: you might need to redesign this function to fit your design
-        resumeList.add(resume)
-        database.getReference("users/${auth.currentUser?.uid}/resumes").setValue(resumeList.toList())
-    }
 
 
 }

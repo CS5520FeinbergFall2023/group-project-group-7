@@ -52,6 +52,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
@@ -70,6 +71,8 @@ import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
 
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.utility.decodeDummySearchResultJson
+import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
+import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 import kotlinx.coroutines.launch
 
 data class NavigationItem(
@@ -136,11 +139,13 @@ fun MyApp() {
     // load data from DB first
     val userViewModel: UserViewModel = viewModel()
     val jobViewModel: JobViewModel = viewModel()
+    val applicationViewModel: ApplicationViewModel = viewModel()
+    val resumeViewModel: ResumeViewModel = viewModel()
     jobViewModel.getJobSearchHistoryFromDB()
     jobViewModel.getJobViewedHistoryFromDB()
     jobViewModel.getJobFavoriteFromDB()
-    jobViewModel.getJobApplicationFromDB()
-    jobViewModel.getResumeFromDB()
+    applicationViewModel.getJobApplicationFromDB()
+    resumeViewModel.getResumeFromDB()
     jobViewModel.response = decodeDummySearchResultJson()
 
     val navController = rememberNavController()
@@ -178,6 +183,8 @@ fun MyApp() {
             HomeScreen(
                 userViewModel = userViewModel,
                 jobViewModel = jobViewModel,
+                applicationViewModel = applicationViewModel,
+                resumeViewModel = resumeViewModel,
                 onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
         }
@@ -197,6 +204,8 @@ fun MyApp() {
 fun HomeScreen(
     userViewModel: UserViewModel,
     jobViewModel: JobViewModel,
+    applicationViewModel: ApplicationViewModel,
+    resumeViewModel: ResumeViewModel,
     onNavigateToSignIn: () -> Unit
 ) {
     // define nav controller
@@ -287,10 +296,10 @@ fun HomeScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 NavHost(navController = navController, startDestination = "Job_Search") {
-                    composable("Job_Search") { JobSearchScreen(jobViewModel) }
-                    composable("My_Favorites") { JobFavoriteScreen(jobViewModel) }
-                    composable("My_Applications") { JobApplicationScreen(jobViewModel) }
-                    composable("My_Resumes") { ResumesScreen() }
+                    composable("Job_Search") { JobSearchScreen(jobViewModel, applicationViewModel) }
+                    composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
+                    composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
+                    composable("My_Resumes") { ResumesScreen(resumeViewModel) }
                     composable("Profile") { ProfileScreen() }
                     composable("Settings") { SettingsScreen() }
                 }

@@ -43,15 +43,20 @@ import edu.northeastern.jetpackcomposev1.utility.checkIfNew
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertNumberOfJobs
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
+import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
 @Composable
-fun JobSearchScreen(jobViewModel: JobViewModel, modifier: Modifier = Modifier) {
+fun JobSearchScreen(
+    jobViewModel: JobViewModel,
+    applicationViewModel: ApplicationViewModel,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
         item { SearchSection(jobViewModel.response.count) }
         item { JobLists(
             jobs = jobViewModel.response.results,
             jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
-            jobApplicationList = jobViewModel.jobApplicationList,
+            jobApplicationList = applicationViewModel.jobApplicationList,
             onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
             onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
             onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
