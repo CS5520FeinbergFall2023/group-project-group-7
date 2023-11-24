@@ -136,16 +136,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp() {
-    // load data from DB first
+    // create our viewModels first to store data
     val userViewModel: UserViewModel = viewModel()
     val jobViewModel: JobViewModel = viewModel()
     val applicationViewModel: ApplicationViewModel = viewModel()
     val resumeViewModel: ResumeViewModel = viewModel()
-    jobViewModel.getJobSearchHistoryFromDB()
-    jobViewModel.getJobViewedHistoryFromDB()
-    jobViewModel.getJobFavoriteFromDB()
-    applicationViewModel.getJobApplicationFromDB()
-    resumeViewModel.getResumeFromDB()
     jobViewModel.response = decodeDummySearchResultJson()
 
     val navController = rememberNavController()
@@ -185,8 +180,11 @@ fun MyApp() {
                 jobViewModel = jobViewModel,
                 applicationViewModel = applicationViewModel,
                 resumeViewModel = resumeViewModel,
-                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
+                onNavigateToMyApp = { navController.navigate("My_App") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
             )
+        }
+        composable("My_App") {
+            MyApp()
         }
     }
 }
@@ -206,9 +204,9 @@ fun HomeScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
-    onNavigateToSignIn: () -> Unit
+    onNavigateToMyApp: () -> Unit
 ) {
-    // fetch data from DB again
+    // fetch data from DB
     jobViewModel.getJobSearchHistoryFromDB()
     jobViewModel.getJobViewedHistoryFromDB()
     jobViewModel.getJobFavoriteFromDB()
@@ -313,7 +311,7 @@ fun HomeScreen(
         }
     }
     if (!userViewModel.isSignedIn) {
-        onNavigateToSignIn()
+        onNavigateToMyApp()
     }
 //    Log.d("debug", "Home render finished")
 }
