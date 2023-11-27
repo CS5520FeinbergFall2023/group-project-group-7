@@ -72,7 +72,7 @@ fun SignUpScreen(
             OutlinedTextField(
                 modifier = modifier.padding(top = 8.dp),
                 value = userViewModel.user.profile.name,
-                onValueChange = { userViewModel.user.profile.name = it.trim() },
+                onValueChange = { userViewModel.user.profile.name = it },
                 label = { Text("Name") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true

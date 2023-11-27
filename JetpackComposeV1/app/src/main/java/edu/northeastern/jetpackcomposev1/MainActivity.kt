@@ -38,8 +38,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -63,6 +65,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.LaunchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.SearchJobInputScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 
 
@@ -207,11 +210,14 @@ fun HomeScreen(
     onNavigateToMyApp: () -> Unit
 ) {
     // fetch data from DB
-    jobViewModel.getJobSearchHistoryFromDB()
-    jobViewModel.getJobViewedHistoryFromDB()
-    jobViewModel.getJobFavoriteFromDB()
-    applicationViewModel.getJobApplicationFromDB()
-    resumeViewModel.getResumeFromDB()
+    val runOnlyOnce = true
+    LaunchedEffect(key1 = runOnlyOnce) {
+        jobViewModel.getJobSearchHistoryFromDB()
+        jobViewModel.getJobViewedHistoryFromDB()
+        jobViewModel.getJobFavoriteFromDB()
+        applicationViewModel.getJobApplicationFromDB()
+        resumeViewModel.getResumeFromDB()
+    }
     // define nav controller
     val navController = rememberNavController()
     // add navigation drawer here
@@ -300,12 +306,26 @@ fun HomeScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 NavHost(navController = navController, startDestination = "Job_Search") {
-                    composable("Job_Search") { JobSearchScreen(jobViewModel, applicationViewModel) }
+                    composable("Job_Search") {
+                        JobSearchScreen(
+                            jobViewModel = jobViewModel,
+                            applicationViewModel = applicationViewModel,
+                            onNavigateToSearchJobInput = { navController.navigate("Search_Job_Input") },
+                            onNavigateToJobDetail = { navController.navigate("Job_Details") }
+                        )
+                    }
                     composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
                     composable("My_Resumes") { ResumesScreen(resumeViewModel) }
                     composable("Profile") { ProfileScreen() }
                     composable("Settings") { SettingsScreen() }
+                    composable("Search_Job_Input") {
+                        SearchJobInputScreen(
+                            jobViewModel = jobViewModel,
+                            onNavigateToJobSearch = { navController.popBackStack() }
+                        )
+                    }
+                    //composable("Job_Details") { JobDetailScreen() }
                 }
             }
         }

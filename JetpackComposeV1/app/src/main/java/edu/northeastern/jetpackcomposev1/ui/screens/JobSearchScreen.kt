@@ -12,17 +12,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Place
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,43 +59,86 @@ import edu.northeastern.jetpackcomposev1.utility.convertNumberOfJobs
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobSearchScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
+    onNavigateToSearchJobInput: () -> Unit,
+    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-        item { SearchSection(jobViewModel.response.count) }
+    LazyColumn(modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
+        item { SearchSection(
+            what = jobViewModel.search.what,
+            where = jobViewModel.search.where,
+            count = jobViewModel.response.count,
+            onNavigateToSearchJobInput = { onNavigateToSearchJobInput() }
+        ) }
         item { JobLists(
             jobs = jobViewModel.response.results,
             jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
             jobApplicationList = applicationViewModel.jobApplicationList,
             onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
             onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-            onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
+            onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) },
+            onNavigateToJobDetail = { onNavigateToJobDetail() }
         ) }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewSearchSection() {
+//    JetpackComposeV1Theme {
+//        SearchSection(count = 39, onNavigateToSearchJobInput = { })
+//    }
+//}
+
 @Composable
-fun SearchSection(count: Int, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
-        OutlinedTextField(
-            value = "Not a real search bar",
-            onValueChange = {  },
-            label = { Text("Search") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            singleLine = true
-        )
-        OutlinedTextField(
-            value = "Not a real search bar",
-            onValueChange = {  },
-            label = { Text("Location") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            singleLine = true
-        )
+fun SearchSection(
+    what: String,
+    where: String,
+    count: Int,
+    onNavigateToSearchJobInput: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.padding(vertical = 4.dp)) {
+        OutlinedCard(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = modifier.fillMaxWidth()
+                .padding(all = 10.dp)
+                .clickable { onNavigateToSearchJobInput() }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.6f)) {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = "Search"
+                    )
+                    Text(
+                        text = what.ifEmpty { "Jobs near you" },
+                        maxLines = 1,
+                        modifier = modifier.padding(start = 8.dp)
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.4f)) {
+                    Icon(
+                        imageVector = Icons.Outlined.Place,
+                        contentDescription = "Location"
+                    )
+                    Text(
+                        text = where.ifEmpty { "Location" },
+                        maxLines = 1,
+                        modifier = modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+        }
+        Spacer(modifier = modifier.height(4.dp))
         LazyRow(verticalAlignment = Alignment.CenterVertically) {
             item { IconButton(onClick = { /*TODO*/ }) {
                 Icon(
@@ -97,23 +154,14 @@ fun SearchSection(count: Int, modifier: Modifier = Modifier) {
             item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
             item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
         }
+        Spacer(modifier = modifier.height(4.dp))
         Text(
             text = convertNumberOfJobs(count),
             color = MaterialTheme.colorScheme.tertiary,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = modifier.padding(start = 16.dp)
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }
-
-//// we can preview individual UI also
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewJobSearchScreen(){
-//    JetpackComposeV1Theme {
-//        JobSearchScreen(viewModel())
-//    }
-//}
 
 @Composable
 fun JobLists(
@@ -123,6 +171,7 @@ fun JobLists(
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
+    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     jobs.forEach { job -> // TODO: check order after add or delete
@@ -132,7 +181,8 @@ fun JobLists(
             job = job,
             onSetJobViewedHistory = onSetJobViewedHistory,
             onFindJobInFavorite = onFindJobInFavorite,
-            onSetJobFavorite = onSetJobFavorite
+            onSetJobFavorite = onSetJobFavorite,
+            onNavigateToJobDetail = onNavigateToJobDetail
         )
     }
 }
@@ -145,12 +195,13 @@ fun JobCard(
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
+    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     OutlinedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        modifier = modifier.padding(vertical = 4.dp)
     ) {
         Column(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             CardHead(
@@ -160,7 +211,8 @@ fun JobCard(
             )
             JobContent(
                 job = job,
-                onSetJobViewedHistory = onSetJobViewedHistory
+                onSetJobViewedHistory = onSetJobViewedHistory,
+                onNavigateToJobDetail = onNavigateToJobDetail
             )
             CardFoot(
                 onFindJobInFavorite = onFindJobInFavorite,
@@ -175,16 +227,15 @@ fun JobCard(
 fun JobContent(
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
+    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
-            .padding(start = 8.dp)
             .fillMaxWidth()
             .clickable {
                 onSetJobViewedHistory(job.id)
-                //TODO add jump to detail page later, i will pass this job to you
-
+                onNavigateToJobDetail()
             }
     ) {
         Text(
@@ -208,8 +259,7 @@ fun JobContent(
         Row {
             Surface(
                 shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shadowElevation = 1.dp
+                color = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Text(
                     text = job.contract_time.replaceFirstChar { it.uppercase() },
@@ -221,14 +271,13 @@ fun JobContent(
             Surface(
                 modifier = modifier.padding(start = 4.dp),
                 shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shadowElevation = 1.dp
+                color = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Text(
                     text = convertSalary(job.salary_min, job.salary_max),
                     color = MaterialTheme.colorScheme.primary,
-                    fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.bodyMedium,
+                    fontStyle = FontStyle.Italic,
                     modifier = modifier.padding(all = 4.dp)
                 )
             }
@@ -255,12 +304,18 @@ fun CardHead(
     ) {
         Row(modifier = modifier.weight(0.5f)) {
             if(checkIfNew(job.created)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.outline_fiber_new_24),
-                    contentDescription = "New",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = modifier.padding(start = 8.dp)
-                )
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                    modifier = modifier.padding(bottom = 4.dp)
+                ) {
+                    Text(
+                        text = "New",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = modifier.padding(all = 4.dp)
+                    )
+                }
             }
         }
         Row(modifier = modifier.weight(0.5f), horizontalArrangement = Arrangement.End) {
@@ -268,13 +323,15 @@ fun CardHead(
                 Text(
                     text = "Applied",
                     color = MaterialTheme.colorScheme.tertiary,
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = modifier.padding(vertical = 6.dp)
                 )
             } else if(jobViewedHistoryList.any { it.id == job.id } ) {
                 Text(
                     text = "Viewed",
                     color = MaterialTheme.colorScheme.tertiary,
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = modifier.padding(vertical = 6.dp)
                 )
             }
         }
@@ -299,6 +356,13 @@ fun CardFoot(
             Icon(
                 painter = painterResource(id = if (onFindJobInFavorite(job.id)) fillIcon else outlineIcon),
                 contentDescription = "Saved",
+                tint = MaterialTheme.colorScheme.outline
+            )
+        }
+        IconButton(onClick = { /*TODO apply the job*/ }) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_content_paste_24),
+                contentDescription = "Apply",
                 tint = MaterialTheme.colorScheme.outline
             )
         }

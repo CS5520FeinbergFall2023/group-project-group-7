@@ -16,14 +16,14 @@ fun JobFavoriteScreen(
 ) {
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
         item {
-            JobLists(
-                jobs = jobViewModel.response.results,
-                jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
-                jobApplicationList = applicationViewModel.jobApplicationList,
-                onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
-                onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-                onSetJobFavorite = { job -> jobViewModel.setJobFavoriteToDB(job) }
-            )
+//            JobLists(
+//                jobs = jobViewModel.response.results,
+//                jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
+//                jobApplicationList = applicationViewModel.jobApplicationList,
+//                onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
+//                onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
+//                onSetJobFavorite = { job -> jobViewModel.setJobFavoriteToDB(job) }
+//            )
         }
     }
 }
