@@ -52,8 +52,7 @@ class JobViewModel: ViewModel() {
 
 
     /**********************************************************************************************/
-    fun getJobFromAPI() {
-        running = true
+    fun setRequestURL(): String {
         val requestHead = "https://api.adzuna.com/v1/api/jobs"
         val app_id = "?app_id=${search.app_id}"
         val app_key = "&app_key=${search.app_key}"
@@ -68,24 +67,25 @@ class JobViewModel: ViewModel() {
         if (search.title_only.isNotEmpty()) { requestURL += "&title_only=${search.title_only}" }
         if (search.where.isNotEmpty()) { requestURL += "&where=${urlEncoding(search.where)}&distance=${search.distance}" }
 
-        val client = HttpClient(Android) {
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                })
-            }
-        }
+        return requestURL
+    }
 
+    fun getJobFromAPI() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                running = true
+                val client = HttpClient(Android) {
+                    install(ContentNegotiation) {
+                        json(Json { ignoreUnknownKeys = true })
+                    }
+                }
                 // Make the HTTP request.
-                response = client.get(requestURL).body()
+                response = client.get(setRequestURL()).body()
                 client.close()
                 running = false
             }
         }
     }
-
     /**********************************************************************************************/
     fun getJobSearchHistoryFromDB() {
         viewModelScope.launch {

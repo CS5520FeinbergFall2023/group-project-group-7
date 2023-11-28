@@ -71,18 +71,22 @@ fun JobSearchScreen(
     applicationViewModel: ApplicationViewModel,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
-        item {
-            SearchSection(jobViewModel = jobViewModel)
-            ShowCircularProgressIndicator(jobViewModel.running)
-            JobLists(
-                jobs = jobViewModel.response.results,
-                jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
-                jobApplicationList = applicationViewModel.jobApplicationList,
-                onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
-                onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-                onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
-            )
+    if (jobViewModel.running) {
+        ShowCircularProgressIndicator()
+    }
+    else {
+        LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
+            item {
+                SearchSection(jobViewModel = jobViewModel)
+                JobLists(
+                    jobs = jobViewModel.response.results,
+                    jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
+                    jobApplicationList = applicationViewModel.jobApplicationList,
+                    onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
+                    onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
+                    onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
+                )
+            }
         }
     }
 }
@@ -121,33 +125,48 @@ fun SearchSection(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = modifier.fillMaxWidth()
-                .padding(all = 10.dp)
+            Column(modifier = modifier
+                .fillMaxWidth()
+                .padding(all = 16.dp)
                 .clickable { showSearchJobSheet = true }
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.6f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Outlined.Search,
                         contentDescription = "Search"
                     )
                     Text(
-                        text = jobViewModel.search.what.ifEmpty { "Search jobs" },
+                        text = jobViewModel.search.what.ifEmpty { "Find a job that interests you" },
                         maxLines = 1,
                         modifier = modifier.padding(start = 8.dp)
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.4f)) {
-                    Icon(
-                        imageVector = Icons.Outlined.Place,
-                        contentDescription = "Location"
-                    )
-                    Text(
-                        text = jobViewModel.search.where.ifEmpty { "Location" },
-                        maxLines = 1,
-                        modifier = modifier.padding(start = 8.dp)
-                    )
+                Spacer(modifier = modifier.height(16.dp))
+                Divider()
+                Spacer(modifier = modifier.height(16.dp))
+                Row {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.7f)) {
+                        Icon(
+                            imageVector = Icons.Outlined.Place,
+                            contentDescription = "Location"
+                        )
+                        Text(
+                            text = jobViewModel.search.where.ifEmpty { "Any work location" },
+                            maxLines = 1,
+                            modifier = modifier.padding(start = 8.dp)
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.3f)) {
+                        Icon(
+                            imageVector = Icons.Outlined.Home,
+                            contentDescription = "Location"
+                        )
+                        Text(
+                            text = "${jobViewModel.search.distance} km",
+                            maxLines = 1,
+                            modifier = modifier.padding(start = 8.dp)
+                        )
+                    }
                 }
             }
         }
@@ -168,7 +187,8 @@ fun SearchSection(
         Text(
             text = convertNumberOfJobs(jobViewModel.response.count),
             color = MaterialTheme.colorScheme.tertiary,
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelSmall,
+            modifier = modifier.padding(start = 8.dp)
         )
     }
 }

@@ -37,37 +37,41 @@ fun ForgotPasswordScreen(
 //    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {innerPadding ->
-        Column(
-            modifier = modifier.padding(innerPadding).fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ShowCircularProgressIndicator(userViewModel.running)
-            OutlinedTextField(
-                value = userViewModel.user.profile.email,
-                onValueChange = { userViewModel.user.profile.email = it.trim() },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
-            )
-            Button(
-                modifier = modifier.padding(top = 32.dp),
-                onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.forgotPassword() } },
-                enabled = userViewModel.user.profile.email != ""
+        if (userViewModel.running) {
+            ShowCircularProgressIndicator()
+        }
+        else {
+            Column(
+                modifier = modifier.padding(innerPadding).fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Forgot Password")
-            }
-            TextButton(
-                modifier = modifier.padding(top = 8.dp),
-                onClick = onNavigateToSignIn
-            ) {
-                Text("Sign In")
-            }
-            TextButton(
-                modifier = modifier.padding(top = 8.dp),
-                onClick = onNavigateToSignUp
-            ) {
-                Text("Sign Up")
+                OutlinedTextField(
+                    value = userViewModel.user.profile.email,
+                    onValueChange = { userViewModel.user.profile.email = it.trim() },
+                    label = { Text("Email") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    singleLine = true
+                )
+                Button(
+                    modifier = modifier.padding(top = 32.dp),
+                    onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.forgotPassword() } },
+                    enabled = userViewModel.user.profile.email != ""
+                ) {
+                    Text("Forgot Password")
+                }
+                TextButton(
+                    modifier = modifier.padding(top = 8.dp),
+                    onClick = onNavigateToSignIn
+                ) {
+                    Text("Sign In")
+                }
+                TextButton(
+                    modifier = modifier.padding(top = 8.dp),
+                    onClick = onNavigateToSignUp
+                ) {
+                    Text("Sign Up")
+                }
             }
         }
     }// scaffold

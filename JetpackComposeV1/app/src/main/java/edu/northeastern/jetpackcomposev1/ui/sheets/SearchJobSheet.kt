@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.ui.sheets
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -48,7 +50,7 @@ fun SearchJobSheet(
     ) {
         // Sheet content
         LazyColumn(modifier = modifier
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 8.dp).fillMaxHeight(0.95f)
         ) {
             item {
                 SearchJobInput(jobViewModel = jobViewModel)
@@ -58,8 +60,11 @@ fun SearchJobSheet(
                     onCloseSheet = { onCloseSheet() }
                 )
                 SearchJobHistory(
-                    jobSearchHistoryList = jobViewModel.jobSearchHistoryList,
-                    onSetJobSearchHistory = { index -> jobViewModel.setJobSearchHistoryToDB(false, index) }
+                    jobViewModel = jobViewModel,
+                    onSearchButtonClicked = { jobViewModel.getJobFromAPI() },
+                    onSetJobSearchHistory = { jobViewModel.setJobSearchHistoryToDB(true) },
+                    onDeleteJobSearchHistory = { index -> jobViewModel.setJobSearchHistoryToDB(false, index) },
+                    onCloseSheet = { onCloseSheet() }
                 )
                 Spacer(modifier = modifier.height(64.dp))
             }
@@ -140,22 +145,33 @@ fun SearchJobButton(
 
 @Composable
 fun SearchJobHistory(
-    jobSearchHistoryList: SnapshotStateList<JobSearchHistoryModel>,
-    onSetJobSearchHistory: (Int) -> Unit,
+    jobViewModel: JobViewModel,
+    onSearchButtonClicked: () -> Unit,
+    onSetJobSearchHistory: () -> Unit,
+    onDeleteJobSearchHistory: (Int) -> Unit,
+    onCloseSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
-        jobSearchHistoryList.forEachIndexed { index, item ->
+        jobViewModel.jobSearchHistoryList.forEachIndexed { index, item ->
             ListItem(
                 headlineContent = { Text(item.what.ifEmpty { "Any job" }) },
                 supportingContent = { Text("${item.where.ifEmpty { "Any place" }} - ${item.distance} km") },
                 trailingContent = {
-                    IconButton(onClick = { onSetJobSearchHistory(index) }) {
+                    IconButton(onClick = { onDeleteJobSearchHistory(index) }) {
                         Icon(
                             imageVector = Icons.Default.Clear,
                             contentDescription = "Delete"
                         )
                     }
+                },
+                modifier = modifier.clickable {
+                    jobViewModel.search.what = item.what
+                    jobViewModel.search.where = item.where
+                    jobViewModel.search.distance = item.distance
+                    onSearchButtonClicked()
+                    onSetJobSearchHistory()
+                    onCloseSheet()
                 }
             )
             Divider()

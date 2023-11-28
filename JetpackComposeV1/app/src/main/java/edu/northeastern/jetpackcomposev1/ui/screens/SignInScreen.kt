@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -40,54 +41,57 @@ fun SignInScreen(
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-//    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {innerPadding ->
-        Column(
-            modifier = modifier.padding(innerPadding).fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ShowCircularProgressIndicator(userViewModel.running)
-            OutlinedTextField(
-                value = userViewModel.user.profile.email,
-                onValueChange = { userViewModel.user.profile.email = it.trim() },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
-            )
-            OutlinedTextField(
-                modifier = modifier.padding(top = 8.dp),
-                value = userViewModel.user.profile.password,
-                onValueChange = { userViewModel.user.profile.password = it.trim() },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true,
-                supportingText = {
-                    if (userViewModel.user.profile.password.length in 1..5) {
-                        Text("At least 6 characters")
+        if (userViewModel.running) {
+            ShowCircularProgressIndicator()
+        }
+        else {
+            Column(
+                modifier = modifier.padding(innerPadding).fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(
+                    value = userViewModel.user.profile.email,
+                    onValueChange = { userViewModel.user.profile.email = it.trim() },
+                    label = { Text("Email") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    modifier = modifier.padding(top = 8.dp),
+                    value = userViewModel.user.profile.password,
+                    onValueChange = { userViewModel.user.profile.password = it.trim() },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true,
+                    supportingText = {
+                        if (userViewModel.user.profile.password.length in 1..5) {
+                            Text("At least 6 characters")
+                        }
                     }
+                )
+                Button(
+                    modifier = modifier.padding(top = 32.dp),
+                    onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.signIn() } },
+                    enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != ""
+                ) {
+                    Text("Sign In")
                 }
-            )
-            Button(
-                modifier = modifier.padding(top = 32.dp),
-                onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.signIn() } },
-                enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != ""
-            ) {
-                Text("Sign In")
-            }
-            OutlinedButton(
-                modifier = modifier.padding(top = 8.dp),
-                onClick = onNavigateToSignUp
-            ) {
-                Text("Sign Up")
-            }
-            TextButton(
-                modifier = modifier.padding(top = 8.dp),
-                onClick = onNavigateToForgotPassword
-            ) {
-                Text("Forgot Password")
+                OutlinedButton(
+                    modifier = modifier.padding(top = 8.dp),
+                    onClick = onNavigateToSignUp
+                ) {
+                    Text("Sign Up")
+                }
+                TextButton(
+                    modifier = modifier.padding(top = 8.dp),
+                    onClick = onNavigateToForgotPassword
+                ) {
+                    Text("Forgot Password")
+                }
             }
         }
     }// scaffold
@@ -104,10 +108,14 @@ fun SignInScreen(
 }
 
 @Composable
-fun ShowCircularProgressIndicator(status: Boolean, modifier: Modifier = Modifier) {
-    if (status) {
+fun ShowCircularProgressIndicator(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         CircularProgressIndicator(
-            modifier = modifier.width(64.dp),
+            modifier = modifier.size(64.dp),
             color = MaterialTheme.colorScheme.secondary,
         )
     }

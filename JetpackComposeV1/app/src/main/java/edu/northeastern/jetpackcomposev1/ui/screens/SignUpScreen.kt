@@ -39,62 +39,65 @@ fun SignUpScreen(
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-//    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {innerPadding ->
-        Column(
-            modifier = modifier.padding(innerPadding).fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            ShowCircularProgressIndicator(userViewModel.running)
-            OutlinedTextField(
-                value = userViewModel.user.profile.email,
-                onValueChange = { userViewModel.user.profile.email = it.trim() },
-                label = { Text("Email") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
-            )
-            OutlinedTextField(
-                modifier = modifier.padding(top = 8.dp),
-                value = userViewModel.user.profile.password,
-                onValueChange = { userViewModel.user.profile.password = it.trim() },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true,
-                supportingText = {
-                    if (userViewModel.user.profile.password.length in 1..5) {
-                        Text("At least 6 characters")
+        if (userViewModel.running) {
+            ShowCircularProgressIndicator()
+        }
+        else {
+            Column(
+                modifier = modifier.padding(innerPadding).fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(
+                    value = userViewModel.user.profile.email,
+                    onValueChange = { userViewModel.user.profile.email = it.trim() },
+                    label = { Text("Email") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    modifier = modifier.padding(top = 8.dp),
+                    value = userViewModel.user.profile.password,
+                    onValueChange = { userViewModel.user.profile.password = it.trim() },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true,
+                    supportingText = {
+                        if (userViewModel.user.profile.password.length in 1..5) {
+                            Text("At least 6 characters")
+                        }
                     }
+                )
+                OutlinedTextField(
+                    modifier = modifier.padding(top = 8.dp),
+                    value = userViewModel.user.profile.name,
+                    onValueChange = { userViewModel.user.profile.name = it },
+                    label = { Text("Name") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    singleLine = true
+                )
+                Button(
+                    modifier = modifier.padding(top = 32.dp),
+                    onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.signUp() } },
+                    enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != "" && userViewModel.user.profile.name != ""
+                ) {
+                    Text("Sign Up")
                 }
-            )
-            OutlinedTextField(
-                modifier = modifier.padding(top = 8.dp),
-                value = userViewModel.user.profile.name,
-                onValueChange = { userViewModel.user.profile.name = it },
-                label = { Text("Name") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true
-            )
-            Button(
-                modifier = modifier.padding(top = 32.dp),
-                onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.signUp() } },
-                enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != "" && userViewModel.user.profile.name != ""
-            ) {
-                Text("Sign Up")
-            }
-            OutlinedButton(
-                modifier = modifier.padding(top = 8.dp),
-                onClick = onNavigateToSignIn
-            ) {
-                Text("Sign In")
-            }
-            TextButton(
-                modifier = modifier.padding(top = 8.dp),
-                onClick = onNavigateToForgotPassword
-            ) {
-                Text("Forgot Password")
+                OutlinedButton(
+                    modifier = modifier.padding(top = 8.dp),
+                    onClick = onNavigateToSignIn
+                ) {
+                    Text("Sign In")
+                }
+                TextButton(
+                    modifier = modifier.padding(top = 8.dp),
+                    onClick = onNavigateToForgotPassword
+                ) {
+                    Text("Forgot Password")
+                }
             }
         }
     }// scaffold

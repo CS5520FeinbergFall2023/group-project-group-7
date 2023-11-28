@@ -1,6 +1,7 @@
 package edu.northeastern.jetpackcomposev1.ui.sheets
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,7 +28,7 @@ fun FilterJobSheet(
     ) {
         // Sheet content
         LazyColumn(modifier = modifier
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 8.dp).fillMaxHeight(0.95f)
         ) {
             item {
                 /*TODO more on the way*/
