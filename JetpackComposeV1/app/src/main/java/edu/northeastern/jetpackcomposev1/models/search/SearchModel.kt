@@ -11,7 +11,7 @@ class SearchModel(
 ) {
     var country by mutableStateOf(CountryCode.US.code)
     var page by mutableIntStateOf(1) // go to which page, start from 1
-    var results_per_page by mutableIntStateOf(10)
+    var results_per_page by mutableIntStateOf(30)
     var what by mutableStateOf("")
     var what_and by mutableStateOf("")
     var what_phrase by mutableStateOf("")

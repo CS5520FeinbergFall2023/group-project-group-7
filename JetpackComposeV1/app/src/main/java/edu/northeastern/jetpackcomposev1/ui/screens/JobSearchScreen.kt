@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -34,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -51,6 +54,9 @@ import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
+import edu.northeastern.jetpackcomposev1.ui.sheets.DetailJobSheet
+import edu.northeastern.jetpackcomposev1.ui.sheets.FilterJobSheet
+import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.utility.checkIfNew
@@ -59,31 +65,25 @@ import edu.northeastern.jetpackcomposev1.utility.convertNumberOfJobs
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobSearchScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
-    onNavigateToSearchJobInput: () -> Unit,
-    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
-        item { SearchSection(
-            what = jobViewModel.search.what,
-            where = jobViewModel.search.where,
-            count = jobViewModel.response.count,
-            onNavigateToSearchJobInput = { onNavigateToSearchJobInput() }
-        ) }
-        item { JobLists(
-            jobs = jobViewModel.response.results,
-            jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
-            jobApplicationList = applicationViewModel.jobApplicationList,
-            onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
-            onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-            onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) },
-            onNavigateToJobDetail = { onNavigateToJobDetail() }
-        ) }
+    LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
+        item {
+            SearchSection(jobViewModel = jobViewModel)
+            ShowCircularProgressIndicator(jobViewModel.running)
+            JobLists(
+                jobs = jobViewModel.response.results,
+                jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
+                jobApplicationList = applicationViewModel.jobApplicationList,
+                onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
+                onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
+                onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
+            )
+        }
     }
 }
 
@@ -97,13 +97,26 @@ fun JobSearchScreen(
 
 @Composable
 fun SearchSection(
-    what: String,
-    where: String,
-    count: Int,
-    onNavigateToSearchJobInput: () -> Unit,
+    jobViewModel: JobViewModel,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
+    // sub sheets are here
+    var showSearchJobSheet by rememberSaveable { mutableStateOf(false) }
+    if (showSearchJobSheet) {
+        SearchJobSheet(
+            jobViewModel = jobViewModel,
+            onCloseSheet = { showSearchJobSheet = false }
+        )
+    }
+    var showFilterJobSheet by rememberSaveable { mutableStateOf(false) }
+    if (showFilterJobSheet) {
+        FilterJobSheet(
+            jobViewModel = jobViewModel,
+            onCloseSheet = { showFilterJobSheet = false }
+        )
+    }
+    // content is here
+    Column(modifier = modifier.padding(top = 8.dp)) {
         OutlinedCard(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -112,7 +125,7 @@ fun SearchSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = modifier.fillMaxWidth()
                 .padding(all = 10.dp)
-                .clickable { onNavigateToSearchJobInput() }
+                .clickable { showSearchJobSheet = true }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.6f)) {
                     Icon(
@@ -120,7 +133,7 @@ fun SearchSection(
                         contentDescription = "Search"
                     )
                     Text(
-                        text = what.ifEmpty { "Jobs near you" },
+                        text = jobViewModel.search.what.ifEmpty { "Search jobs" },
                         maxLines = 1,
                         modifier = modifier.padding(start = 8.dp)
                     )
@@ -131,7 +144,7 @@ fun SearchSection(
                         contentDescription = "Location"
                     )
                     Text(
-                        text = where.ifEmpty { "Location" },
+                        text = jobViewModel.search.where.ifEmpty { "Location" },
                         maxLines = 1,
                         modifier = modifier.padding(start = 8.dp)
                     )
@@ -140,7 +153,7 @@ fun SearchSection(
         }
         Spacer(modifier = modifier.height(4.dp))
         LazyRow(verticalAlignment = Alignment.CenterVertically) {
-            item { IconButton(onClick = { /*TODO*/ }) {
+            item { IconButton(onClick = { showFilterJobSheet = true }) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_filter_list_24),
                     contentDescription = "Filter",
@@ -150,13 +163,10 @@ fun SearchSection(
             item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
             item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
             item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
-            item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
-            item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
-            item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
         }
         Spacer(modifier = modifier.height(4.dp))
         Text(
-            text = convertNumberOfJobs(count),
+            text = convertNumberOfJobs(jobViewModel.response.count),
             color = MaterialTheme.colorScheme.tertiary,
             style = MaterialTheme.typography.labelSmall
         )
@@ -171,10 +181,10 @@ fun JobLists(
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
-    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    jobs.forEach { job -> // TODO: check order after add or delete
+    Spacer(modifier = modifier.height(4.dp))
+    jobs.forEach { job ->
         JobCard(
             jobViewedHistoryList = jobViewedHistoryList,
             jobApplicationList = jobApplicationList,
@@ -182,9 +192,9 @@ fun JobLists(
             onSetJobViewedHistory = onSetJobViewedHistory,
             onFindJobInFavorite = onFindJobInFavorite,
             onSetJobFavorite = onSetJobFavorite,
-            onNavigateToJobDetail = onNavigateToJobDetail
         )
     }
+    Spacer(modifier = modifier.height(4.dp))
 }
 
 @Composable
@@ -195,7 +205,6 @@ fun JobCard(
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
-    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     OutlinedCard(
@@ -212,7 +221,6 @@ fun JobCard(
             JobContent(
                 job = job,
                 onSetJobViewedHistory = onSetJobViewedHistory,
-                onNavigateToJobDetail = onNavigateToJobDetail
             )
             CardFoot(
                 onFindJobInFavorite = onFindJobInFavorite,
@@ -227,15 +235,21 @@ fun JobCard(
 fun JobContent(
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
-    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDetailJobSheet by rememberSaveable { mutableStateOf(false) }
+    if (showDetailJobSheet) {
+        DetailJobSheet(
+            job = job,
+            onCloseSheet = { showDetailJobSheet = false }
+        )
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
                 onSetJobViewedHistory(job.id)
-                onNavigateToJobDetail()
+                showDetailJobSheet = true
             }
     ) {
         Text(
@@ -274,7 +288,7 @@ fun JobContent(
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
                 Text(
-                    text = convertSalary(job.salary_min, job.salary_max),
+                    text = convertSalary(job.salary_is_predicted, job.salary_min, job.salary_max),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,
                     fontStyle = FontStyle.Italic,
@@ -375,3 +389,22 @@ fun CardFoot(
         }
     }
 }
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun SearchBottomSheet(onShowSheet: (Boolean) -> Unit) {
+//    val sheetState = rememberModalBottomSheetState()
+//    ModalBottomSheet(
+//        onDismissRequest = { onShowSheet(false) },
+//        sheetState = sheetState,
+//    ) {
+//        // Sheet content
+//        Column(modifier = Modifier.fillMaxHeight().padding(bottom = 24.dp)) {
+//            Text("Hide bottom sheet")
+//            Text("Hide bottom sheet")
+//            Text("Hide bottom sheet")
+//            Text("Hide bottom sheet")
+//            Text("Hide bottom sheet")
+//        }
+//    }
+//}

@@ -36,12 +36,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -54,18 +57,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobApplicationScreen
-import edu.northeastern.jetpackcomposev1.ui.screens.JobDetailScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobFavoriteScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.LaunchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
-import edu.northeastern.jetpackcomposev1.ui.screens.SearchJobInputScreen
+import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
 import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 
 
@@ -73,7 +74,6 @@ import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
 
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
-import edu.northeastern.jetpackcomposev1.utility.decodeDummySearchResultJson
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 import kotlinx.coroutines.launch
@@ -144,7 +144,6 @@ fun MyApp() {
     val jobViewModel: JobViewModel = viewModel()
     val applicationViewModel: ApplicationViewModel = viewModel()
     val resumeViewModel: ResumeViewModel = viewModel()
-    jobViewModel.response = decodeDummySearchResultJson()
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Launch") {
@@ -212,6 +211,7 @@ fun HomeScreen(
     // fetch data from DB
     val runOnlyOnce = true
     LaunchedEffect(key1 = runOnlyOnce) {
+        jobViewModel.getJobFromAPI()
         jobViewModel.getJobSearchHistoryFromDB()
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()
@@ -289,7 +289,7 @@ fun HomeScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Job Track Pro") },
+                    title = { Text("Job Track Pro") },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
@@ -297,7 +297,8 @@ fun HomeScreen(
                                 contentDescription = "Menu"
                             )
                         }
-                    }
+                    },
+                    colors = topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
                 )
             }
         ) {
@@ -306,26 +307,12 @@ fun HomeScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 NavHost(navController = navController, startDestination = "Job_Search") {
-                    composable("Job_Search") {
-                        JobSearchScreen(
-                            jobViewModel = jobViewModel,
-                            applicationViewModel = applicationViewModel,
-                            onNavigateToSearchJobInput = { navController.navigate("Search_Job_Input") },
-                            onNavigateToJobDetail = { navController.navigate("Job_Details") }
-                        )
-                    }
+                    composable("Job_Search") { JobSearchScreen(jobViewModel, applicationViewModel) }
                     composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
                     composable("My_Resumes") { ResumesScreen(resumeViewModel) }
                     composable("Profile") { ProfileScreen() }
                     composable("Settings") { SettingsScreen() }
-                    composable("Search_Job_Input") {
-                        SearchJobInputScreen(
-                            jobViewModel = jobViewModel,
-                            onNavigateToJobSearch = { navController.popBackStack() }
-                        )
-                    }
-                    //composable("Job_Details") { JobDetailScreen() }
                 }
             }
         }

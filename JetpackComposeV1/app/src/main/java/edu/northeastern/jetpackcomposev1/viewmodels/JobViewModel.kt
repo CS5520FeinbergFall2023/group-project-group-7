@@ -1,6 +1,5 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -21,23 +20,29 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
-import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.job.JobSearchHistoryModel
 import edu.northeastern.jetpackcomposev1.models.job.JobSearchResultModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
-import edu.northeastern.jetpackcomposev1.models.resume.ResumeModel
 import edu.northeastern.jetpackcomposev1.models.search.SearchModel
+import edu.northeastern.jetpackcomposev1.utility.urlEncoding
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 class JobViewModel: ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
     val database: FirebaseDatabase = Firebase.database
     val storage: FirebaseStorage = Firebase.storage
-
+    var running: Boolean by mutableStateOf(false)
     var search: SearchModel by mutableStateOf(SearchModel())
     var response: JobSearchResultModel by mutableStateOf(JobSearchResultModel())
     var jobSearchHistoryList: SnapshotStateList<JobSearchHistoryModel> = mutableStateListOf()
@@ -48,23 +53,38 @@ class JobViewModel: ViewModel() {
 
     /**********************************************************************************************/
     fun getJobFromAPI() {
+        running = true
         val requestHead = "https://api.adzuna.com/v1/api/jobs"
         val app_id = "?app_id=${search.app_id}"
         val app_key = "&app_key=${search.app_key}"
         val results_per_page = "&results_per_page=${search.results_per_page}"
 
         var requestURL = "${requestHead}/${search.country}/search/${search.page}" + app_id + app_key + results_per_page
-        if (search.what.isNotEmpty()) { requestURL += "&what=${search.what}" }
+        if (search.what.isNotEmpty()) { requestURL += "&what=${urlEncoding(search.what)}" }
         if (search.what_and.isNotEmpty()) { requestURL += "&what_end=${search.what_and}" }
         if (search.what_phrase.isNotEmpty()) { requestURL += "&what_phrase=${search.what_phrase}" }
         if (search.what_or.isNotEmpty()) { requestURL += "&what_or=${search.what_or}" }
         if (search.what_exclude.isNotEmpty()) { requestURL += "&what_exclude=${search.what_exclude}" }
         if (search.title_only.isNotEmpty()) { requestURL += "&title_only=${search.title_only}" }
-        if (search.where.isNotEmpty()) { requestURL += "&where=${search.where}&distance=${search.distance}" }
+        if (search.where.isNotEmpty()) { requestURL += "&where=${urlEncoding(search.where)}&distance=${search.distance}" }
 
+        val client = HttpClient(Android) {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Make the HTTP request.
+                response = client.get(requestURL).body()
+                client.close()
+                running = false
+            }
+        }
     }
-
-
 
     /**********************************************************************************************/
     fun getJobSearchHistoryFromDB() {
@@ -77,7 +97,11 @@ class JobViewModel: ViewModel() {
                         for (snapshot in dataSnapshot.children) {
                             val jobSearchHistoryModel = snapshot.getValue(JobSearchHistoryModel::class.java)
                             if (jobSearchHistoryModel != null) {
-                                jobSearchHistoryList.add(jobSearchHistoryModel)
+                                // there is a Recomposition issue, i use this approach to fix the problem, later we can find a better solution
+                                val index = jobSearchHistoryList.indexOfFirst { it.id == jobSearchHistoryModel.id }
+                                if (index == -1) {
+                                    jobSearchHistoryList.add(jobSearchHistoryModel)
+                                }
                             }
                         }
                     }
@@ -90,16 +114,21 @@ class JobViewModel: ViewModel() {
             }
         }
     }
-    fun setJobSearchHistoryToDB() {
+    fun setJobSearchHistoryToDB(isInsert: Boolean, deleteIndex: Int = 0) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
-                val newSearch = JobSearchHistoryModel(country = search.country, what = search.what, where = search.where, distance = search.distance)
-                val index = jobSearchHistoryList.indexOfFirst { it.country == newSearch.country && it.what == newSearch.what && it.where == newSearch.where && it.distance == newSearch.distance }
-                if (index != -1) {
-                    jobSearchHistoryList.removeAt(index)
+                if (isInsert) {
+                    val newSearch = JobSearchHistoryModel(country = search.country, what = search.what, where = search.where, distance = search.distance)
+                    val index = jobSearchHistoryList.indexOfFirst { it.country == newSearch.country && it.what == newSearch.what && it.where == newSearch.where && it.distance == newSearch.distance }
+                    if (index != -1) {
+                        jobSearchHistoryList.removeAt(index)
+                    }
+                    jobSearchHistoryList.add(0, newSearch)
                 }
-                jobSearchHistoryList.add(0, newSearch)
+                else {
+                    jobSearchHistoryList.removeAt(deleteIndex)
+                }
                 database.getReference("users/${auth.currentUser?.uid}/jobSearchHistory").setValue(jobSearchHistoryList.toList())
             }
         }
@@ -115,7 +144,11 @@ class JobViewModel: ViewModel() {
                         for (snapshot in dataSnapshot.children) {
                             val jobViewedHistoryModel = snapshot.getValue(JobViewedHistoryModel::class.java)
                             if (jobViewedHistoryModel != null) {
-                                jobViewedHistoryList.add(jobViewedHistoryModel)
+                                // there is a Recomposition issue, i use this approach to fix the problem, later we can find a better solution
+                                val index = jobViewedHistoryList.indexOfFirst { it.id == jobViewedHistoryModel.id }
+                                if (index == -1) {
+                                    jobViewedHistoryList.add(jobViewedHistoryModel)
+                                }
                             }
                         }
                     }
@@ -135,10 +168,9 @@ class JobViewModel: ViewModel() {
                 val jobViewHistory = JobViewedHistoryModel(jobId)
                 val index = jobViewedHistoryList.indexOfFirst { it.id == jobId }
                 if (index != -1) {
-                    jobViewedHistoryList[index] = jobViewHistory
-                } else {
-                    jobViewedHistoryList.add(0, jobViewHistory)
+                    jobViewedHistoryList.removeAt(index)
                 }
+                jobViewedHistoryList.add(0, jobViewHistory)
                 database.getReference("users/${auth.currentUser?.uid}/jobViewedHistory").setValue(jobViewedHistoryList.toList())
             }
         }
@@ -154,7 +186,11 @@ class JobViewModel: ViewModel() {
                         for (snapshot in dataSnapshot.children) {
                             val jobFavoriteModel = snapshot.getValue(JobFavoriteModel::class.java)
                             if (jobFavoriteModel != null) {
-                                jobFavoriteList.add(jobFavoriteModel)
+                                // there is a Recomposition issue, i use this approach to fix the problem, later we can find a better solution
+                                val index = jobFavoriteList.indexOfFirst { it.id == jobFavoriteModel.id }
+                                if (index == -1) {
+                                    jobFavoriteList.add(jobFavoriteModel)
+                                }
                             }
                         }
                     }
