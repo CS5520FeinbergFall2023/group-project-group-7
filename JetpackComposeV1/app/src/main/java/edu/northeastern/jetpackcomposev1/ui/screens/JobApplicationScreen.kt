@@ -74,8 +74,7 @@ fun JobApplicationScreen(
                                     text = application.job.location.display_name,
                                 )
                                 Text(
-                                    modifier = Modifier
-                                        .verticalScroll(rememberScrollState()),
+                                   
                                     text = application.job.description,
                                 )
                                 Text(text = application.resume.nickName)
