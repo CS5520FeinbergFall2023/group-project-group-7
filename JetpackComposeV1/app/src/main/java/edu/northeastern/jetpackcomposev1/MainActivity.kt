@@ -58,7 +58,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import edu.northeastern.jetpackcomposev1.application.ApplicationDetailScreen
-import edu.northeastern.jetpackcomposev1.application.EventUpdateScreen
 import edu.northeastern.jetpackcomposev1.navigation.Screens
 import edu.northeastern.jetpackcomposev1.ui.screens.ApplicationUpdateScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.CreateNewApplicationScreen
@@ -78,6 +77,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 
 import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
+import edu.northeastern.jetpackcomposev1.ui.sheets.EventUpdateScreen
 
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
@@ -371,7 +371,7 @@ fun HomeScreen(
                     }
                     composable(Screens.ApplicationUpdateScreen.route) {
                         ApplicationUpdateScreen(jobViewModel, applicationViewModel,onCancel={
-                            navController.popBackStack()
+                            navController.navigateUp()
                         }, onNext={
                             navController.navigate(Screens.EventUpdateScreen.route) {
                                 popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
@@ -382,18 +382,57 @@ fun HomeScreen(
 
                     }
                     composable(Screens.CreateNewApplicationScreen.route){
-                        CreateNewApplicationScreen(jobViewModel, applicationViewModel, resumeViewModel, navController)
+                        CreateNewApplicationScreen(jobViewModel, applicationViewModel, resumeViewModel, onNavigateToApplicationDetail = {
+                            navController.navigate(Screens.ApplicationDetailScreen.route) {
+                                popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                    inclusive = true
+                                }
+                            }
+                        })
                     }
                     composable(Screens.ApplicationDetailScreen.route) {
                         ApplicationDetailScreen(
+                            jobViewModel,
+                            resumeViewModel,
                             applicationViewModel,
-                            onNavigateToUpdate = {
-                                navController.navigate(Screens.ApplicationUpdateScreen.route) {
+                            onNavigateToEventUpdate = {
+                                navController.navigate(Screens.EventUpdateScreen.route) {
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onNavigateToJobDetail = {
+                                navController.navigate(Screens.JobDetailScreen.route) {
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onNavigateToResumeDetail = {
+                                navController.navigate(Screens.ResumesScreen.route) {
                                     popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
                                         inclusive = true
                                     }
                                 }
                             })
+                    }
+                    composable(Screens.EventUpdateScreen.route) {
+                        EventUpdateScreen(applicationViewModel = applicationViewModel,
+                            onNavigateToApplicationDetail = {
+                            navController.navigate(Screens.ApplicationDetailScreen.route) {
+                                popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                    inclusive = true
+                                }
+                            }
+                        }, onCancel={
+                            navController.navigate(Screens.ApplicationDetailScreen.route) {
+                                popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                    inclusive = true
+                                }
+                            }
+                        })
+
                     }
                     composable(Screens.ResumesScreen.route) { ResumesScreen(resumeViewModel) }
                     composable(Screens.ProfileScreen.route) { ProfileScreen() }

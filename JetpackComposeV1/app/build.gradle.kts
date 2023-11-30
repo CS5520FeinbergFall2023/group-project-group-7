@@ -53,7 +53,6 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -82,7 +81,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
-
     // Ktor-Client
     implementation("io.ktor:ktor-client-core:2.3.6")
     implementation("io.ktor:ktor-client-android:2.3.6")

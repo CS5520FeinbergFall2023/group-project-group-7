@@ -42,11 +42,13 @@ fun getCurrentZonedDateTime(): String {
     return ZonedDateTime.now().toString()
 }
 fun dateToMillis(dateString: String): Long {
+    if(dateString == "") return 0L
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val date = format.parse(dateString)
     return date?.time ?: 0L
 }
 fun millisToDate(millis: Long): String {
+    if(millis == 0L) return ""
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return format.format(millis)
 }

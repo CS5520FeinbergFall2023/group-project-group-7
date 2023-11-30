@@ -51,7 +51,7 @@ fun CreateNewApplicationScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
-    navController: NavController
+    onNavigateToApplicationDetail: () -> Unit,
 ) {
     //job id passed from job detail screen
     val job by jobViewModel.selectedJob
@@ -211,8 +211,7 @@ fun CreateNewApplicationScreen(
                     val timeLine = TimeLine(results = eventList, count = eventList.size)
                     //Todo: update the application or create a new application and update to db in applicationViewModel
                     applicationViewModel.setJobApplicationToDB(job!!, resume, timeLine)
-
-                    navController.navigate(Screens.ApplicationDetailScreen.route)
+                    onNavigateToApplicationDetail()
                 },
                 modifier = Modifier.padding(16.dp)
             ) {

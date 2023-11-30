@@ -14,10 +14,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
@@ -42,12 +40,10 @@ import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventUpdateScreen(
+fun UpdateEventSheet(
     applicationViewModel: ApplicationViewModel,
-    onNavigateToApplicationDetail: () -> Unit,
-    onCancel: () -> Unit,
-    modifier: Modifier = Modifier,
-
+    onCloseSheet: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()
     var selectedStatus by rememberSaveable { mutableStateOf("") }
@@ -61,7 +57,10 @@ fun EventUpdateScreen(
     }else{
         dateToMillis(millisToDate(System.currentTimeMillis()))
     }
-
+    ModalBottomSheet(
+        onDismissRequest = { onCloseSheet() },
+        sheetState = sheetState,
+    ) {
         Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             if (event != null) {
                 //val date by remember { mutableLongStateOf(initialDateMillis) }
@@ -113,20 +112,19 @@ fun EventUpdateScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                FilledTonalButton(
-                    //onCloseSheet,
-                    onClick = onCancel,
+                Button(
+                    onClick = onCloseSheet,
                     modifier = Modifier.padding(4.dp),
                 ) {
                     Text(
                         text = "Cancel",
                         modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                FilledTonalButton(
+                Button(
                     onClick = {
                         if (selectedStatus.isNotBlank()) {
                             val newEvent = selectedStatus?.let { Event( it, newDate) }
@@ -139,25 +137,24 @@ fun EventUpdateScreen(
                             }
                         }
                         selectedStatus = ""
-                        //onCloseSheet()
-                        onNavigateToApplicationDetail()
+                        onCloseSheet()
                     },
                     modifier = Modifier.padding(4.dp)
                 ) {
                     Text(
                         text = "Save",
                         modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
             }
-            Spacer(modifier = modifier.height(16.dp))
+            Spacer(modifier = modifier.height(64.dp))
         }
 
     }
-
+}
 
 
 

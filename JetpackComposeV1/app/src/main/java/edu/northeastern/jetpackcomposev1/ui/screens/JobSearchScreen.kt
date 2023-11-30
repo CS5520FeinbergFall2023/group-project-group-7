@@ -285,7 +285,7 @@ fun JobContent(
             .clickable {
                 onSetJobViewedHistory(job.id)
                 //TOdo: jump to detail page here
-                showDetailJobSheet = true
+                //showDetailJobSheet = true
                 jobViewModel.selectJob(job)
                 onNavigateToJobDetail()
             }

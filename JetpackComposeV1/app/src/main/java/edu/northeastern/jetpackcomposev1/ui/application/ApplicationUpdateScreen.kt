@@ -25,9 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import edu.northeastern.jetpackcomposev1.application.EventUpdateScreen
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.models.resume.ResumeModel
+import edu.northeastern.jetpackcomposev1.ui.sheets.EventUpdateScreen
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 
@@ -75,17 +75,17 @@ fun ApplicationUpdateScreen(
         //else we are creating a new application
 
         ResumeInput(resume)
-        if (application != null) {
-            EventUpdateScreen(
-                applicationViewModel = applicationViewModel,
-                application = application!!
-            ) {}
-        } else {
-            EventUpdateScreen(
-                applicationViewModel = applicationViewModel,
-                application = newApplication
-            ) {}
-        }
+//        if (application != null) {
+//            EventUpdateScreen(
+//                applicationViewModel = applicationViewModel,
+//                application = application!!
+//            ) {}
+//        } else {
+//            EventUpdateScreen(
+//                applicationViewModel = applicationViewModel,
+//                application = newApplication
+//            ) {}
+//        }
 
         Row(
             modifier = Modifier
