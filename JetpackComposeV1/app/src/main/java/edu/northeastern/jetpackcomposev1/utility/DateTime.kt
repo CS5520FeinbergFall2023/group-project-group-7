@@ -1,11 +1,13 @@
 package edu.northeastern.jetpackcomposev1.utility
 
+import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 fun parseDateTime(isoString: String): ZonedDateTime {
     // val isoString = "2023-11-15T12:03:47Z" this is the format
@@ -38,4 +40,13 @@ fun checkIfNew(created: String): Boolean {
 
 fun getCurrentZonedDateTime(): String {
     return ZonedDateTime.now().toString()
+}
+fun dateToMillis(dateString: String): Long {
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date = format.parse(dateString)
+    return date?.time ?: 0L
+}
+fun millisToDate(millis: Long): String {
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return format.format(millis)
 }

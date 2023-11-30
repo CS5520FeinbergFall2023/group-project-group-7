@@ -69,8 +69,10 @@ import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 fun JobSearchScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier,
+    onNavigateToJobDetail: () -> Unit,
+
+    ) {
     if (jobViewModel.running) {
         ShowCircularProgressIndicator()
     }
@@ -84,7 +86,9 @@ fun JobSearchScreen(
                     jobApplicationList = applicationViewModel.jobApplicationList,
                     onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
                     onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-                    onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
+                    onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) },
+                    onNavigateToJobDetail = onNavigateToJobDetail,
+                    jobViewModel = jobViewModel
                 )
             }
         }
@@ -201,7 +205,9 @@ fun JobLists(
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToJobDetail: () -> Unit,
+    jobViewModel: JobViewModel
 ) {
     Spacer(modifier = modifier.height(4.dp))
     jobs.forEach { job ->
@@ -212,6 +218,8 @@ fun JobLists(
             onSetJobViewedHistory = onSetJobViewedHistory,
             onFindJobInFavorite = onFindJobInFavorite,
             onSetJobFavorite = onSetJobFavorite,
+            onNavigateToJobDetail = onNavigateToJobDetail,
+            jobViewModel = jobViewModel
         )
     }
     Spacer(modifier = modifier.height(4.dp))
@@ -225,12 +233,15 @@ fun JobCard(
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToJobDetail: () -> Unit,
+    jobViewModel: JobViewModel
 ) {
     OutlinedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = modifier.padding(vertical = 4.dp)
+
     ) {
         Column(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             CardHead(
@@ -241,6 +252,8 @@ fun JobCard(
             JobContent(
                 job = job,
                 onSetJobViewedHistory = onSetJobViewedHistory,
+                onNavigateToJobDetail = onNavigateToJobDetail,
+                jobViewModel = jobViewModel
             )
             CardFoot(
                 onFindJobInFavorite = onFindJobInFavorite,
@@ -255,7 +268,9 @@ fun JobCard(
 fun JobContent(
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToJobDetail: () -> Unit,
+    jobViewModel: JobViewModel
 ) {
     var showDetailJobSheet by rememberSaveable { mutableStateOf(false) }
     if (showDetailJobSheet) {
@@ -269,7 +284,10 @@ fun JobContent(
             .fillMaxWidth()
             .clickable {
                 onSetJobViewedHistory(job.id)
+                //TOdo: jump to detail page here
                 showDetailJobSheet = true
+                jobViewModel.selectJob(job)
+                onNavigateToJobDetail()
             }
     ) {
         Text(
