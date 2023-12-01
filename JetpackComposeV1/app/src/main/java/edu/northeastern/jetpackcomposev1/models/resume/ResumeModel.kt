@@ -14,8 +14,8 @@ class ResumeModel(
     var fileName: String = "", // name of the pdf file
     var filePath: String = "", // storage path
     val time: String = getCurrentZonedDateTime(), // auto also
-    var activeStatus: Boolean = true // if delete the resume； it turns to false
+    var activeStatus: String = "true" // if delete the resume； it turns to false
 ) {
     var nickName: String by mutableStateOf("") // label
-    var count: Int by mutableIntStateOf(0) // count how many applications use this resume
+//    var count: Int by mutableIntStateOf(0) // count how many applications use this resume
 }

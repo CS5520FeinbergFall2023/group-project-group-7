@@ -53,6 +53,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.storage
 import edu.northeastern.jetpackcomposev1.models.resume.ResumeModel
 import edu.northeastern.jetpackcomposev1.ui.screens.InputDialog
+import edu.northeastern.jetpackcomposev1.utility.getCurrentZonedDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,6 +61,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.UUID
+import kotlin.math.log
 
 class ResumeViewModel: ViewModel() {
     private val _isShowAlert = MutableStateFlow(false)
@@ -131,7 +134,7 @@ class ResumeViewModel: ViewModel() {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         for (snapshot in dataSnapshot.children) {
                             val resumeModel = snapshot.getValue(ResumeModel::class.java)
-                            if (resumeModel != null && resumeModel.activeStatus) {
+                            if (resumeModel != null && resumeModel.activeStatus=="true") {
                                 resumeList.add(resumeModel)
                             }
                         }
@@ -149,30 +152,27 @@ class ResumeViewModel: ViewModel() {
         when(viewEvent){
             is ResumeViewEvent.DeleteResume -> {
                 val currentState = uiState.value
+                val updatedResume: ResumeModel
                 Log.d("removed index", viewEvent.index.toString())
                 Log.d("auth id check", (auth.uid !== null).toString())
-
-
-//                method 1: fail
-//                val resumeRef = database.getReference("users/${auth.currentUser?.uid}/resumes/${viewEvent.index}")
-//                val updates = mapOf<String, Any>("activeStatus" to false)
-//                resumeRef.updateChildren(updates)
-
-//                method 2: fail
-//                database.getReference("users/${auth.currentUser?.uid}/resumes/${viewEvent.index}/activeStatus").update(false)
-//                    .addOnCompleteListener { task ->
-//                        if (task.isSuccessful) {
-//                            Log.d("Firebase", "activeStatus updated successfully")
-//                        } else {
-//                            val error = task.exception
-//                            Log.e("Firebase", "Error updating activeStatus", error)
-//                        }
-//                    }
-
-//                method 3: processing 
-//                similiar to update replace with a new resume model
-
-                database.getReference("users/${auth.currentUser?.uid}/resumes").setValue(resumeList.toList())
+                var resReference = FirebaseDatabase.getInstance().getReference("users/${auth.currentUser?.uid}/resumes")
+                resReference.child(viewEvent.index.toString()).get().addOnSuccessListener {
+                    if(it.exists()){
+                        val id = it.child("id").value
+                        var fileName = it.child("fileName").value
+                        var filePath = it.child("filePath").value
+                        val nickName = it.child("nickName").value
+//                        var count = it.child("count").value
+                        val updatedResume = mapOf<String, String>(
+                            "id" to id.toString(),
+                            "fileName" to fileName.toString(),
+                            "filePath" to filePath.toString(),
+                            "activeStatus" to "false",
+                            "nickName" to nickName.toString())
+                        resReference.child(viewEvent.index.toString()).updateChildren(updatedResume)
+                    }
+                }
+                resumeList.removeAt(viewEvent.index)
                 val items = currentState.resumeList.toMutableList().apply {
                     remove(viewEvent.resume)
                 }.toList()
@@ -184,12 +184,16 @@ class ResumeViewModel: ViewModel() {
                 setShowAlert(true)
                 uiState.value = uiState.value.copy(resumeList = resumeList)
             }
+
+            is ResumeViewEvent.UpdateView -> {
+                uiState.value = uiState.value.copy(resumeList = resumeList)
+            }
         }
     }
 
     fun replicatedLabelCheck() : Boolean{
         for (resume in resumeList) {
-            if (resume.nickName == newResume.nickName) {
+            if (resume.nickName == newResume.nickName && resume.activeStatus == "true") {
                 return true
             }
         }
@@ -201,4 +205,5 @@ data class ResumeListViewState(var isLoading:Boolean = true, val resumeList:List
 sealed class ResumeViewEvent{
     object AddResume : ResumeViewEvent()
     data class DeleteResume(val resume : ResumeModel, val index : Int): ResumeViewEvent()
+    object UpdateView : ResumeViewEvent()
 }

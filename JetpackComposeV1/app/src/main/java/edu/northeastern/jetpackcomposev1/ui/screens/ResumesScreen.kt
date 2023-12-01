@@ -157,7 +157,7 @@ fun ResumesScreen(navController: NavController, viewModel: ResumeViewModel, modi
                     {
                         if (viewState.value.resumeList != null){
                             itemsIndexed(viewState.value.resumeList.filter {
-                                it.nickName.contains(searchedText, ignoreCase = true) and it.activeStatus
+                                it.nickName.contains(searchedText, ignoreCase = true) and (it.activeStatus == "true")
                             }) { index, item ->
                                 ResumeUI(resume = item,
                                     onDeleteClick = {viewModel.handleViewEvent(ResumeViewEvent.DeleteResume(it, index))},
@@ -188,8 +188,6 @@ fun ResumesScreen(navController: NavController, viewModel: ResumeViewModel, modi
 @Composable
 fun ResumeUI(resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, onPreviewClick: (resume: ResumeModel) -> Unit){
     var openDialog by remember { mutableStateOf(false) }
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    Log.d("display time: ", resume.time.format(formatter))
     Card(
         modifier = Modifier
             .padding(2.dp, 10.dp)
@@ -468,6 +466,7 @@ fun LabelAndUpload(
     if (readyToUpload) {
         pdfUri?.let { viewModel.setResumeToStorage(pdfUri!!, displayName) }
         viewModel.setShowAlert(false)
+        viewModel.handleViewEvent(ResumeViewEvent.UpdateView)
     }
 }
 
