@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.application
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +44,7 @@ import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 @Composable
 fun ApplicationDetailScreen(
     jobViewModel: JobViewModel,
-    ResumeViewModel: ResumeViewModel,
+    resumeViewModel: ResumeViewModel,
     applicationViewModel: ApplicationViewModel,
     onNavigateToJobDetail: () -> Unit,
     onNavigateToResumeDetail: () -> Unit,
@@ -61,7 +62,7 @@ fun ApplicationDetailScreen(
                 onCloseSheet = { showEventUpdateSheet = false })
         }
     }
-    val scrollState = rememberScrollState()
+
 
     Column(
         modifier = Modifier
@@ -107,7 +108,7 @@ fun ApplicationDetailJobInfo(modifier: Modifier, jobViewModel: JobViewModel, job
     Column(
 
         modifier = modifier
-            .padding(16.dp)
+            .padding(8.dp)
             .clickable(onClick = {jobViewModel.selectJob(job)
                 onNavigateToJobDetail()})
     ){Text(

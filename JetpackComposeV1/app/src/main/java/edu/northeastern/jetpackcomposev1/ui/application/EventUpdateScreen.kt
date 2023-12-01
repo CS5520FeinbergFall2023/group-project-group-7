@@ -1,13 +1,19 @@
 package edu.northeastern.jetpackcomposev1.ui.sheets
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DropdownMenuItem
@@ -48,7 +54,7 @@ fun EventUpdateScreen(
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 
-) {
+    ) {
     val sheetState = rememberModalBottomSheetState()
     var selectedStatus by rememberSaveable { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
@@ -56,107 +62,122 @@ fun EventUpdateScreen(
     val application by applicationViewModel.selectedApplication
     val event by applicationViewModel.selectedEvent
     var initialDateMillis: Long = 0
-    initialDateMillis = if(event!!.date!="") {
+    initialDateMillis = if (event!!.date != "") {
         dateToMillis(event!!.date)
-    }else{
+    } else {
         dateToMillis(millisToDate(System.currentTimeMillis()))
     }
 
-        Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            if (event != null) {
-                //val date by remember { mutableLongStateOf(initialDateMillis) }
-                val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-                DatePicker(state = dateState, modifier = Modifier.padding(16.dp))
-                newDate = dateState.selectedDateMillis?.let { millisToDate(it) }.toString()
-            }
-            //choose a status
-            Column(modifier = Modifier.padding(30.dp)) {
-                ExposedDropdownMenuBox(
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            //add this for the keyboard to not overlap the input
+            .imePadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (event != null) {
+            //val date by remember { mutableLongStateOf(initialDateMillis) }
+            val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+            DatePicker(state = dateState, modifier = Modifier.padding(16.dp))
+            newDate = dateState.selectedDateMillis?.let { millisToDate(it) }.toString()
+        }
+        //choose a status
+        Column(
+            modifier = Modifier
+                .padding(38.dp)
+                //add this
+                .imePadding()
+        ) {
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    readOnly = false,
+                    value = selectedStatus,
+                    onValueChange = { selectedStatus = it },
+                    label = { Text("State") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    singleLine = true
+                )
+                ExposedDropdownMenu(
                     expanded = expanded,
-                    onExpandedChange = { expanded = !expanded },
+                    onDismissRequest = { expanded = false }
                 ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
-                        readOnly = false,
-                        value = selectedStatus,
-                        onValueChange = { selectedStatus = it },
-                        label = { Text("State") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        singleLine = true
-                    )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        ApplicationStatus.values().forEach { selectedOption ->
-                            DropdownMenuItem(
-                                text = { Text(selectedOption.displayName) },
-                                onClick = {
-                                    selectedStatus = selectedOption.displayName
-                                    expanded = false
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    ApplicationStatus.values().forEach { selectedOption ->
+                        DropdownMenuItem(
+                            text = { Text(selectedOption.displayName) },
+                            onClick = {
+                                selectedStatus = selectedOption.displayName
+                                expanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                    }
+                }
+            }
+
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Button(
+                //onCloseSheet,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                onClick = onCancel,
+            ) {
+                Text(
+                    text = "Cancel",
+                    modifier = Modifier.padding(4.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Button(colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            ),
+                onClick = {
+                    if (selectedStatus.isNotBlank()) {
+                        val newEvent = selectedStatus?.let { Event(it, newDate) }
+                        if (event != null) {
+                            applicationViewModel.updateEventToDB(
+                                application!!,
+                                event!!,
+                                newEvent!!
                             )
                         }
                     }
-                }
-
-            }
-
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    selectedStatus = ""
+                    //onCloseSheet()
+                    onNavigateToApplicationDetail()
+                },
             ) {
-
-                FilledTonalButton(
-                    //onCloseSheet,
-                    onClick = onCancel,
+                Text(
+                    text = "Save",
                     modifier = Modifier.padding(4.dp),
-                ) {
-                    Text(
-                        text = "Cancel",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                FilledTonalButton(
-                    onClick = {
-                        if (selectedStatus.isNotBlank()) {
-                            val newEvent = selectedStatus?.let { Event( it, newDate) }
-                            if (event != null) {
-                                applicationViewModel.updateEventToDB(
-                                    application!!,
-                                    event!!,
-                                    newEvent!!
-                                )
-                            }
-                        }
-                        selectedStatus = ""
-                        //onCloseSheet()
-                        onNavigateToApplicationDetail()
-                    },
-                    modifier = Modifier.padding(4.dp)
-                ) {
-                    Text(
-                        text = "Save",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
-            Spacer(modifier = modifier.height(16.dp))
-        }
 
+        }
+        Spacer(modifier = modifier.height(16.dp))
     }
+
+}
 
 
 

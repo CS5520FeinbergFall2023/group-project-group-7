@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.utility
 
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDate
@@ -7,7 +8,9 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 
 fun parseDateTime(isoString: String): ZonedDateTime {
     // val isoString = "2023-11-15T12:03:47Z" this is the format
@@ -42,13 +45,23 @@ fun getCurrentZonedDateTime(): String {
     return ZonedDateTime.now().toString()
 }
 fun dateToMillis(dateString: String): Long {
-    if(dateString == "") return 0L
-    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val date = format.parse(dateString)
-    return date?.time ?: 0L
+    val format = SimpleDateFormat("yyyy-MM-dd")
+    format.timeZone = TimeZone.getTimeZone("UTC") // Set the desired time zone
+
+    try {
+        val date = format.parse(dateString)
+        return date?.time ?: 0L
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    return 0L
 }
 fun millisToDate(millis: Long): String {
     if(millis == 0L) return ""
-    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return format.format(millis)
+    val format = SimpleDateFormat("yyyy-MM-dd")
+    format.timeZone = TimeZone.getTimeZone("UTC")
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    calendar.timeInMillis = millis
+    return format.format(calendar.time)
 }

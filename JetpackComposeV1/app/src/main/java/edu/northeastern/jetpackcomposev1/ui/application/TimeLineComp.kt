@@ -1,6 +1,7 @@
 package edu.northeastern.jetpackcomposev1.application
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -181,7 +183,7 @@ fun TimelineComp(
             Text(text = "No events")
         }
         if (timeLine.count == 1) {
-            LastNode(timeLine, onDeleteClicked)
+            LastNode(timeLine, onEditClicked, onDeleteClicked)
         } else {
             LazyColumn() {
                 itemsIndexed(timeLine.results) { index, event ->
@@ -210,7 +212,7 @@ fun TimelineComp(
                         }
 
                     } else {
-                        LastNode(timeLine, onDeleteClicked)
+                        LastNode(timeLine, onEditClicked, onDeleteClicked)
                     }
 
                 }
@@ -232,8 +234,6 @@ private fun EventCard(
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.CenterVertically)
             .clickable(onClick = { onEditClicked(event) }),
-
-
         colors = CardDefaults.cardColors(containerColor = containerColor),
 
         ) {
@@ -242,31 +242,26 @@ private fun EventCard(
                 .fillMaxWidth()
                 .fillMaxWidth()
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = event.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .align(Alignment.CenterVertically)
-
+                    .weight(3f)
             )
             Text(
                 text = event.status,
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .align(Alignment.CenterVertically)
+                    .weight(3f)
 
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .alignByBaseline(),
-                horizontalArrangement = Arrangement.End
-            ) {
-
                 IconButton(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .weight(1f),
                     onClick = { onDeleteClicked(event) },
                 ) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
@@ -275,11 +270,12 @@ private fun EventCard(
             }
         }
     }
-}
+
 
 @Composable
 fun LastNode(
     timeLine: TimeLine,
+    onEditClicked: (Event) -> Unit,
     onDeleteClicked: (Event) -> Unit
 ) {
 
@@ -295,7 +291,7 @@ fun LastNode(
             modifier,
             containerColor = Color.Green.copy(alpha = 0.5f),
             event = timeLine.results[timeLine.results.size - 1],
-            onEditClicked = { onDeleteClicked(it) },
+            onEditClicked = { onEditClicked(it) },
             onDeleteClicked = { onDeleteClicked(it) }
         )
     }

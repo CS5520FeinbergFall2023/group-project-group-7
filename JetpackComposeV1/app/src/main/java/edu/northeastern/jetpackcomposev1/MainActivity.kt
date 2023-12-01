@@ -371,7 +371,11 @@ fun HomeScreen(
                     }
                     composable(Screens.ApplicationUpdateScreen.route) {
                         ApplicationUpdateScreen(jobViewModel, applicationViewModel,onCancel={
-                            navController.navigateUp()
+                            navController.navigate(Screens.ApplicationDetailScreen.route) {
+                                popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                    inclusive = true
+                                }
+                            }
                         }, onNext={
                             navController.navigate(Screens.EventUpdateScreen.route) {
                                 popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {

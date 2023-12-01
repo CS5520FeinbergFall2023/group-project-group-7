@@ -117,38 +117,32 @@ class ApplicationViewModel : ViewModel() {
 
     fun updateEventToDB(jobApplication: JobApplicationModel, oldEvent: Event, newEvent: Event) {
 
+
         var newJobApplication = JobApplicationModel(job = jobApplication.job.copy())
         newJobApplication.resume = jobApplication.resume
         newJobApplication.timeLine = jobApplication.timeLine.copy()
+        var mutableResults = newJobApplication.timeLine.results.toMutableList()
+        // add new event to the list and remove the old event
+        //empty new event will not be added to the list -> mark as delete old event (working on)
+        //empty old event will not be removed from the list -> mark as add new event (check)
 
-        if (jobApplication != null) {
-            val mutableResults = newJobApplication.timeLine.results.toMutableList()
-            // add new event to the list and remove the old event
-            //empty new event will not be added to the list -> mark as delete old event
-            //empty old event will not be removed from the list -> mark as add new event
-
-            if(newEvent.date!="" && newEvent.status!=""){
-                mutableResults.add(newEvent)
-            } else {
-                //do nothing
-            }
-            if(oldEvent.date!="" && oldEvent.status!=""){
-                mutableResults.filter { it.date != oldEvent.date }
-            } else {
-                //do nothing
-            }
-
-            val updatedTimeLine = newJobApplication.timeLine.copy(
-                results = mutableResults.sortedBy { it.date },
-                count = mutableResults.size // Update count based on the sorted results
-            )
-            newJobApplication.timeLine = updatedTimeLine
-            selectApplication(newJobApplication)
-            updateJobApplicationToDB(jobApplication, newJobApplication)
+        if (newEvent.date != "" && newEvent.status != "") {
+            mutableResults.add(newEvent)
         }
+        if (oldEvent.date != "" && oldEvent.status != "") {
+            mutableResults.removeIf { it.date == oldEvent.date && it.status == oldEvent.status }
+        }
+        val updatedTimeLine = newJobApplication.timeLine.copy(
+            results = mutableResults.sortedByDescending { it.date },
+            count = mutableResults.size // Update count based on the sorted results
+        )
+        newJobApplication.timeLine = updatedTimeLine
+        selectApplication(newJobApplication)
+        updateJobApplicationToDB(jobApplication, newJobApplication)
     }
-
 }
+
+
 
 
 

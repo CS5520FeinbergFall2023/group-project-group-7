@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
@@ -38,7 +39,7 @@ fun JobApplicationScreen(
     if (applicationList.isEmpty()) {
         Text(text = "No Application Found")
     } else {
-        LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+        LazyColumn(modifier = modifier.padding( 4.dp)) {
             item {
                 ApplicationList(
                     applications = applicationList,
@@ -103,6 +104,7 @@ fun ApplicationContent(
     onNavigateToApplicationDetail: () -> Unit,
     applicationViewModel: ApplicationViewModel
 ) {
+    val latestEvent = application.timeLine.results[0]
     val job = application.job
     Column(
         modifier = modifier
@@ -120,11 +122,20 @@ fun ApplicationContent(
         ApplicationResumeInfo(modifier = modifier, resume = application.resume)
 
         //Timeline Info
+
+
         Text(
-            text = "Current Status:  ${application.timeLine.results[0].status}",
+            text = "Last Update: ${latestEvent.date}",
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.bodyMedium
         )
+
+        Text(
+            text = "Current Status:  ${latestEvent.status}",
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyMedium
+        )
+
         Spacer(modifier = modifier.height(4.dp))
 
     }
@@ -132,56 +143,57 @@ fun ApplicationContent(
 
 @Composable
 fun ApplicationJobInfo(modifier: Modifier, job: JobModel){
-    Text(
-        text = job.title,
-        color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.titleMedium
-    )
-    Spacer(modifier = modifier.height(4.dp))
-    Text(
-        text = job.company.display_name,
-        color = MaterialTheme.colorScheme.secondary,
-        style = MaterialTheme.typography.bodyMedium
-    )
-    Spacer(modifier = modifier.height(4.dp))
-    Text(
-        text = job.location.display_name,
-        color = MaterialTheme.colorScheme.secondary,
-        style = MaterialTheme.typography.bodyMedium
-    )
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Surface(
-            shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = modifier.padding(end = 4.dp)
-        ) {
-            Text(
-                text = job.contract_time.replaceFirstChar { it.uppercase() },
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(all = 4.dp)
-            )
+    Column(modifier= Modifier.padding(bottom = 4.dp)){
+        Text(
+            text = job.title,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = job.company.display_name,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = job.location.display_name,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = modifier.padding(end = 4.dp)
+            ) {
+                Text(
+                    text = job.contract_time.replaceFirstChar { it.uppercase() },
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = modifier.padding(all = 4.dp)
+                )
+            }
+            Surface(
+                modifier = modifier.padding(start = 4.dp),
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = convertSalary(job.salary_is_predicted, job.salary_min, job.salary_max),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontStyle = FontStyle.Italic,
+                    modifier = modifier.padding(all = 4.dp)
+                )
+            }
         }
-        Surface(
-            modifier = modifier.padding(start = 4.dp),
-            shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Text(
-                text = convertSalary(job.salary_is_predicted, job.salary_min, job.salary_max),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
-                fontStyle = FontStyle.Italic,
-                modifier = modifier.padding(all = 4.dp)
-            )
-        }
+        Text(
+            text = convertDateTime(job.created),
+            color = MaterialTheme.colorScheme.tertiary,
+            style = MaterialTheme.typography.labelSmall
+        )
     }
-    Text(
-        text = convertDateTime(job.created),
-        color = MaterialTheme.colorScheme.tertiary,
-        style = MaterialTheme.typography.labelSmall
-    )
-    Divider(modifier = modifier.padding(vertical = 4.dp))
+
+    Spacer(modifier = Modifier.height(2.dp))
 
 }
 
@@ -192,5 +204,4 @@ fun ApplicationResumeInfo(modifier: Modifier, resume: ResumeModel){
         color = MaterialTheme.colorScheme.secondary,
         style = MaterialTheme.typography.bodyMedium
     )
-    Spacer(modifier = modifier.height(4.dp))
 }
