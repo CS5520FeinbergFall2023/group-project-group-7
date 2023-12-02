@@ -64,6 +64,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.JobApplicationScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobFavoriteScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.LaunchScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.PdfViewUI
 import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
 import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
@@ -310,9 +311,15 @@ fun HomeScreen(
                     composable("Job_Search") { JobSearchScreen(jobViewModel, applicationViewModel) }
                     composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
-                    composable("My_Resumes") { ResumesScreen(resumeViewModel) }
+                    composable("My_Resumes") { ResumesScreen(navController,resumeViewModel) }
                     composable("Profile") { ProfileScreen() }
                     composable("Settings") { SettingsScreen() }
+                    composable("PdfViewUI/{url}") { navBackStackEntry ->
+                        val url = navBackStackEntry.arguments?.getString("url")
+                        if (url != null) {
+                            PdfViewUI(navController, url)
+                        }
+                    }
                 }
             }
         }
