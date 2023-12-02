@@ -3,7 +3,6 @@ package edu.northeastern.jetpackcomposev1.ui.screens
 
 import android.content.Context
 import androidx.compose.material3.Text
-
 import android.os.Bundle
 import android.content.Intent
 import android.net.Uri
