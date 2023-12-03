@@ -217,7 +217,7 @@ fun HomeScreen(
     // fetch data from DB
     val runOnlyOnce = true
     LaunchedEffect(key1 = runOnlyOnce) {
-        jobViewModel.getJobFromAPI()
+        //jobViewModel.getJobFromAPI()
         jobViewModel.getJobSearchHistoryFromDB()
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()

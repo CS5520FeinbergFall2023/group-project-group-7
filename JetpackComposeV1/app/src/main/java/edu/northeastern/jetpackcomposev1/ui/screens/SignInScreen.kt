@@ -75,7 +75,7 @@ fun SignInScreen(
                 )
                 Button(
                     modifier = modifier.padding(top = 32.dp),
-                    onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.signIn() } },
+                    onClick = { userViewModel.signIn() },
                     enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != ""
                 ) {
                     Text("Sign In")

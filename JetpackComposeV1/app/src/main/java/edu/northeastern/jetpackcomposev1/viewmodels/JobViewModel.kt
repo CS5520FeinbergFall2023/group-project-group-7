@@ -1,6 +1,10 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -9,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -52,6 +57,7 @@ class JobViewModel: ViewModel() {
     var jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel> = mutableStateListOf()
     var jobFavoriteList: SnapshotStateList<JobFavoriteModel> = mutableStateListOf()
 
+    /**********************************************************************************************/
     //Jun's modification
     //adding a new state to keep track of the current job
     //the private val
@@ -252,7 +258,6 @@ class JobViewModel: ViewModel() {
         }
     }
     /**********************************************************************************************/
-
 
 
 

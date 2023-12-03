@@ -55,7 +55,7 @@ fun ForgotPasswordScreen(
                 )
                 Button(
                     modifier = modifier.padding(top = 32.dp),
-                    onClick = { CoroutineScope(Dispatchers.IO).launch{ userViewModel.forgotPassword() } },
+                    onClick = { userViewModel.forgotPassword() },
                     enabled = userViewModel.user.profile.email != ""
                 ) {
                     Text("Forgot Password")

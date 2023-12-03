@@ -1,75 +1,65 @@
 package edu.northeastern.jetpackcomposev1.ui.screens
 
+import android.net.Uri
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import edu.northeastern.jetpackcomposev1.R
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
-import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
-import edu.northeastern.jetpackcomposev1.models.search.SearchModel
-import edu.northeastern.jetpackcomposev1.ui.sheets.DetailJobSheet
 import edu.northeastern.jetpackcomposev1.ui.sheets.FilterJobSheet
 import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
+import edu.northeastern.jetpackcomposev1.ui.sheets.QuickFilterJobSheet
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
-import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.utility.checkIfNew
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertNumberOfJobs
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
+import edu.northeastern.jetpackcomposev1.utility.findContractTimeCode
+import edu.northeastern.jetpackcomposev1.utility.findSalaryMinCode
+import edu.northeastern.jetpackcomposev1.utility.findSortByCode
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
 @Composable
@@ -129,6 +119,15 @@ fun SearchSection(
             onCloseSheet = { showFilterJobSheet = false }
         )
     }
+    var quickFilterIndex by rememberSaveable { mutableIntStateOf(0) }
+    var showQuickFilterJobSheet by rememberSaveable { mutableStateOf(false) }
+    if (showQuickFilterJobSheet) {
+        QuickFilterJobSheet(
+            index = quickFilterIndex,
+            jobViewModel = jobViewModel,
+            onCloseSheet = { showQuickFilterJobSheet = false }
+        )
+    }
     // content is here
     Column(modifier = modifier.padding(top = 8.dp)) {
         OutlinedCard(
@@ -182,23 +181,63 @@ fun SearchSection(
         }
         Spacer(modifier = modifier.height(4.dp))
         LazyRow(verticalAlignment = Alignment.CenterVertically) {
-            item { IconButton(onClick = { showFilterJobSheet = true }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_filter_list_24),
-                    contentDescription = "Filter",
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            } }
-            item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
-            item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
-            item { Button(onClick = { /*TODO*/ }) { Text("Other Button") } }
+            item {
+                OutlinedButton(
+                    onClick = { showFilterJobSheet = true },
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Icon(painter = painterResource(id = R.drawable.baseline_filter_list_24), contentDescription = "Filter")
+                }
+                OutlinedButton(
+                    onClick = {
+                        quickFilterIndex = 1
+                        showQuickFilterJobSheet = true },
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = modifier.padding(start = 8.dp)
+                ) {
+                    val sortByCode = findSortByCode(jobViewModel.search.sort_by)
+                    Text("Sort by: ${sortByCode?.displayName}")
+                    Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Down arrow")
+                }
+                OutlinedButton(
+                    onClick = {
+                        quickFilterIndex = 2
+                        showQuickFilterJobSheet = true },
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = modifier.padding(start = 8.dp)
+                ) {
+                    val contractTimeCode = findContractTimeCode(jobViewModel.search.full_time, jobViewModel.search.part_time)
+                    Text("Contract time: ${contractTimeCode?.displayName}")
+                    Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Down arrow")
+                }
+                OutlinedButton(
+                    onClick = {
+                        quickFilterIndex = 3
+                        showQuickFilterJobSheet = true },
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = modifier.padding(start = 8.dp)
+                ) {
+                    val salaryMinCode = findSalaryMinCode(jobViewModel.search.salary_min)
+                    Text("Minimum pay: ${salaryMinCode?.displayName}")
+                    Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Down arrow")
+                }
+                OutlinedButton(
+                    onClick = { quickFilterIndex = 4
+                        showQuickFilterJobSheet = true },
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = modifier.padding(start = 8.dp)
+                ) {
+                    Text("Date posted: last ${jobViewModel.search.max_days_old} days")
+                    Icon(imageVector = Icons.Outlined.ArrowDropDown, contentDescription = "Down arrow")
+                }
+            }
         }
         Spacer(modifier = modifier.height(4.dp))
         Text(
             text = convertNumberOfJobs(jobViewModel.response.count),
             color = MaterialTheme.colorScheme.tertiary,
             style = MaterialTheme.typography.labelSmall,
-            modifier = modifier.padding(start = 8.dp)
+            modifier = modifier.align(Alignment.CenterHorizontally)
         )
     }
 }
@@ -392,6 +431,14 @@ fun CardFoot(
 ) {
     val outlineIcon = R.drawable.outline_bookmark_border_24
     val fillIcon = R.drawable.baseline_bookmark_24
+    val context = LocalContext.current
+    val applyJobIntent = Intent(Intent.ACTION_VIEW, Uri.parse(job.redirect_url))
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, job.redirect_url)
+        type = "text/plain"
+    }
+    val shareJobIntent = Intent.createChooser(sendIntent, null)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -404,14 +451,14 @@ fun CardFoot(
                 tint = MaterialTheme.colorScheme.outline
             )
         }
-        IconButton(onClick = { /*TODO apply the job*/ }) {
+        IconButton(onClick = { context.startActivity(applyJobIntent) }) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_content_paste_24),
                 contentDescription = "Apply",
                 tint = MaterialTheme.colorScheme.outline
             )
         }
-        IconButton(onClick = { /*TODO share the job*/ }) {
+        IconButton(onClick = { context.startActivity(shareJobIntent) }) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_share_24),
                 contentDescription = "Share",
@@ -432,10 +479,12 @@ fun TurnPage(
     ) {
         Column(modifier = modifier.weight(0.5f)) {
             if (jobViewModel.search.page != 1) {
-                TextButton(onClick = {
+                TextButton(
+                    onClick = {
                         jobViewModel.search.page--
                         jobViewModel.getJobFromAPI()
-                }) {
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowLeft,
                         contentDescription = "Left arrow"
@@ -446,10 +495,12 @@ fun TurnPage(
         }
         Column(modifier = modifier.weight(0.5f), horizontalAlignment = Alignment.End) {
             if (jobViewModel.search.page != (jobViewModel.response.count / jobViewModel.search.results_per_page + 1)) {
-                TextButton(onClick = {
-                    jobViewModel.search.page++
-                    jobViewModel.getJobFromAPI()
-                }) {
+                TextButton(
+                    onClick = {
+                        jobViewModel.search.page++
+                        jobViewModel.getJobFromAPI()
+                    }
+                ) {
                     Text("Next")
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowRight,
@@ -461,6 +512,9 @@ fun TurnPage(
     }
     Spacer(modifier = modifier.height(4.dp))
 }
+
+
+
 
 //@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
