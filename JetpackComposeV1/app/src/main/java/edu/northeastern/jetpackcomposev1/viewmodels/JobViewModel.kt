@@ -57,15 +57,30 @@ class JobViewModel: ViewModel() {
         val app_id = "?app_id=${search.app_id}"
         val app_key = "&app_key=${search.app_key}"
         val results_per_page = "&results_per_page=${search.results_per_page}"
-
         var requestURL = "${requestHead}/${search.country}/search/${search.page}" + app_id + app_key + results_per_page
-        if (search.what.isNotEmpty()) { requestURL += "&what=${urlEncoding(search.what)}" }
-        if (search.what_and.isNotEmpty()) { requestURL += "&what_end=${search.what_and}" }
+
+        if (search.what.isNotEmpty()) { requestURL += "&what=${urlEncoding(search.what.trim())}" }
+        if (search.what_and.isNotEmpty()) { requestURL += "&what_and=${search.what_and}" }
         if (search.what_phrase.isNotEmpty()) { requestURL += "&what_phrase=${search.what_phrase}" }
         if (search.what_or.isNotEmpty()) { requestURL += "&what_or=${search.what_or}" }
         if (search.what_exclude.isNotEmpty()) { requestURL += "&what_exclude=${search.what_exclude}" }
         if (search.title_only.isNotEmpty()) { requestURL += "&title_only=${search.title_only}" }
-        if (search.where.isNotEmpty()) { requestURL += "&where=${urlEncoding(search.where)}&distance=${search.distance}" }
+        if (search.where.isNotEmpty()) { requestURL += "&where=${urlEncoding(search.where.trim())}&distance=${search.distance}" }
+
+        requestURL += "&max_days_old=${search.max_days_old}"
+        requestURL += "&sort_by=${search.sort_by}"
+
+        if (search.salary_min != 0) { requestURL += "&salary_min=${search.salary_min}" }
+        if (search.salary_max != 0) { requestURL += "&salary_max=${search.salary_max}" }
+        if (search.salary_include_unknown) { requestURL += "&salary_include_unknown=1" }
+
+        if (search.full_time && !search.part_time) { requestURL += "&full_time=1" }
+        if (search.part_time && !search.full_time) { requestURL += "&part_time=1" }
+
+        if (search.contract && !search.permanent) { requestURL += "&contract=1" }
+        if (search.permanent && !search.contract) { requestURL += "&permanent=1" }
+
+        if (search.company.isNotEmpty()) { requestURL += "&company=${search.company}" }
 
         return requestURL
     }
@@ -73,6 +88,7 @@ class JobViewModel: ViewModel() {
     fun getJobFromAPI() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                // Your long-running operation here
                 running = true
                 val client = HttpClient(Android) {
                     install(ContentNegotiation) {
@@ -91,26 +107,24 @@ class JobViewModel: ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
-                val myRef = database.getReference("users/${auth.currentUser?.uid}/jobSearchHistory")
-                myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for (snapshot in dataSnapshot.children) {
-                            val jobSearchHistoryModel = snapshot.getValue(JobSearchHistoryModel::class.java)
-                            if (jobSearchHistoryModel != null) {
-                                // there is a Recomposition issue, i use this approach to fix the problem, later we can find a better solution
-                                val index = jobSearchHistoryList.indexOfFirst { it.id == jobSearchHistoryModel.id }
-                                if (index == -1) {
+                if (jobSearchHistoryList.isEmpty()) {
+                    val myRef = database.getReference("users/${auth.currentUser?.uid}/jobSearchHistory")
+                    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            for (snapshot in dataSnapshot.children) {
+                                val jobSearchHistoryModel = snapshot.getValue(JobSearchHistoryModel::class.java)
+                                if (jobSearchHistoryModel != null) {
                                     jobSearchHistoryList.add(jobSearchHistoryModel)
                                 }
                             }
                         }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        // Failed to read value
-                        Log.w("debug", "Failed to read job search history from DB.", error.toException())
-                    }
-                })
+                        override fun onCancelled(error: DatabaseError) {
+                            // Failed to read value
+                            Log.w("debug", "Failed to read job search history from DB.", error.toException())
+                        }
+                    })
+                }
             }
         }
     }

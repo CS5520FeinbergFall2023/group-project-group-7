@@ -11,7 +11,7 @@ class SearchModel(
 ) {
     var country by mutableStateOf(CountryCode.US.code)
     var page by mutableIntStateOf(1) // go to which page, start from 1
-    var results_per_page by mutableIntStateOf(30)
+    var results_per_page by mutableIntStateOf(10)
     var what by mutableStateOf("")
     var what_and by mutableStateOf("")
     var what_phrase by mutableStateOf("")
@@ -21,8 +21,8 @@ class SearchModel(
     var where by mutableStateOf("")
     var distance by mutableIntStateOf(5) // km
     var max_days_old by mutableIntStateOf(365)
-    var sort_dir by mutableStateOf(SortDirection.DESCENDING.code)
-    var sort_by by mutableStateOf(SortBy.RELEVANCE.code)
+    var sort_dir by mutableStateOf(SortDirection.DESCENDING.code) // this field is abandoned by the api
+    var sort_by by mutableStateOf(SortByCode.RELEVANCE.code)
     var salary_min by mutableIntStateOf(0)
     var salary_max by mutableIntStateOf(0)
     var salary_include_unknown by mutableStateOf(false)

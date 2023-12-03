@@ -274,7 +274,7 @@ fun JobContent(
     ) {
         Text(
             text = job.title,
-            color = MaterialTheme.colorScheme.primary,
+            //color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium
         )
         Spacer(modifier = modifier.height(4.dp))
