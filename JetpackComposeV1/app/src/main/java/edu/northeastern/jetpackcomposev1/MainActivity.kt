@@ -54,9 +54,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDeepLink
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
@@ -65,7 +69,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.JobDetailScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobFavoriteScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.LaunchScreen
-import edu.northeastern.jetpackcomposev1.ui.screens.PdfViewUI
+import edu.northeastern.jetpackcomposev1.ui.screens.PDFViewScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
 import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
@@ -312,14 +316,20 @@ fun HomeScreen(
                     composable("Job_Search") { JobSearchScreen(navController, jobViewModel, applicationViewModel) }
                     composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
-                    composable("My_Resumes") { ResumesScreen(navController,resumeViewModel) }
+                    composable("My_Resumes") { ResumesScreen(resumeViewModel,navController = navController) }
                     composable("Profile") { ProfileScreen() }
                     composable("Settings") { SettingsScreen() }
-                    composable("PdfViewUI/{url}") { navBackStackEntry ->
-                        val url = navBackStackEntry.arguments?.getString("url")
-                        if (url != null) {
-                            PdfViewUI(navController, url)
-                        }
+                    composable("PDFViewScreen") {
+                        PDFViewScreen(
+                            viewModel = resumeViewModel,
+                            onNavigateToResumeManagement = {
+                                navController.navigate("My_Resumes") {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+                        )
                     }
                     composable("Job_Details/{index}") {navBackStackEntry ->
                         val index = navBackStackEntry.arguments?.getString("index")?.toInt()

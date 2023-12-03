@@ -79,6 +79,8 @@ class ResumeViewModel: ViewModel() {
     var newResume = ResumeModel()
     var resumeList: SnapshotStateList<ResumeModel> = mutableStateListOf()
 
+    val bouquetViewModel: BouquetViewModel = BouquetViewModel()
+
     private val uiState = MutableStateFlow(ResumeListViewState(false, resumeList= resumeList ))
     fun consumableState() = uiState.asStateFlow()
 
@@ -152,7 +154,6 @@ class ResumeViewModel: ViewModel() {
         when(viewEvent){
             is ResumeViewEvent.DeleteResume -> {
                 val currentState = uiState.value
-                val updatedResume: ResumeModel
                 Log.d("removed index", viewEvent.index.toString())
                 Log.d("auth id check", (auth.uid !== null).toString())
                 var resReference = FirebaseDatabase.getInstance().getReference("users/${auth.currentUser?.uid}/resumes")
@@ -162,7 +163,6 @@ class ResumeViewModel: ViewModel() {
                         var fileName = it.child("fileName").value
                         var filePath = it.child("filePath").value
                         val nickName = it.child("nickName").value
-//                        var count = it.child("count").value
                         val updatedResume = mapOf<String, String>(
                             "id" to id.toString(),
                             "fileName" to fileName.toString(),
@@ -188,6 +188,8 @@ class ResumeViewModel: ViewModel() {
             is ResumeViewEvent.UpdateView -> {
                 uiState.value = uiState.value.copy(resumeList = resumeList)
             }
+
+            else -> {}
         }
     }
 
@@ -205,5 +207,5 @@ data class ResumeListViewState(var isLoading:Boolean = true, val resumeList:List
 sealed class ResumeViewEvent{
     object AddResume : ResumeViewEvent()
     data class DeleteResume(val resume : ResumeModel, val index : Int): ResumeViewEvent()
-    object UpdateView : ResumeViewEvent()
+    data class UpdateView(val resume: ResumeModel) : ResumeViewEvent()
 }
