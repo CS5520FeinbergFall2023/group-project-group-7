@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
@@ -55,15 +56,11 @@ fun SearchJobSheet(
             item {
                 SearchJobInput(jobViewModel = jobViewModel)
                 SearchJobButton(
-                    onSearchButtonClicked = { jobViewModel.getJobFromAPI() },
-                    onSetJobSearchHistory = { jobViewModel.setJobSearchHistoryToDB(true) },
+                    jobViewModel = jobViewModel,
                     onCloseSheet = { onCloseSheet() }
                 )
                 SearchJobHistory(
                     jobViewModel = jobViewModel,
-                    onSearchButtonClicked = { jobViewModel.getJobFromAPI() },
-                    onSetJobSearchHistory = { jobViewModel.setJobSearchHistoryToDB(true) },
-                    onDeleteJobSearchHistory = { index -> jobViewModel.setJobSearchHistoryToDB(false, index) },
                     onCloseSheet = { onCloseSheet() }
                 )
                 Spacer(modifier = modifier.height(64.dp))
@@ -92,9 +89,19 @@ fun SearchJobInput(
             onValueChange = { jobViewModel.search.what = it },
             label = { Text("Search") },
             leadingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = "Search") },
-            supportingText = { Text("Multiple terms may be space separated") },
+            //supportingText = { Text("Multiple terms may be space separated") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             singleLine = false
+        )
+        OutlinedTextField(
+            modifier = modifier.fillMaxWidth(),
+            value = jobViewModel.search.company,
+            onValueChange = { jobViewModel.search.company = it },
+            label = { Text("Company") },
+            leadingIcon = { Icon(imageVector = Icons.Outlined.Home, contentDescription = "Company") },
+            //supportingText = { Text("Only ") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            singleLine = true
         )
         Row(modifier = modifier.padding(vertical = 4.dp)) {
             OutlinedTextField(
@@ -124,8 +131,7 @@ fun SearchJobInput(
 
 @Composable
 fun SearchJobButton(
-    onSearchButtonClicked: () -> Unit,
-    onSetJobSearchHistory: () -> Unit,
+    jobViewModel: JobViewModel,
     onCloseSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -134,8 +140,9 @@ fun SearchJobButton(
             .padding(vertical = 4.dp)
             .fillMaxWidth(),
         onClick = {
-            onSearchButtonClicked()
-            onSetJobSearchHistory()
+            jobViewModel.search.page = 1
+            jobViewModel.getJobFromAPI()
+            jobViewModel.setJobSearchHistoryToDB(true)
             onCloseSheet()
         }
     ) {
@@ -146,9 +153,6 @@ fun SearchJobButton(
 @Composable
 fun SearchJobHistory(
     jobViewModel: JobViewModel,
-    onSearchButtonClicked: () -> Unit,
-    onSetJobSearchHistory: () -> Unit,
-    onDeleteJobSearchHistory: (Int) -> Unit,
     onCloseSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -158,7 +162,7 @@ fun SearchJobHistory(
                 headlineContent = { Text(item.what.ifEmpty { "Any job" }) },
                 supportingContent = { Text("${item.where.ifEmpty { "Any place" }} - ${item.distance} km") },
                 trailingContent = {
-                    IconButton(onClick = { onDeleteJobSearchHistory(index) }) {
+                    IconButton(onClick = { jobViewModel.setJobSearchHistoryToDB(false, index) }) {
                         Icon(
                             imageVector = Icons.Default.Clear,
                             contentDescription = "Delete"
@@ -169,8 +173,9 @@ fun SearchJobHistory(
                     jobViewModel.search.what = item.what
                     jobViewModel.search.where = item.where
                     jobViewModel.search.distance = item.distance
-                    onSearchButtonClicked()
-                    onSetJobSearchHistory()
+                    jobViewModel.search.page = 1
+                    jobViewModel.getJobFromAPI()
+                    jobViewModel.setJobSearchHistoryToDB(true)
                     onCloseSheet()
                 }
             )

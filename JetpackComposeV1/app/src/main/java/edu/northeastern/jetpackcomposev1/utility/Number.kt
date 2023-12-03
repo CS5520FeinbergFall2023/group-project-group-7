@@ -23,5 +23,5 @@ fun convertSalary(salary_is_predicted: String, salaryMin: Double, salaryMax: Dou
 }
 
 fun convertNumberOfJobs(count: Int): String {
-    return "$count jobs find"
+    return if (count == 0) "0 job find" else "$count jobs find"
 }

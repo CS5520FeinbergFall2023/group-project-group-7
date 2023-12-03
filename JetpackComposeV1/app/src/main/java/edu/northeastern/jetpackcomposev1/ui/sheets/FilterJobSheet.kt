@@ -49,7 +49,7 @@ fun FilterJobSheet(
             item {
                 FilterJobInput(jobViewModel = jobViewModel)
                 FilterJobButton(
-                    onFilterButtonClicked = { jobViewModel.getJobFromAPI() },
+                    jobViewModel = jobViewModel,
                     onCloseSheet = { onCloseSheet() }
                 )
                 Spacer(modifier = modifier.height(64.dp))
@@ -295,7 +295,7 @@ fun ContractType(
 
 @Composable
 fun FilterJobButton(
-    onFilterButtonClicked: () -> Unit,
+    jobViewModel: JobViewModel,
     onCloseSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -304,7 +304,8 @@ fun FilterJobButton(
             .padding(vertical = 4.dp)
             .fillMaxWidth(),
         onClick = {
-            onFilterButtonClicked()
+            jobViewModel.search.page = 1
+            jobViewModel.getJobFromAPI()
             onCloseSheet()
         }
     ) {

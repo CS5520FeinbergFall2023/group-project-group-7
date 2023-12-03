@@ -3,6 +3,7 @@ package edu.northeastern.jetpackcomposev1.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Search
@@ -31,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,11 +54,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import edu.northeastern.jetpackcomposev1.R
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
+import edu.northeastern.jetpackcomposev1.models.search.SearchModel
 import edu.northeastern.jetpackcomposev1.ui.sheets.DetailJobSheet
 import edu.northeastern.jetpackcomposev1.ui.sheets.FilterJobSheet
 import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
@@ -67,6 +74,7 @@ import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
 @Composable
 fun JobSearchScreen(
+    navController: NavHostController,
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     modifier: Modifier = Modifier
@@ -79,6 +87,7 @@ fun JobSearchScreen(
             item {
                 SearchSection(jobViewModel = jobViewModel)
                 JobLists(
+                    navController = navController,
                     jobs = jobViewModel.response.results,
                     jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
                     jobApplicationList = applicationViewModel.jobApplicationList,
@@ -86,6 +95,7 @@ fun JobSearchScreen(
                     onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
                     onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
                 )
+                TurnPage(jobViewModel = jobViewModel)
             }
         }
     }
@@ -136,7 +146,7 @@ fun SearchSection(
                         contentDescription = "Search"
                     )
                     Text(
-                        text = jobViewModel.search.what.ifEmpty { "Find a job that interests you" },
+                        text = jobViewModel.search.what.ifEmpty { "Any job" },
                         maxLines = 1,
                         modifier = modifier.padding(start = 8.dp)
                     )
@@ -151,15 +161,15 @@ fun SearchSection(
                             contentDescription = "Location"
                         )
                         Text(
-                            text = jobViewModel.search.where.ifEmpty { "Any work location" },
+                            text = jobViewModel.search.where.ifEmpty { "Any place" },
                             maxLines = 1,
                             modifier = modifier.padding(start = 8.dp)
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.3f)) {
                         Icon(
-                            imageVector = Icons.Outlined.Home,
-                            contentDescription = "Location"
+                            imageVector = Icons.Outlined.Lock,
+                            contentDescription = "Distance"
                         )
                         Text(
                             text = "${jobViewModel.search.distance} km",
@@ -195,6 +205,7 @@ fun SearchSection(
 
 @Composable
 fun JobLists(
+    navController: NavHostController,
     jobs: List<JobModel>,
     jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel>,
     jobApplicationList: SnapshotStateList<JobApplicationModel>,
@@ -204,23 +215,26 @@ fun JobLists(
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.height(4.dp))
-    jobs.forEach { job ->
+    jobs.forEachIndexed { index, job ->
         JobCard(
+            navController = navController,
             jobViewedHistoryList = jobViewedHistoryList,
             jobApplicationList = jobApplicationList,
+            index = index,
             job = job,
             onSetJobViewedHistory = onSetJobViewedHistory,
             onFindJobInFavorite = onFindJobInFavorite,
             onSetJobFavorite = onSetJobFavorite,
         )
     }
-    Spacer(modifier = modifier.height(4.dp))
 }
 
 @Composable
 fun JobCard(
+    navController: NavHostController,
     jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel>,
     jobApplicationList: SnapshotStateList<JobApplicationModel>,
+    index: Int,
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
@@ -239,6 +253,8 @@ fun JobCard(
                 job = job
             )
             JobContent(
+                navController = navController,
+                index = index,
                 job = job,
                 onSetJobViewedHistory = onSetJobViewedHistory,
             )
@@ -253,23 +269,18 @@ fun JobCard(
 
 @Composable
 fun JobContent(
+    navController: NavHostController,
+    index: Int,
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showDetailJobSheet by rememberSaveable { mutableStateOf(false) }
-    if (showDetailJobSheet) {
-        DetailJobSheet(
-            job = job,
-            onCloseSheet = { showDetailJobSheet = false }
-        )
-    }
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
                 onSetJobViewedHistory(job.id)
-                showDetailJobSheet = true
+                navController.navigate("Job_Details/${index}")
             }
     ) {
         Text(
@@ -336,7 +347,7 @@ fun CardHead(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.fillMaxWidth()
     ) {
-        Row(modifier = modifier.weight(0.5f)) {
+        Column(modifier = modifier.weight(0.5f)) {
             if(checkIfNew(job.created)) {
                 Surface(
                     shape = MaterialTheme.shapes.small,
@@ -352,7 +363,7 @@ fun CardHead(
                 }
             }
         }
-        Row(modifier = modifier.weight(0.5f), horizontalArrangement = Arrangement.End) {
+        Column(modifier = modifier.weight(0.5f), horizontalAlignment = Alignment.End) {
             if(jobApplicationList.any { it.id == job.id } ) {
                 Text(
                     text = "Applied",
@@ -408,6 +419,47 @@ fun CardFoot(
             )
         }
     }
+}
+
+@Composable
+fun TurnPage(
+    jobViewModel: JobViewModel,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(modifier = modifier.weight(0.5f)) {
+            if (jobViewModel.search.page != 1) {
+                TextButton(onClick = {
+                        jobViewModel.search.page--
+                        jobViewModel.getJobFromAPI()
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowLeft,
+                        contentDescription = "Left arrow"
+                    )
+                    Text("Previous")
+                }
+            }
+        }
+        Column(modifier = modifier.weight(0.5f), horizontalAlignment = Alignment.End) {
+            if (jobViewModel.search.page != (jobViewModel.response.count / jobViewModel.search.results_per_page + 1)) {
+                TextButton(onClick = {
+                    jobViewModel.search.page++
+                    jobViewModel.getJobFromAPI()
+                }) {
+                    Text("Next")
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = "Right arrow"
+                    )
+                }
+            }
+        }
+    }
+    Spacer(modifier = modifier.height(4.dp))
 }
 
 //@OptIn(ExperimentalMaterial3Api::class)

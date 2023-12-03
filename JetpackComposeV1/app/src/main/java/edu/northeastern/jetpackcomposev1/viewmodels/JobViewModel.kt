@@ -42,7 +42,9 @@ class JobViewModel: ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
     val database: FirebaseDatabase = Firebase.database
     val storage: FirebaseStorage = Firebase.storage
+
     var running: Boolean by mutableStateOf(false)
+
     var search: SearchModel by mutableStateOf(SearchModel())
     var response: JobSearchResultModel by mutableStateOf(JobSearchResultModel())
     var jobSearchHistoryList: SnapshotStateList<JobSearchHistoryModel> = mutableStateListOf()
@@ -80,7 +82,7 @@ class JobViewModel: ViewModel() {
         if (search.contract && !search.permanent) { requestURL += "&contract=1" }
         if (search.permanent && !search.contract) { requestURL += "&permanent=1" }
 
-        if (search.company.isNotEmpty()) { requestURL += "&company=${search.company}" }
+        if (search.company.isNotEmpty()) { requestURL += "&company=${urlEncoding(search.company.trim())}" }
 
         return requestURL
     }
@@ -152,26 +154,24 @@ class JobViewModel: ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
-                val myRef = database.getReference("users/${auth.currentUser?.uid}/jobViewedHistory")
-                myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for (snapshot in dataSnapshot.children) {
-                            val jobViewedHistoryModel = snapshot.getValue(JobViewedHistoryModel::class.java)
-                            if (jobViewedHistoryModel != null) {
-                                // there is a Recomposition issue, i use this approach to fix the problem, later we can find a better solution
-                                val index = jobViewedHistoryList.indexOfFirst { it.id == jobViewedHistoryModel.id }
-                                if (index == -1) {
+                if (jobViewedHistoryList.isEmpty()) {
+                    val myRef = database.getReference("users/${auth.currentUser?.uid}/jobViewedHistory")
+                    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            for (snapshot in dataSnapshot.children) {
+                                val jobViewedHistoryModel = snapshot.getValue(JobViewedHistoryModel::class.java)
+                                if (jobViewedHistoryModel != null) {
                                     jobViewedHistoryList.add(jobViewedHistoryModel)
                                 }
                             }
                         }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        // Failed to read value
-                        Log.w("debug", "Failed to read job viewed history from DB.", error.toException())
-                    }
-                })
+                        override fun onCancelled(error: DatabaseError) {
+                            // Failed to read value
+                            Log.w("debug", "Failed to read job viewed history from DB.", error.toException())
+                        }
+                    })
+                }
             }
         }
     }
@@ -194,26 +194,24 @@ class JobViewModel: ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
-                val myRef = database.getReference("users/${auth.currentUser?.uid}/jobFavorites")
-                myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for (snapshot in dataSnapshot.children) {
-                            val jobFavoriteModel = snapshot.getValue(JobFavoriteModel::class.java)
-                            if (jobFavoriteModel != null) {
-                                // there is a Recomposition issue, i use this approach to fix the problem, later we can find a better solution
-                                val index = jobFavoriteList.indexOfFirst { it.id == jobFavoriteModel.id }
-                                if (index == -1) {
+                if (jobFavoriteList.isEmpty()) {
+                    val myRef = database.getReference("users/${auth.currentUser?.uid}/jobFavorites")
+                    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            for (snapshot in dataSnapshot.children) {
+                                val jobFavoriteModel = snapshot.getValue(JobFavoriteModel::class.java)
+                                if (jobFavoriteModel != null) {
                                     jobFavoriteList.add(jobFavoriteModel)
                                 }
                             }
                         }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        // Failed to read value
-                        Log.w("debug", "Failed to read favorites from DB.", error.toException())
-                    }
-                })
+                        override fun onCancelled(error: DatabaseError) {
+                            // Failed to read value
+                            Log.w("debug", "Failed to read favorites from DB.", error.toException())
+                        }
+                    })
+                }
             }
         }
     }

@@ -141,13 +141,13 @@ fun JobDetailContent(job: JobModel, modifier: Modifier = Modifier) {
 
     val context = LocalContext.current
 
-    var showDetailJobSheet by rememberSaveable { mutableStateOf(false) }
+    /*var showDetailJobSheet by rememberSaveable { mutableStateOf(false) }
     if (showDetailJobSheet) {
         DetailJobSheet(
             job = job,
             onCloseSheet = { showDetailJobSheet = false }
         )
-    }
+    }*/
 
 
     OutlinedCard(
@@ -231,7 +231,7 @@ fun JobDetailContent(job: JobModel, modifier: Modifier = Modifier) {
             modifier = modifier
                 .fillMaxWidth()
                 .padding( 16.dp)
-                .verticalScroll(rememberScrollState())
+                // .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = job.description,
@@ -289,7 +289,7 @@ fun JobDetailContent(job: JobModel, modifier: Modifier = Modifier) {
 
 
 
-@Preview
+/*@Preview
 @Composable
 fun JobDetailContentPreview() {
     val sampleJob = JobModel(
@@ -331,6 +331,6 @@ fun JobDetailContentPreview() {
     )
 
     JobDetailContent(job = sampleJob)
-}
+}*/
 
 

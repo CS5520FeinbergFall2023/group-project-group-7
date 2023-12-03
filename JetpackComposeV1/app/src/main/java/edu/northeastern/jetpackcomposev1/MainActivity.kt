@@ -61,6 +61,7 @@ import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobApplicationScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.JobDetailScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobFavoriteScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.LaunchScreen
@@ -151,30 +152,30 @@ fun MyApp() {
         composable("Launch") {
             LaunchScreen(
                 userViewModel = userViewModel,
-                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
-                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
+                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } },
+                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } }
             ) }
         composable("Sign_In") {
             SignInScreen(
                 userViewModel = userViewModel,
-                onNavigateToSignUp = { navController.navigate("Sign_Up") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
-                onNavigateToForgotPassword = { navController.navigate("Forgot_Password") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
-                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
+                onNavigateToSignUp = { navController.navigate("Sign_Up") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } },
+                onNavigateToForgotPassword = { navController.navigate("Forgot_Password") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } },
+                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } }
             )
         }
         composable("Sign_Up") {
             SignUpScreen(
                 userViewModel = userViewModel,
-                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
-                onNavigateToForgotPassword = { navController.navigate("Forgot_Password") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
-                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
+                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } },
+                onNavigateToForgotPassword = { navController.navigate("Forgot_Password") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } },
+                onNavigateToHome = { navController.navigate("Home") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } }
             )
         }
         composable("Forgot_Password") {
             ForgotPasswordScreen(
                 userViewModel = userViewModel,
-                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } },
-                onNavigateToSignUp = { navController.navigate("Sign_Up") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
+                onNavigateToSignIn = { navController.navigate("Sign_In") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } },
+                onNavigateToSignUp = { navController.navigate("Sign_Up") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } }
             )
         }
         composable("Home") {
@@ -183,7 +184,7 @@ fun MyApp() {
                 jobViewModel = jobViewModel,
                 applicationViewModel = applicationViewModel,
                 resumeViewModel = resumeViewModel,
-                onNavigateToMyApp = { navController.navigate("My_App") { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} } }
+                onNavigateToMyApp = { navController.navigate("My_App") { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} } }
             )
         }
         composable("My_App") {
@@ -256,7 +257,7 @@ fun HomeScreen(
                             onClick = {
                                 selectedItemIndex = index
                                 scope.launch { drawerState.close() }
-                                navController.navigate(item.route) { popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {inclusive = true} }
+                                navController.navigate(item.route) { popUpTo(navController.currentBackStackEntry?.destination?.route!!) {inclusive = true} }
                             },
                             icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -308,7 +309,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(contentPadding)
             ) {
                 NavHost(navController = navController, startDestination = "Job_Search") {
-                    composable("Job_Search") { JobSearchScreen(jobViewModel, applicationViewModel) }
+                    composable("Job_Search") { JobSearchScreen(navController, jobViewModel, applicationViewModel) }
                     composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
                     composable("My_Resumes") { ResumesScreen(navController,resumeViewModel) }
@@ -318,6 +319,12 @@ fun HomeScreen(
                         val url = navBackStackEntry.arguments?.getString("url")
                         if (url != null) {
                             PdfViewUI(navController, url)
+                        }
+                    }
+                    composable("Job_Details/{index}") {navBackStackEntry ->
+                        val index = navBackStackEntry.arguments?.getString("index")?.toInt()
+                        if (index != null) {
+                            JobDetailScreen(index = index, jobViewModel = jobViewModel)
                         }
                     }
                 }
