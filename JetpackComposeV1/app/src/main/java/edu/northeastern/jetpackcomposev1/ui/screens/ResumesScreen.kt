@@ -220,7 +220,7 @@ fun ResumeUI(resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, on
                     openDialog = true
                 }
             ){ Icon(
-                painterResource(id = R.drawable.`delete_24.xml`),
+                painterResource(id = R.drawable.delete_24),
                 contentDescription = "delete resume")
             }
         }
