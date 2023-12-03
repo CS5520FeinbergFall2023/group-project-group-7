@@ -98,7 +98,13 @@ class JobViewModel: ViewModel() {
                     }
                 }
                 // Make the HTTP request.
-                response = client.get(setRequestURL()).body()
+                val httpResponse = client.get(setRequestURL())
+                if (httpResponse.status.value == 200) {
+                    response = httpResponse.body()
+                }
+                else {
+                    response = JobSearchResultModel()
+                }
                 client.close()
                 running = false
             }

@@ -80,6 +80,9 @@ fun FilterJobInput(
         ResultsPerPage(jobViewModel)
         Divider()
         Spacer(modifier = modifier.padding(top = 8.dp))
+        TravelDistance(jobViewModel)
+        Divider()
+        Spacer(modifier = modifier.padding(top = 8.dp))
         MaxDaysOld(jobViewModel)
         Divider()
         Spacer(modifier = modifier.padding(top = 8.dp))
@@ -173,6 +176,34 @@ fun ResultsPerPage(
                     onClick = {  },
                 )
                 Text("$item")
+            }
+        }
+    }
+}
+
+@Composable
+fun TravelDistance(
+    jobViewModel: JobViewModel,
+    modifier: Modifier = Modifier
+) {
+    val radioOptions = listOf(5, 10, 20, 40)
+    Column(modifier = modifier.selectableGroup()) {
+        Text(
+            text = "Travel distance",
+            fontWeight = FontWeight.Bold
+        )
+        radioOptions.forEach { item ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .clickable { jobViewModel.search.distance = item }
+            ) {
+                RadioButton(
+                    selected = jobViewModel.search.distance == item,
+                    onClick = {  },
+                )
+                Text( "Within $item km")
             }
         }
     }
@@ -299,16 +330,37 @@ fun FilterJobButton(
     onCloseSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Button(
-        modifier = modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth(),
-        onClick = {
-            jobViewModel.search.page = 1
-            jobViewModel.getJobFromAPI()
-            onCloseSheet()
+    Column {
+        Button(
+            modifier = modifier
+                .padding(vertical = 4.dp)
+                .fillMaxWidth(),
+            onClick = {
+                jobViewModel.search.page = 1
+                jobViewModel.getJobFromAPI()
+                onCloseSheet()
+            }
+        ) {
+            Text("Update")
         }
-    ) {
-        Text("Update")
+        Button(
+            modifier = modifier
+                .padding(vertical = 4.dp)
+                .fillMaxWidth(),
+            onClick = {
+                jobViewModel.search.country = CountryCode.US.code
+                jobViewModel.search.results_per_page = 10
+                jobViewModel.search.distance = 5
+                jobViewModel.search.max_days_old = 365
+                jobViewModel.search.sort_by = SortByCode.RELEVANCE.code
+                jobViewModel.search.salary_min = 0
+                jobViewModel.search.full_time = false
+                jobViewModel.search.part_time = false
+                jobViewModel.search.contract = false
+                jobViewModel.search.permanent = false
+            }
+        ) {
+            Text("Reset")
+        }
     }
 }

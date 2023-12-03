@@ -137,7 +137,7 @@ fun SearchSection(
         ) {
             Column(modifier = modifier
                 .fillMaxWidth()
-                .padding(all = 16.dp)
+                .padding(all = 12.dp)
                 .clickable { showSearchJobSheet = true }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -151,9 +151,9 @@ fun SearchSection(
                         modifier = modifier.padding(start = 8.dp)
                     )
                 }
-                Spacer(modifier = modifier.height(16.dp))
+                Spacer(modifier = modifier.height(12.dp))
                 Divider()
-                Spacer(modifier = modifier.height(16.dp))
+                Spacer(modifier = modifier.height(12.dp))
                 Row {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.weight(0.7f)) {
                         Icon(
