@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -55,16 +56,18 @@ fun EventUpdateScreen(
     modifier: Modifier = Modifier,
 
     ) {
-    val sheetState = rememberModalBottomSheetState()
-    var selectedStatus by rememberSaveable { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    var newDate by rememberSaveable { mutableStateOf("") }
+
     val application by applicationViewModel.selectedApplication
     val event by applicationViewModel.selectedEvent
+    var selectedStatus by rememberSaveable { mutableStateOf(event!!.status) }
+    var newDate by rememberSaveable { mutableStateOf(event!!.date) }
     var initialDateMillis: Long = 0
     initialDateMillis = if (event!!.date != "") {
+        //if it is not empty, then we are updating an existing event
         dateToMillis(event!!.date)
     } else {
+        //if it is empty, then we are creating a new event
         dateToMillis(millisToDate(System.currentTimeMillis()))
     }
 
@@ -73,12 +76,13 @@ fun EventUpdateScreen(
             .fillMaxWidth()
             .fillMaxHeight()
             //add this for the keyboard to not overlap the input
-            .imePadding(),
+            .imePadding()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (event != null) {
-            //val date by remember { mutableLongStateOf(initialDateMillis) }
-            val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+            val date by remember { mutableLongStateOf(initialDateMillis) }
+            val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input, initialDisplayedMonthMillis = date)
             DatePicker(state = dateState, modifier = Modifier.padding(16.dp))
             newDate = dateState.selectedDateMillis?.let { millisToDate(it) }.toString()
         }

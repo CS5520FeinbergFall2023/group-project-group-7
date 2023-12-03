@@ -185,36 +185,33 @@ fun TimelineComp(
         if (timeLine.count == 1) {
             LastNode(timeLine, onEditClicked, onDeleteClicked)
         } else {
-            LazyColumn() {
-                itemsIndexed(timeLine.results) { index, event ->
-                    val color = NodeColors.values()[index % NodeColors.values().size].modifiedColor
-                    val nextColor =
-                        NodeColors.values()[(index + 1) % NodeColors.values().size].modifiedColor
-                    //timeLine.results = timeLine.results.sortedBy { it.date }
 
-                    if (index != timeLine.count - 1) {
-                        TimelineNode(
-                            circleParameters = CircleParametersDefaults.circleParameters(
-                                backgroundColor = color,
-                            ),
-                            lineParameters = LineParametersDefaults.linearGradient(
-                                startColor = color,
-                                endColor = nextColor
-                            )
-                        ) { modifier ->
-                            EventCard(
-                                modifier,
-                                containerColor = color,
-                                event = timeLine.results[index],
-                                onEditClicked = { onEditClicked(it) },
-                                onDeleteClicked = { onDeleteClicked(it) }
-                            )
-                        }
+            timeLine.results.forEachIndexed { index, event ->
+                val color = NodeColors.values()[index % NodeColors.values().size].modifiedColor
+                val nextColor =
+                    NodeColors.values()[(index + 1) % NodeColors.values().size].modifiedColor
 
-                    } else {
-                        LastNode(timeLine, onEditClicked, onDeleteClicked)
+                if (index != timeLine.count - 1) {
+                    TimelineNode(
+                        circleParameters = CircleParametersDefaults.circleParameters(
+                            backgroundColor = color,
+                        ),
+                        lineParameters = LineParametersDefaults.linearGradient(
+                            startColor = color,
+                            endColor = nextColor
+                        )
+                    ) { modifier ->
+                        EventCard(
+                            modifier,
+                            containerColor = color,
+                            event = event,
+                            onEditClicked = { onEditClicked(it) },
+                            onDeleteClicked = { onDeleteClicked(it) }
+                        )
                     }
 
+                } else {
+                    LastNode(timeLine, onEditClicked, onDeleteClicked)
                 }
 
             }
@@ -258,18 +255,18 @@ private fun EventCard(
                     .weight(3f)
 
             )
-                IconButton(
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .weight(1f),
-                    onClick = { onDeleteClicked(event) },
-                ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
-                }
-
+            IconButton(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .weight(1f),
+                onClick = { onDeleteClicked(event) },
+            ) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
             }
+
         }
     }
+}
 
 
 @Composable

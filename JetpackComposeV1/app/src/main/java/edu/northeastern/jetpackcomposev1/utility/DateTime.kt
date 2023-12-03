@@ -47,14 +47,12 @@ fun getCurrentZonedDateTime(): String {
 fun dateToMillis(dateString: String): Long {
     val format = SimpleDateFormat("yyyy-MM-dd")
     format.timeZone = TimeZone.getTimeZone("UTC") // Set the desired time zone
-
     try {
         val date = format.parse(dateString)
         return date?.time ?: 0L
     } catch (e: Exception) {
         e.printStackTrace()
     }
-
     return 0L
 }
 fun millisToDate(millis: Long): String {

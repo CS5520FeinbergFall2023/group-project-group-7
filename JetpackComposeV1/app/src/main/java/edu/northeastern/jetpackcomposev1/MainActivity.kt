@@ -36,11 +36,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.enterAlwaysScrollBehavior
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,7 +56,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import edu.northeastern.jetpackcomposev1.application.ApplicationDetailScreen
 import edu.northeastern.jetpackcomposev1.navigation.Screens
-import edu.northeastern.jetpackcomposev1.ui.screens.ApplicationUpdateScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.CreateNewApplicationScreen
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
@@ -71,14 +67,11 @@ import edu.northeastern.jetpackcomposev1.ui.screens.JobSearchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.LaunchScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
-import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
 import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
-
 
 import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
 import edu.northeastern.jetpackcomposev1.ui.sheets.EventUpdateScreen
-
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
@@ -312,14 +305,14 @@ fun HomeScreen(
             Column(
                 modifier = Modifier.padding(contentPadding)
             ) {
-                NavHost(navController = navController, startDestination = "Job_Search") {
+                NavHost(navController = navController, startDestination = Screens.JobSearchScreen.route) {
                     composable(Screens.JobSearchScreen.route) {
                         JobSearchScreen(
                             jobViewModel, applicationViewModel,
                             onNavigateToJobDetail = {
                                 navController.navigate(Screens.JobDetailScreen.route) {
                                     popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                        inclusive = true
+                                        inclusive = false
                                     }
                                 }
                             },
@@ -332,7 +325,7 @@ fun HomeScreen(
                             onNavigateToJobDetail = {
                                 navController.navigate(Screens.JobDetailScreen.route) {
                                     popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                        inclusive = true
+                                        inclusive = false
                                     }
                                 }
                             }
@@ -352,7 +345,7 @@ fun HomeScreen(
                             onNavigateToApplicationUpdate = {
                                 navController.navigate(Screens.CreateNewApplicationScreen.route) {
                                     popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                        inclusive = true
+                                        inclusive = false
                                     }
                                 }
                             })
@@ -363,27 +356,11 @@ fun HomeScreen(
                             onNavigateToApplicationDetail = {
                                 navController.navigate(Screens.ApplicationDetailScreen.route) {
                                     popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                        inclusive = true
+                                        inclusive = false
                                     }
                                 }
                             }
                         )
-                    }
-                    composable(Screens.ApplicationUpdateScreen.route) {
-                        ApplicationUpdateScreen(jobViewModel, applicationViewModel,onCancel={
-                            navController.navigate(Screens.ApplicationDetailScreen.route) {
-                                popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                    inclusive = true
-                                }
-                            }
-                        }, onNext={
-                            navController.navigate(Screens.EventUpdateScreen.route) {
-                                popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                    inclusive = true
-                                }
-                            }
-                        })
-
                     }
                     composable(Screens.CreateNewApplicationScreen.route){
                         CreateNewApplicationScreen(jobViewModel, applicationViewModel, resumeViewModel, onNavigateToApplicationDetail = {
@@ -392,7 +369,14 @@ fun HomeScreen(
                                     inclusive = true
                                 }
                             }
-                        })
+                        },
+                            onNavigateToResume = {
+                                navController.navigate(Screens.ResumesScreen.route) {
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                        inclusive = true
+                                    }
+                                }
+                            })
                     }
                     composable(Screens.ApplicationDetailScreen.route) {
                         ApplicationDetailScreen(
@@ -402,7 +386,7 @@ fun HomeScreen(
                             onNavigateToEventUpdate = {
                                 navController.navigate(Screens.EventUpdateScreen.route) {
                                     popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                        inclusive = true
+                                        inclusive = false
                                     }
                                 }
                             },
@@ -438,7 +422,7 @@ fun HomeScreen(
                         })
 
                     }
-                    composable(Screens.ResumesScreen.route) { ResumesScreen(resumeViewModel) }
+                    composable(Screens.ResumesScreen.route) { ResumesScreen(navController,resumeViewModel) }
                     composable(Screens.ProfileScreen.route) { ProfileScreen() }
                     composable(Screens.SettingsScreen.route) { SettingsScreen() }
 
@@ -449,5 +433,4 @@ fun HomeScreen(
     if (!userViewModel.isSignedIn) {
         onNavigateToMyApp()
     }
-//    Log.d("debug", "Home render finished")
 }

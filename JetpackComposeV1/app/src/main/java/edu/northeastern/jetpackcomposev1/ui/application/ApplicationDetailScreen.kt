@@ -33,7 +33,7 @@ import edu.northeastern.jetpackcomposev1.models.Application.Event
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ApplicationJobInfo
 import edu.northeastern.jetpackcomposev1.ui.screens.ApplicationResumeInfo
-import edu.northeastern.jetpackcomposev1.ui.sheets.UpdateEventSheet
+import edu.northeastern.jetpackcomposev1.ui.screens.SearchSection
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
@@ -54,38 +54,33 @@ fun ApplicationDetailScreen(
     var application = selectedApplication
     val event by applicationViewModel.selectedEvent
 
-    var showEventUpdateSheet by rememberSaveable { mutableStateOf(false) }
-    if (showEventUpdateSheet && application != null) {
-        event?.let {
-            UpdateEventSheet(
-                applicationViewModel = applicationViewModel,
-                onCloseSheet = { showEventUpdateSheet = false })
-        }
-    }
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-    ) {
-        if (application != null) {
-            val job = application.job
-            ApplicationDetailJobInfo(modifier = Modifier, jobViewModel,job, onNavigateToJobDetail)
-            ApplicationResumeInfo(modifier = Modifier, resume = application.resume)
-            Row(horizontalArrangement = Arrangement.Center) {
-                FloatingActionButton(
+    LazyColumn(modifier = Modifier.padding(horizontal = 8.dp)) {
+        item {
 
-                    onClick = {
-                        //create a new event when old event is empty
-                        applicationViewModel.selectEvent(Event("", ""))
-                        onNavigateToEventUpdate()
-                        //showEventUpdateSheet = true
-                    }
+                val job = application!!.job
+                ApplicationDetailJobInfo(
+                    modifier = Modifier,
+                    jobViewModel,
+                    job,
+                    onNavigateToJobDetail
                 )
-                {
-                    Icon(Icons.Filled.Add, "Add Event.")
-                }
+                ApplicationResumeInfo(modifier = Modifier, resume = application.resume)
+                Row(horizontalArrangement = Arrangement.Center) {
+                    FloatingActionButton(
+
+                        onClick = {
+                            //create a new event when old event is empty
+                            applicationViewModel.selectEvent(Event("", ""))
+                            onNavigateToEventUpdate()
+                            //showEventUpdateSheet = true
+                        }
+                    )
+                    {
+                        Icon(Icons.Filled.Add, "Add Event.")
+                    }
+
             }
             TimelineComp(
                 application.timeLine,
@@ -104,18 +99,26 @@ fun ApplicationDetailScreen(
 
 
 @Composable
-fun ApplicationDetailJobInfo(modifier: Modifier, jobViewModel: JobViewModel, job: JobModel, onNavigateToJobDetail: () -> Unit){
+fun ApplicationDetailJobInfo(
+    modifier: Modifier,
+    jobViewModel: JobViewModel,
+    job: JobModel,
+    onNavigateToJobDetail: () -> Unit
+) {
     Column(
 
         modifier = modifier
             .padding(8.dp)
-            .clickable(onClick = {jobViewModel.selectJob(job)
-                onNavigateToJobDetail()})
-    ){Text(
-        text = job.title,
-        color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.titleMedium
-    )
+            .clickable(onClick = {
+                jobViewModel.selectJob(job)
+                onNavigateToJobDetail()
+            })
+    ) {
+        Text(
+            text = job.title,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium
+        )
         Spacer(modifier = modifier.height(4.dp))
         Text(
             text = job.company.display_name,

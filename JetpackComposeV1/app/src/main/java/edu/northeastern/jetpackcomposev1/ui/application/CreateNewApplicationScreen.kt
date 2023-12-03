@@ -52,6 +52,7 @@ fun CreateNewApplicationScreen(
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
     onNavigateToApplicationDetail: () -> Unit,
+    onNavigateToResume: () -> Unit
 ) {
     //job id passed from job detail screen
     val job by jobViewModel.selectedJob
@@ -65,7 +66,7 @@ fun CreateNewApplicationScreen(
     var eventList = mutableListOf<Event>()
     var resumeExpanded by remember { mutableStateOf(false) }
     var statusExpanded by remember { mutableStateOf(false) }
-
+    val resumeList = resumeViewModel.resumeList.filter { it.activeStatus }
 
     Column(
         modifier = Modifier
@@ -79,7 +80,18 @@ fun CreateNewApplicationScreen(
         //Todo: format it to a better display
         JobInfo(job)
         //Choose Resume
+        if (resumeList.isEmpty()) {
+            Text ( text = ("Sorry, You don't have any resume.") )
+            Row(){
+                Button(onClick = onNavigateToResume){
+                    Text(text = "Add New Resume")
+                }
+                Button(onClick = {selectedResume = "Applied Without Resume"}){
+                    Text(text = "Applied Without Resume")
+                }
+            }
 
+        } else {
         Box(modifier = Modifier.padding(30.dp)) {
             ExposedDropdownMenuBox(
                 expanded = resumeExpanded,
@@ -105,130 +117,132 @@ fun CreateNewApplicationScreen(
                     singleLine = true
                 )
 
-                ExposedDropdownMenu(
-                    expanded = resumeExpanded,
-                    onDismissRequest = { resumeExpanded = false }
+
+
+                    ExposedDropdownMenu(
+                        expanded = resumeExpanded,
+                        onDismissRequest = { resumeExpanded = false }
+                    ) {
+
+                        resumeList.forEach { selectedOption ->
+                            DropdownMenuItem(
+                                text = { (selectedOption) },
+                                onClick = {
+                                    //Todo: choose fileName or nickName to display
+                                    selectedResume = selectedOption.fileName
+                                    resumeExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+            //Choose Date
+            DatePicker(state = dateState, modifier = Modifier.padding(16.dp))
+            //Choose state
+            Box(modifier = Modifier.padding(30.dp)) {
+                ExposedDropdownMenuBox(
+                    expanded = statusExpanded,
+                    onExpandedChange = { statusExpanded = !statusExpanded },
                 ) {
-                    //TODO: replace with actual resume list
-                    val resumeList = listOf(
-                        "Software Engineer",
-                        "Full Stack Developer",
-                        "BackEnd Developer",
-                        "FrontEnd Developer"
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+
+                        readOnly = false,
+                        value = selectedStatus,
+                        onValueChange = { selectedStatus = it },
+                        label = { Text("State") },
+
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = statusExpanded)
+                        },
+
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        singleLine = true
                     )
 
-                    resumeList.forEach { selectedOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectedOption) },
-                            onClick = {
-                                selectedResume = selectedOption
-                                resumeExpanded = false
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                        )
+                    ExposedDropdownMenu(
+                        expanded = statusExpanded,
+                        onDismissRequest = { statusExpanded = false }
+                    ) {
+                        ApplicationStatus.values().forEach { selectedOption ->
+                            DropdownMenuItem(
+                                text = { Text(selectedOption.displayName) },
+                                onClick = {
+                                    selectedStatus = selectedOption.displayName
+                                    statusExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                            )
+                        }
                     }
                 }
+
             }
 
-        }
 
-        //Choose Date
-        DatePicker(state = dateState, modifier = Modifier.padding(16.dp))
-        //Choose state
-        Box(modifier = Modifier.padding(30.dp)) {
-            ExposedDropdownMenuBox(
-                expanded = statusExpanded,
-                onExpandedChange = { statusExpanded = !statusExpanded },
+            //Buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
-
-                    readOnly = false,
-                    value = selectedStatus,
-                    onValueChange = { selectedStatus = it },
-                    label = { Text("State") },
-
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = statusExpanded)
-                    },
-
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    singleLine = true
-                )
-
-                ExposedDropdownMenu(
-                    expanded = statusExpanded,
-                    onDismissRequest = { statusExpanded = false }
+                Button(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    ApplicationStatus.values().forEach { selectedOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectedOption.displayName) },
-                            onClick = {
-                                selectedStatus = selectedOption.displayName
-                                statusExpanded = false
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                        )
-                    }
+                    Text(text = "Cancel")
+                }
+                // create a new application and update to db in applicationViewModel
+
+                Button(
+                    onClick = {
+                        if (job != null) {
+                            newApplication = JobApplicationModel(job = job!!)
+                        }
+                        //Todo: replace with actual resume list
+                        val resume = ResumeModel("1", selectedResume, "Resume1")
+                        val newEvent: Event
+                        if (selectedStatus.isNotBlank()) {
+                            newEvent = Event(
+                                date = millisToDate(dateState.selectedDateMillis!!),
+                                status = selectedStatus
+                            )
+                        } else {
+                            newEvent = Event(
+                                date = millisToDate(dateState.selectedDateMillis!!),
+                                status = ApplicationStatus.APPLIED.displayName
+                            )
+                        }
+                        eventList.add(newEvent)
+                        val timeLine = TimeLine(results = eventList, count = eventList.size)
+                        //Todo: update the application or create a new application and update to db in applicationViewModel
+                        applicationViewModel.setJobApplicationToDB(job!!, resume, timeLine)
+                        onNavigateToApplicationDetail()
+                    },
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(text = "Save")
                 }
             }
 
         }
+    }
 
-
-        //Buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { /*TODO*/},
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(text = "Cancel")
-            }
-            // create a new application and update to db in applicationViewModel
-
-            Button(
-                onClick = {
-                    if (job != null) {
-                        newApplication = JobApplicationModel(job = job!!)
-                    }
-                    //Todo: replace with actual resume list
-                    val resume = ResumeModel("1",selectedResume, "Resume1")
-                    val newEvent: Event
-                    if (selectedStatus.isNotBlank()) {
-                        newEvent = Event(date = millisToDate(dateState.selectedDateMillis!!), status = selectedStatus)
-                    }else{
-                        newEvent = Event(date = millisToDate(dateState.selectedDateMillis!!), status = ApplicationStatus.APPLIED.displayName)
-                    }
-                    eventList.add(newEvent)
-                    val timeLine = TimeLine(results = eventList, count = eventList.size)
-                    //Todo: update the application or create a new application and update to db in applicationViewModel
-                    applicationViewModel.setJobApplicationToDB(job!!, resume, timeLine)
-                    onNavigateToApplicationDetail()
-                },
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(text = "Save")
-            }
+    @Composable
+    fun JobInfo(job: JobModel?) {
+        if (job != null) {
+            Text(text = job.title)
+            Text(text = job.company.display_name)
+            Text(text = job.location.display_name)
+            Log.d("CreateNewApplication", "CreateNewApplication:get a job  ${job.title}")
         }
-
     }
-}
-
-@Composable
-fun JobInfo(job: JobModel?) {
-    if (job != null) {
-        Text(text = job.title)
-        Text(text = job.company.display_name)
-        Text(text = job.location.display_name)
-        Log.d("CreateNewApplication", "CreateNewApplication:get a job  ${job.title}")
-    }
-}
 
