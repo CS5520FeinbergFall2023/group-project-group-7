@@ -1,8 +1,4 @@
 package edu.northeastern.jetpackcomposev1.ui.screens
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
@@ -12,22 +8,26 @@ import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,50 +42,52 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.storage.storageMetadata
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.rizzi.bouquet.HorizontalPDFReader
+import com.rizzi.bouquet.HorizontalPdfReaderState
+import com.rizzi.bouquet.ResourceType
+import com.rizzi.bouquet.VerticalPDFReader
+import com.rizzi.bouquet.VerticalPdfReaderState
 import edu.northeastern.jetpackcomposev1.R
 import edu.northeastern.jetpackcomposev1.models.resume.ResumeModel
-import edu.northeastern.jetpackcomposev1.utility.getCurrentZonedDateTime
+import edu.northeastern.jetpackcomposev1.viewmodels.BouquetViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewEvent
-import java.io.File
-import java.time.format.DateTimeFormatter
+import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ResumesScreen(navController: NavController, viewModel: ResumeViewModel, modifier: Modifier = Modifier) {
+fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navController: NavController) {
     val viewState = viewModel.consumableState().collectAsState()
     val isShowAlert by viewModel.isShowAlert.collectAsState()
 
@@ -159,9 +161,12 @@ fun ResumesScreen(navController: NavController, viewModel: ResumeViewModel, modi
                             itemsIndexed(viewState.value.resumeList.filter {
                                 it.nickName.contains(searchedText, ignoreCase = true) and (it.activeStatus == "true")
                             }) { index, item ->
-                                ResumeUI(resume = item,
+
+                                ResumeUI(viewModel= viewModel,
+                                    resume = item,
                                     onDeleteClick = {viewModel.handleViewEvent(ResumeViewEvent.DeleteResume(it, index))},
-                                    onPreviewClick = {navController.navigate("PdfViewUI/${it.filePath}")}
+                                    targetUrl = item.filePath,
+                                    navController = navController
                                 )
                                 Divider()
                             }
@@ -186,12 +191,13 @@ fun ResumesScreen(navController: NavController, viewModel: ResumeViewModel, modi
 }
 
 @Composable
-fun ResumeUI(resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, onPreviewClick: (resume: ResumeModel) -> Unit){
+fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, targetUrl:String ,navController: NavController){
     var openDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .padding(2.dp, 10.dp)
             .fillMaxWidth()
+            .clickable {viewModel.handleViewEvent(ResumeViewEvent.UpdateView(resume))}
     ) {
         Row(
             modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
@@ -216,7 +222,13 @@ fun ResumeUI(resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, on
                     .weight(0.6f)
                     .align(Alignment.CenterVertically),
                 onClick = {
-                    onPreviewClick(resume)
+                    Log.d("on click url", targetUrl)
+                    viewModel.bouquetViewModel.openResource(
+                        ResourceType.Remote(
+                            url = targetUrl
+                        )
+                    )
+                    navController.navigate("PDFViewScreen")
                 }
             ){ Icon(
                 painterResource(id = R.drawable.view_24),
@@ -254,35 +266,6 @@ fun ResumeUI(resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, on
     }
 }
 
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun PdfViewUI(navController: NavController, mUrl: String) {
-    Scaffold(
-        content = {
-            Column {
-                // back to resumes
-                IconButton(onClick = {navController.popBackStack()}) {
-                    Icons.Filled.ArrowBack
-                }
-
-                // WebView to display the PDF
-                AndroidView(factory = { context ->
-                    WebView(context).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        webViewClient = WebViewClient()
-                        loadUrl(mUrl)
-                    }
-                }, update = { webView ->
-                    webView.loadUrl(mUrl)
-                })
-            }
-        }
-    )
-}
 
 @Composable
 fun SearchView(state: MutableState<TextFieldValue>, placeholder: String) {
@@ -374,7 +357,6 @@ fun InputDialog(
 }
 
 @SuppressLint("Range")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelAndUpload(
     viewModel: ResumeViewModel,
@@ -466,8 +448,18 @@ fun LabelAndUpload(
     if (readyToUpload) {
         pdfUri?.let { viewModel.setResumeToStorage(pdfUri!!, displayName) }
         viewModel.setShowAlert(false)
-        viewModel.handleViewEvent(ResumeViewEvent.UpdateView)
     }
 }
+
+@Composable
+fun ModifyResume(viewModel: ResumeViewModel, title:String, resume: ResumeModel){
+    InputDialog(viewModel,title)
+    viewModel.newResume.nickName = resume.nickName
+    viewModel.newResume.fileName = resume.fileName
+}
+
+
+
+
 
 
