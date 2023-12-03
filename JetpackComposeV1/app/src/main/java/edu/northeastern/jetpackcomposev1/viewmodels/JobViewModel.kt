@@ -1,6 +1,7 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -51,6 +52,18 @@ class JobViewModel: ViewModel() {
     var jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel> = mutableStateListOf()
     var jobFavoriteList: SnapshotStateList<JobFavoriteModel> = mutableStateListOf()
 
+    //Jun's modification
+    //adding a new state to keep track of the current job
+    //the private val
+    private val _selectedJob = mutableStateOf<JobModel?>(null)
+    // expose the val to the outside, this is the getter
+    // usage: jobViewModel.selectedJob.value
+    val selectedJob: State<JobModel?>
+        get() = _selectedJob
+    //this function is for setting the selected job
+    fun selectJob(job: JobModel) {
+        _selectedJob.value = job
+    }
 
 
     /**********************************************************************************************/
