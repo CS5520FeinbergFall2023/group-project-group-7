@@ -106,5 +106,3 @@ class MyViewHolder extends RecyclerView.ViewHolder implements Dialog.DialogClick
         Toast.makeText(itemView.getContext(), "Update successfully", Toast.LENGTH_SHORT).show();
     }
 }
-
-
