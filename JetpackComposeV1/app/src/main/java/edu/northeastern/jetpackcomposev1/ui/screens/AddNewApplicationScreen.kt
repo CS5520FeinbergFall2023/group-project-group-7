@@ -58,29 +58,19 @@ fun CreateNewApplicationScreen(
     //job id passed from job detail screen
     val job by jobViewModel.selectedJob
 
-    // TODO: use resumeViewModel instead of sample data
-    val resumes = listOf(
-        "Software Engineer",
-        "Full Stack Developer",
-        "BackEnd Developer",
-        "FrontEnd Developer"
-    )
-
     var newApplication = JobApplicationModel()
     var jobTitle by remember { mutableStateOf(job?.title ?: "") }
     var companyName by remember { mutableStateOf(job?.company?.display_name ?: "") }
     var location by remember { mutableStateOf(job?.location?.display_name ?: "") }
-    val resumeOptions = resumes + "Add a Resume"
     var selectedResume by remember { mutableStateOf<String?>(null) }
     var selectedStatus by remember { mutableStateOf(ApplicationStatus.IN_PROGRESS.displayName) }
     //Default date is today
     val dateState = rememberDatePickerState(initialSelectedDateMillis = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
     var eventList = mutableListOf<Event>()
-    var resumeExpanded by remember { mutableStateOf(false) }
-    var statusExpanded by remember { mutableStateOf(false) }
     var datePickerExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val resumeList = resumeViewModel.resumeList.filter {  it.activeStatus.equals("true", ignoreCase = true) }
+    val resumeList = resumeViewModel.resumeList.filter {  it.activeStatus.equals("true", ignoreCase = true) }.map { it.nickName }
+    val resumeOptions = resumeList + "Add a Resume"
 
     Column(
         modifier = Modifier
@@ -194,7 +184,7 @@ fun CreateNewApplicationScreen(
                 onClick = {
                     val localSelectedResume = selectedResume
                     if (localSelectedResume == null) {
-                        // Set the message and show the Snackbar
+                        // Ask the user to select a resume
                         Toast.makeText(context, "Please select a resume before submitting.", Toast.LENGTH_LONG).show()
                     } else {
                         if (job != null) {
