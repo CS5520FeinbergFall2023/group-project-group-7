@@ -47,10 +47,14 @@ fun JobDetailScreen(
     LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
         item {
             if (listName == "search") {
-                JobDetailContent(job = jobViewModel.response.results[index], modifier, onNavigateToApply)
+                val job = jobViewModel.response.results[index]
+                jobViewModel.selectJob(job)
+                JobDetailContent(job = job, modifier, onNavigateToApply)
             }
             else if (listName == "favorite") {
-                JobDetailContent(job = jobViewModel.jobFavoriteList[index].job, modifier, onNavigateToApply)
+                val job = jobViewModel.jobFavoriteList[index].job
+                jobViewModel.selectJob(job)
+                JobDetailContent(job = job, modifier, onNavigateToApply)
             }
             else if (listName == "application") {
                 /*TODO: when user click the job from the application screen*/
