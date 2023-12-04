@@ -65,9 +65,9 @@ import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
 @Composable
 fun JobSearchScreen(
-    navController: NavHostController,
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
+    onNavigateToJobDetail: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (jobViewModel.running) {
@@ -78,13 +78,13 @@ fun JobSearchScreen(
             item {
                 SearchSection(jobViewModel = jobViewModel)
                 JobLists(
-                    navController = navController,
                     jobs = jobViewModel.response.results,
                     jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
                     jobApplicationList = applicationViewModel.jobApplicationList,
                     onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
                     onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-                    onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) }
+                    onSetJobFavorite = {job -> jobViewModel.setJobFavoriteToDB(job) },
+                    onNavigateToJobDetail = onNavigateToJobDetail,
                 )
                 TurnPage(jobViewModel = jobViewModel)
             }
@@ -245,42 +245,38 @@ fun SearchSection(
 
 @Composable
 fun JobLists(
-    navController: NavHostController,
     jobs: List<JobModel>,
     jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel>,
     jobApplicationList: SnapshotStateList<JobApplicationModel>,
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
+    onNavigateToJobDetail: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.height(4.dp))
     jobs.forEachIndexed { index, job ->
         JobCard(
-            navController = navController,
             jobViewedHistoryList = jobViewedHistoryList,
             jobApplicationList = jobApplicationList,
-            listName = "search",
-            index = index,
             job = job,
             onSetJobViewedHistory = onSetJobViewedHistory,
             onFindJobInFavorite = onFindJobInFavorite,
             onSetJobFavorite = onSetJobFavorite,
+            onNavigateToJobDetail = { onNavigateToJobDetail(index) }
         )
     }
 }
 
 @Composable
 fun JobCard(
-    navController: NavHostController,
     jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel>,
     jobApplicationList: SnapshotStateList<JobApplicationModel>,
-    listName: String,
-    index: Int,
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
+    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     OutlinedCard(
@@ -295,11 +291,9 @@ fun JobCard(
                 job = job
             )
             JobContent(
-                navController = navController,
-                listName = listName,
-                index = index,
                 job = job,
                 onSetJobViewedHistory = onSetJobViewedHistory,
+                onNavigateToJobDetail = onNavigateToJobDetail
             )
             CardFoot(
                 onFindJobInFavorite = onFindJobInFavorite,
@@ -312,11 +306,9 @@ fun JobCard(
 
 @Composable
 fun JobContent(
-    navController: NavHostController,
-    listName: String,
-    index: Int,
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
+    onNavigateToJobDetail: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -324,7 +316,7 @@ fun JobContent(
             .fillMaxWidth()
             .clickable {
                 onSetJobViewedHistory(job.id)
-                navController.navigate("Job_Details/$listName/$index")
+                onNavigateToJobDetail()
             }
     ) {
         Text(
@@ -408,10 +400,10 @@ fun CardHead(
             }
         }
         Column(modifier = modifier.weight(0.5f), horizontalAlignment = Alignment.End) {
-            if(jobApplicationList.any { it.id == job.id } ) {
+            if(jobApplicationList.any { it.job.id == job.id } ) {
                 Text(
                     text = "Applied",
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelSmall,
                     modifier = modifier.padding(vertical = 6.dp)
                 )

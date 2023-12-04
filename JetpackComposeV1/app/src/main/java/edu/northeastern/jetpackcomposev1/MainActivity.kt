@@ -394,16 +394,16 @@ fun HomeScreen(
                 NavHost(navController = navController, startDestination = "Job_Search") {
                     composable("Job_Search") {
                         JobSearchScreen(
-                            navController,
-                            jobViewModel,
-                            applicationViewModel
+                            jobViewModel = jobViewModel,
+                            applicationViewModel = applicationViewModel,
+                            onNavigateToJobDetail = { index -> navController.navigate("Job_Details/search/$index") }
                         )
                     }
                     composable("My_Favorites") {
                         JobFavoriteScreen(
-                            navController,
-                            jobViewModel,
-                            applicationViewModel
+                            jobViewModel = jobViewModel,
+                            applicationViewModel = applicationViewModel,
+                            onNavigateToJobDetail = { index -> navController.navigate("Job_Details/favorite/$index") }
                         )
                     }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
@@ -434,11 +434,12 @@ fun HomeScreen(
                             JobDetailScreen(listName = listName,
                                 index = index,
                                 jobViewModel = jobViewModel,
+                                applicationViewModel = applicationViewModel,
                                 onNavigateToApply = {
                                     navController.navigate("Add_New_Application/add") {
-                                        popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
+                                        /*popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
                                             inclusive = true
-                                        }
+                                        }*/
                                     }
                                 })
                         }
@@ -474,9 +475,9 @@ fun HomeScreen(
                             navController = navController,
                             onNavigateToResume = {
                                 navController.navigate("My_Resumes") {
-                                    popUpTo(navController.graph.startDestinationId) {
+                                    /*popUpTo(navController.graph.startDestinationId) {
                                         inclusive = true
-                                    }
+                                    }*/
                                 }
                             },
                             applicationId = if (isEditMode) applicationId else null

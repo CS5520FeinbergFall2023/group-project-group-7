@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontStyle
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
+import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 
 @Composable
@@ -41,6 +42,7 @@ fun JobDetailScreen(
     listName: String,
     index: Int,
     jobViewModel: JobViewModel,
+    applicationViewModel: ApplicationViewModel,
     onNavigateToApply: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -49,12 +51,12 @@ fun JobDetailScreen(
             if (listName == "search") {
                 val job = jobViewModel.response.results[index]
                 jobViewModel.selectJob(job)
-                JobDetailContent(job = job, modifier, onNavigateToApply)
+                JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
             }
             else if (listName == "favorite") {
                 val job = jobViewModel.jobFavoriteList[index].job
                 jobViewModel.selectJob(job)
-                JobDetailContent(job = job, modifier, onNavigateToApply)
+                JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
             }
             else if (listName == "application") {
                 /*TODO: when user click the job from the application screen*/
@@ -66,8 +68,9 @@ fun JobDetailScreen(
 @Composable
 fun JobDetailContent(
     job: JobModel,
-    modifier: Modifier = Modifier,
-    onNavigateToApply: () -> Unit
+    applicationViewModel: ApplicationViewModel,
+    onNavigateToApply: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -157,14 +160,15 @@ fun JobDetailContent(
     )
 
     // button section here
-    JobDetailButton(job = job, modifier, onNavigateToApply)
+    JobDetailButton(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
 }
 
 @Composable
 fun JobDetailButton(
     job: JobModel,
-    modifier: Modifier = Modifier,
-    onNavigateToApply: () -> Unit
+    applicationViewModel: ApplicationViewModel,
+    onNavigateToApply: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val applyJobIntent = Intent(Intent.ACTION_VIEW, Uri.parse(job.redirect_url))
@@ -184,8 +188,11 @@ fun JobDetailButton(
         Button(onClick = { context.startActivity(shareJobIntent) }) {
             Text("Share")
         }
-        Button(onClick =  onNavigateToApply ) {
-            Text("Add application")
+        // if not applied, add one
+        if (!applicationViewModel.jobApplicationList.any { it.job.id == job.id }) {
+            Button(onClick = onNavigateToApply) {
+                Text("Add application")
+            }
         }
     }
 }

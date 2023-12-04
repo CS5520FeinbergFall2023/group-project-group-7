@@ -23,9 +23,9 @@ import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 
 @Composable
 fun JobFavoriteScreen(
-    navController: NavHostController,
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
+    onNavigateToJobDetail: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (jobViewModel.jobFavoriteList.isEmpty()) {
@@ -39,13 +39,13 @@ fun JobFavoriteScreen(
         LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
             item {
                 FavoriteLists(
-                    navController = navController,
                     jobFavoriteList = jobViewModel.jobFavoriteList,
                     jobViewedHistoryList = jobViewModel.jobViewedHistoryList,
                     jobApplicationList = applicationViewModel.jobApplicationList,
                     onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
                     onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
-                    onSetJobFavorite = { job -> jobViewModel.setJobFavoriteToDB(job) }
+                    onSetJobFavorite = { job -> jobViewModel.setJobFavoriteToDB(job) },
+                    onNavigateToJobDetail = onNavigateToJobDetail
                 )
             }
         }
@@ -54,27 +54,25 @@ fun JobFavoriteScreen(
 
 @Composable
 fun FavoriteLists(
-    navController: NavHostController,
     jobFavoriteList: SnapshotStateList<JobFavoriteModel>,
     jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel>,
     jobApplicationList: SnapshotStateList<JobApplicationModel>,
     onSetJobViewedHistory: (String) -> Unit,
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
+    onNavigateToJobDetail: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.height(4.dp))
     jobFavoriteList.forEachIndexed { index, jobFavorite ->
         JobCard(
-            navController = navController,
             jobViewedHistoryList = jobViewedHistoryList,
             jobApplicationList = jobApplicationList,
-            listName = "favorite",
-            index = index,
             job = jobFavorite.job,
             onSetJobViewedHistory = onSetJobViewedHistory,
             onFindJobInFavorite = onFindJobInFavorite,
             onSetJobFavorite = onSetJobFavorite,
+            onNavigateToJobDetail = { onNavigateToJobDetail(index) }
         )
     }
     Spacer(modifier = modifier.height(4.dp))
