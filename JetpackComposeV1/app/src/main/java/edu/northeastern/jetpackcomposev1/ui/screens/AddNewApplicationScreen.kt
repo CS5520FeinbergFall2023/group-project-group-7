@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import edu.northeastern.jetpackcomposev1.models.application.Event
 import edu.northeastern.jetpackcomposev1.models.application.TimeLine
 import edu.northeastern.jetpackcomposev1.models.job.ApplicationStatus
@@ -48,12 +49,13 @@ import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateNewApplicationScreen(
+fun AddNewApplicationScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
-    onNavigateToApplicationDetail: () -> Unit,
-    onNavigateToResume: () -> Unit
+    navController: NavController,
+    onNavigateToResume: () -> Unit,
+    applicationId: String? = null
 ) {
     //job id passed from job detail screen
     val job by jobViewModel.selectedJob
@@ -71,6 +73,7 @@ fun CreateNewApplicationScreen(
     val context = LocalContext.current
     val resumeList = resumeViewModel.resumeList.filter {  it.activeStatus.equals("true", ignoreCase = true) }.map { it.nickName }
     val resumeOptions = resumeList + "Add a Resume"
+
 
     Column(
         modifier = Modifier
@@ -209,7 +212,7 @@ fun CreateNewApplicationScreen(
                         //Todo: update the application or create a new application and update to db in applicationViewModel
                         applicationViewModel.setJobApplicationToDB(job!!, resume, timeLine)
 
-                        onNavigateToApplicationDetail()
+                        navController.navigateUp()
                     }
                 },
                 modifier = Modifier.padding(16.dp)

@@ -41,15 +41,16 @@ fun JobDetailScreen(
     listName: String,
     index: Int,
     jobViewModel: JobViewModel,
+    onNavigateToApply: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
         item {
             if (listName == "search") {
-                JobDetailContent(job = jobViewModel.response.results[index])
+                JobDetailContent(job = jobViewModel.response.results[index], modifier, onNavigateToApply)
             }
             else if (listName == "favorite") {
-                JobDetailContent(job = jobViewModel.jobFavoriteList[index].job)
+                JobDetailContent(job = jobViewModel.jobFavoriteList[index].job, modifier, onNavigateToApply)
             }
             else if (listName == "application") {
                 /*TODO: when user click the job from the application screen*/
@@ -61,7 +62,8 @@ fun JobDetailScreen(
 @Composable
 fun JobDetailContent(
     job: JobModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToApply: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -151,13 +153,14 @@ fun JobDetailContent(
     )
 
     // button section here
-    JobDetailButton(job = job)
+    JobDetailButton(job = job, modifier, onNavigateToApply)
 }
 
 @Composable
 fun JobDetailButton(
     job: JobModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToApply: () -> Unit
 ) {
     val context = LocalContext.current
     val applyJobIntent = Intent(Intent.ACTION_VIEW, Uri.parse(job.redirect_url))
@@ -177,7 +180,7 @@ fun JobDetailButton(
         Button(onClick = { context.startActivity(shareJobIntent) }) {
             Text("Share")
         }
-        Button(onClick = { /*TODO leave this for next stage*/ }) {
+        Button(onClick =  onNavigateToApply ) {
             Text("Add application")
         }
     }
