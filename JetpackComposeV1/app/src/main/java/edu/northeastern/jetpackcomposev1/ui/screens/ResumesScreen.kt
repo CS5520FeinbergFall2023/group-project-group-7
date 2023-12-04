@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -89,7 +90,7 @@ import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 @Composable
 fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navController: NavController) {
     val viewState = viewModel.consumableState().collectAsState()
-    val isShowAlert by viewModel.isShowAlert.collectAsState()
+    val isShowUploadAlert by viewModel.isShowUploadAlert.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         val textState = remember { mutableStateOf(TextFieldValue("")) }
@@ -137,7 +138,7 @@ fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navC
             , content =
             {
                 Log.d("check viewState.value", viewState.value.toString())
-                if (viewState.value.resumeList.isEmpty()){
+                if (viewState.value.resumeList.filter{ (it.activeStatus == "true") }.isEmpty()){
                     viewState.value.isLoading = false
                     Box(
                         modifier = Modifier
@@ -161,10 +162,10 @@ fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navC
                             itemsIndexed(viewState.value.resumeList.filter {
                                 it.nickName.contains(searchedText, ignoreCase = true) and (it.activeStatus == "true")
                             }) { index, item ->
-
                                 ResumeUI(viewModel= viewModel,
                                     resume = item,
-                                    onDeleteClick = {viewModel.handleViewEvent(ResumeViewEvent.DeleteResume(it, index))},
+                                    onDeleteClick = {viewModel.handleViewEvent(ResumeViewEvent.DeleteResume(it))},
+                                    onUpdateClick = {viewModel.handleViewEvent(ResumeViewEvent.UpdateResume(it))},
                                     targetUrl = item.filePath,
                                     navController = navController
                                 )
@@ -180,24 +181,28 @@ fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navC
         )
     }
 
-    if (isShowAlert) {
+    if (isShowUploadAlert) {
         Dialog(
-            onDismissRequest = { viewModel.setShowAlert(false) },
+            onDismissRequest = { viewModel.setShowUploadAlert(false) },
             content = {
-                InputDialog(viewModel,"Upload Resume")
+                InputDialogUpload(viewModel,"Upload Resume")
             }
         )
     }
 }
 
 @Composable
-fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, targetUrl:String ,navController: NavController){
+fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, onUpdateClick:(resume:ResumeModel) -> Unit, targetUrl:String ,navController: NavController){
     var openDialog by remember { mutableStateOf(false) }
+    val isShowUpdateAlert by viewModel.isShowUpdateAlert.collectAsState()
     Card(
         modifier = Modifier
             .padding(2.dp, 10.dp)
             .fillMaxWidth()
-            .clickable {viewModel.handleViewEvent(ResumeViewEvent.UpdateView(resume))}
+            .clickable {
+                viewModel.updateResume = resume
+                viewModel.setShowUpdateAlert(true)
+            }
     ) {
         Row(
             modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
@@ -263,6 +268,15 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
             "Are you sure you want to delete this document",
             "OK", // continue
             "Cancel")
+    }
+
+    if (isShowUpdateAlert) {
+        Dialog(
+            onDismissRequest = { viewModel.setShowUpdateAlert(false) },
+            content = {
+                InputDialogUpdate(viewModel,"Update Resume", resume)
+            }
+        )
     }
 }
 
@@ -334,11 +348,11 @@ fun showAlertDialog(
     )
 }
 
-// input dialog (update, upload)
+// input dialog (upload)
 @Composable
-fun InputDialog(
+fun InputDialogUpload(
     viewModel: ResumeViewModel,
-    text:String
+    text:String,
 ) {
     Column(
         modifier = Modifier
@@ -351,7 +365,6 @@ fun InputDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(3.dp))
-        viewModel.newResume.nickName = ""
         LabelAndUpload(viewModel)
     }
 }
@@ -447,19 +460,110 @@ fun LabelAndUpload(
 
     if (readyToUpload) {
         pdfUri?.let { viewModel.setResumeToStorage(pdfUri!!, displayName) }
-        viewModel.setShowAlert(false)
+        viewModel.setShowUploadAlert(false)
     }
 }
 
+
+
 @Composable
-fun ModifyResume(viewModel: ResumeViewModel, title:String, resume: ResumeModel){
-    InputDialog(viewModel,title)
-    viewModel.newResume.nickName = resume.nickName
-    viewModel.newResume.fileName = resume.fileName
+fun InputDialogUpdate(
+    viewModel: ResumeViewModel,
+    text:String,
+    resume: ResumeModel
+){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .background(Color.White)
+            .border(1.dp, Color.Black)
+    ) {
+        Text(text = text, fontSize = 26.sp, textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(3.dp))
+        LabelAndUpdate(viewModel,resume)
+    }
 }
 
+@SuppressLint("Range")
+@Composable
+fun LabelAndUpdate(viewModel: ResumeViewModel,resume: ResumeModel) {
+    var readyToUpload by remember { mutableStateOf(false) }
+    var pdfUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext
+    var displayName: String = ""
+    pdfUri= Uri.parse(resume.filePath)
 
+    val pdfPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            pdfUri = uri
+        }
+    )
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val context = LocalContext.current
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = resume.nickName,
+            onValueChange = { newValue ->
+                viewModel.updateResume.nickName = newValue
+            },
+            label = { Text("Label the selected file") },
+            singleLine = true
+        )
 
+        if (pdfUri != null) {
+            var cursor: Cursor? = null
+            try {
+                cursor = context.contentResolver.query(pdfUri!!, null, null, null, null, null)
 
+                if (cursor != null && cursor.moveToFirst()) {
+                    displayName =
+                        cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                    viewModel.newResume.fileName = displayName
+
+                }
+            } finally {
+                cursor?.close()
+            }
+
+            Text(text = "Selected file: " + resume.fileName)
+
+            Button(modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+                onClick = {
+                    pdfPicker.launch("application/pdf")
+                }
+            ) {
+                Text("Select a file to update")
+            }
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                onClick = { readyToUpload = true }
+            ) {
+                Text(
+                    text = "Update File"
+                )
+            }
+        }
+
+        if (readyToUpload) {
+            pdfUri?.let { viewModel.setResumeToStorage(pdfUri!!, displayName) }
+            viewModel.handleViewEvent(ResumeViewEvent.UpdateResume(resume))
+            viewModel.setShowUpdateAlert(false)
+        }
+    }
+}
 
