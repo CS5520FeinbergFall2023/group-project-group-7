@@ -105,12 +105,17 @@ fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navC
             Text(
                 text = "Label",
                 modifier = Modifier
-                    .weight(0.7f)
+                    .weight(0.5f)
             )
             Text(
                 text = "Last Modified",
                 modifier = Modifier
-                    .weight(1.1f)
+                    .weight(1f)
+            )
+            Text(
+                text = "Modify",
+                modifier = Modifier
+                    .weight(0.5f)
             )
             Text(
                 text = "Preview",
@@ -137,8 +142,7 @@ fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navC
             }
             , content =
             {
-                Log.d("check viewState.value", viewState.value.toString())
-                if (viewState.value.resumeList.filter{ (it.activeStatus == "true") }.isEmpty()){
+                if (viewState.value.resumeList.filter { (it.activeStatus == "true") }.isEmpty()){
                     viewState.value.isLoading = false
                     Box(
                         modifier = Modifier
@@ -191,18 +195,17 @@ fun ResumesScreen(viewModel: ResumeViewModel,modifier: Modifier = Modifier, navC
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(resume:ResumeModel) -> Unit, onUpdateClick:(resume:ResumeModel) -> Unit, targetUrl:String ,navController: NavController){
     var openDialog by remember { mutableStateOf(false) }
-    val isShowUpdateAlert by viewModel.isShowUpdateAlert.collectAsState()
+    var openEditDialog by remember { mutableStateOf(false) }
+    var readyToUpdate by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .padding(2.dp, 10.dp)
             .fillMaxWidth()
-            .clickable {
-                viewModel.updateResume = resume
-                viewModel.setShowUpdateAlert(true)
-            }
     ) {
         Row(
             modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically
@@ -211,7 +214,7 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
             Text(
                 text = resume.nickName,
                 modifier = Modifier
-                    .weight(0.7f)
+                    .weight(0.5f)
                     .align(Alignment.CenterVertically))
             // file last modified date
             Text(
@@ -220,6 +223,19 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
                     .weight(0.9f)
                     .align(Alignment.CenterVertically)
             )
+            // edit
+            IconButton(
+                modifier = Modifier
+                    .size(24.dp)
+                    .weight(0.6f)
+                    .align(Alignment.CenterVertically),
+                onClick = {
+                    openEditDialog = true
+                }
+            ){Icon(
+                painterResource(id = R.drawable.edit_24),
+                contentDescription = "update label",
+            ) }
             // preview
             IconButton(
                 modifier = Modifier
@@ -227,7 +243,6 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
                     .weight(0.6f)
                     .align(Alignment.CenterVertically),
                 onClick = {
-                    Log.d("on click url", targetUrl)
                     viewModel.bouquetViewModel.openResource(
                         ResourceType.Remote(
                             url = targetUrl
@@ -270,16 +285,66 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
             "Cancel")
     }
 
-    if (isShowUpdateAlert) {
+    if (openEditDialog) {
+        val context = LocalContext.current
         Dialog(
-            onDismissRequest = { viewModel.setShowUpdateAlert(false) },
+            onDismissRequest = { openEditDialog = false},
             content = {
-                InputDialogUpdate(viewModel,"Update Resume", resume)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                        .background(Color.White)
+                        .border(1.dp, Color.Black)
+                ){
+                viewModel.updateResume = resume
+                /*************/
+                Text(
+                    text = "Update Label",
+                    fontSize = 26.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(3.dp)
+                )
+
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.updateResume.nickName,
+                    onValueChange = { newValue ->
+                        viewModel.updateResume.nickName = newValue
+                    },
+                    label = { Text("Label the selected file") },
+                    singleLine = true
+                )
+
+                Text(text = "Selected file: " + viewModel.updateResume.fileName)
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    onClick = {
+                        if (viewModel.replicatedLabelCheck()) {
+                            val toast = Toast.makeText(context, "Label exists", Toast.LENGTH_SHORT)
+                            toast.show()
+                        } else {
+                            readyToUpdate = true
+                        }
+                    },
+                ) { Text(text = "Update label") }
+                }
             }
         )
+
+        if (readyToUpdate) {
+            Log.d("input resume check screen", viewModel.updateResume.nickName + " " + viewModel.updateResume.fileName + " " + viewModel.updateResume.filePath + " " + viewModel.updateResume.time)
+            onUpdateClick(viewModel.updateResume)
+            openEditDialog = false
+            readyToUpdate = false
+        }
     }
 }
-
 
 @Composable
 fun SearchView(state: MutableState<TextFieldValue>, placeholder: String) {
@@ -461,109 +526,6 @@ fun LabelAndUpload(
     if (readyToUpload) {
         pdfUri?.let { viewModel.setResumeToStorage(pdfUri!!, displayName) }
         viewModel.setShowUploadAlert(false)
-    }
-}
-
-
-
-@Composable
-fun InputDialogUpdate(
-    viewModel: ResumeViewModel,
-    text:String,
-    resume: ResumeModel
-){
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-            .background(Color.White)
-            .border(1.dp, Color.Black)
-    ) {
-        Text(text = text, fontSize = 26.sp, textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(3.dp))
-        LabelAndUpdate(viewModel,resume)
-    }
-}
-
-@SuppressLint("Range")
-@Composable
-fun LabelAndUpdate(viewModel: ResumeViewModel,resume: ResumeModel) {
-    var readyToUpload by remember { mutableStateOf(false) }
-    var pdfUri by remember { mutableStateOf<Uri?>(null) }
-    val context = LocalContext
-    var displayName: String = ""
-    pdfUri= Uri.parse(resume.filePath)
-
-    val pdfPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            pdfUri = uri
-        }
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        val context = LocalContext.current
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = resume.nickName,
-            onValueChange = { newValue ->
-                viewModel.updateResume.nickName = newValue
-            },
-            label = { Text("Label the selected file") },
-            singleLine = true
-        )
-
-        if (pdfUri != null) {
-            var cursor: Cursor? = null
-            try {
-                cursor = context.contentResolver.query(pdfUri!!, null, null, null, null, null)
-
-                if (cursor != null && cursor.moveToFirst()) {
-                    displayName =
-                        cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    viewModel.newResume.fileName = displayName
-
-                }
-            } finally {
-                cursor?.close()
-            }
-
-            Text(text = "Selected file: " + resume.fileName)
-
-            Button(modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-                onClick = {
-                    pdfPicker.launch("application/pdf")
-                }
-            ) {
-                Text("Select a file to update")
-            }
-
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                onClick = { readyToUpload = true }
-            ) {
-                Text(
-                    text = "Update File"
-                )
-            }
-        }
-
-        if (readyToUpload) {
-            pdfUri?.let { viewModel.setResumeToStorage(pdfUri!!, displayName) }
-            viewModel.handleViewEvent(ResumeViewEvent.UpdateResume(resume))
-            viewModel.setShowUpdateAlert(false)
-        }
     }
 }
 

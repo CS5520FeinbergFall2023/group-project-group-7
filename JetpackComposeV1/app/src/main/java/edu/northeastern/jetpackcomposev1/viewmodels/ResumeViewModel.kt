@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -51,6 +52,7 @@ import com.google.firebase.database.database
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.storage
+import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.resume.ResumeModel
 import edu.northeastern.jetpackcomposev1.utility.getCurrentZonedDateTime
 import kotlinx.coroutines.Dispatchers
@@ -64,10 +66,10 @@ import java.util.UUID
 import kotlin.math.log
 
 class ResumeViewModel: ViewModel() {
-    private val _isShowUpdateAlert = MutableStateFlow(false)
-    val isShowUpdateAlert: StateFlow<Boolean> = _isShowUpdateAlert.asStateFlow()
-    fun setShowUpdateAlert(value: Boolean) {
-        _isShowUpdateAlert.value = value
+    private val _isUpdateDialog = MutableStateFlow(false)
+    val isUpdateDialog: StateFlow<Boolean> = _isUpdateDialog.asStateFlow()
+    fun setsUpdateDialog(value: Boolean) {
+        _isUpdateDialog.value = value
     }
 
     private val _isShowUploadAlert = MutableStateFlow(false)
@@ -139,21 +141,23 @@ class ResumeViewModel: ViewModel() {
     fun getResumeFromDB() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val myRef = database.getReference("users/${auth.currentUser?.uid}/resumes")
-                myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for (snapshot in dataSnapshot.children) {
-                            val resumeModel = snapshot.getValue(ResumeModel::class.java)
-                            if (resumeModel != null && resumeModel.activeStatus=="true") {
-                                resumeList.add(resumeModel)
+                if (resumeList.isEmpty()) {
+                    val myRef = database.getReference("users/${auth.currentUser?.uid}/resumes")
+                    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            for (snapshot in dataSnapshot.children) {
+                                val resumeModel = snapshot.getValue(ResumeModel::class.java)
+                                if (resumeModel != null && resumeModel.activeStatus == "true") {
+                                    resumeList.add(resumeModel)
+                                }
                             }
                         }
-                    }
-                    override fun onCancelled(error: DatabaseError) {
-                        // Failed to read value
-                        Log.w("debug", "Failed to read resumes from DB.", error.toException())
-                    }
-                })
+                        override fun onCancelled(error: DatabaseError) {
+                            // Failed to read value
+                            Log.w("debug", "Failed to read resumes from DB.", error.toException())
+                        }
+                    })
+                }
             }
         }
     }
@@ -194,45 +198,35 @@ class ResumeViewModel: ViewModel() {
             }
 
             is ResumeViewEvent.UpdateResume -> {
+                Log.d("input resume check update", updateResume.nickName + " " + updateResume.fileName + " " + updateResume.filePath + " " + updateResume.time)
                 val currentState = uiState.value
                 val targetIndex = currentState.resumeList.indexOfFirst { it == viewEvent.resume }
                 var resReference = FirebaseDatabase.getInstance().getReference("users/${auth.currentUser?.uid}/resumes")
-                resReference.orderByChild("nickName").equalTo(viewEvent.resume.nickName).addListenerForSingleValueEvent(
+                resReference.orderByChild("filePath").equalTo(updateResume.filePath).addListenerForSingleValueEvent(
                     object : ValueEventListener {
+                        @SuppressLint("SuspiciousIndentation")
                         override fun onDataChange(snapshot: DataSnapshot) {
                             for (snapshot in snapshot.children) {
                                 val resumeModel = snapshot.getValue(ResumeModel::class.java)
-                                if (resumeModel != null) {
-                                    val id = updateResume.id
-                                    val fileName = updateResume.fileName
-                                    val filePath = updateResume.filePath
-                                    val nickName = updateResume.nickName
-
-                                    val updatedResume = mapOf<String, String>(
-                                        "id" to id,
-                                        "fileName" to fileName,
-                                        "filePath" to filePath,
-                                        "activeStatus" to "true",
-                                        "nickName" to nickName,
-                                        "time" to getCurrentZonedDateTime()
-                                    )
-                                    snapshot.ref.updateChildren(updatedResume)
-                                }
+                                    if (resumeModel != null && resumeModel.activeStatus == "true") {
+                                        val curTime = getCurrentZonedDateTime()
+                                        snapshot.ref.child("nickName").setValue(viewEvent.resume.nickName)
+                                        snapshot.ref.child("time").setValue(curTime)
+                                        if (targetIndex != -1) {
+                                            // find
+                                            currentState.resumeList[targetIndex].nickName = updateResume.nickName
+                                            currentState.resumeList[targetIndex].time = curTime
+                                            uiState.value = currentState.copy(resumeList = currentState.resumeList.toList())
+                                        } else {
+                                            Log.w("error in change activeStatus", "Not find target resume")
+                                        }
+                                    }
                             }
                         }
-                        override fun onCancelled(error: DatabaseError) {}
+                        override fun onCancelled(error: DatabaseError) {
+                        }
                     }
                 )
-
-                if (targetIndex != -1 && currentState.resumeList.isNotEmpty()) {
-                    setShowUpdateAlert(true)
-                    val updatedList = currentState.resumeList.toMutableList()
-                    updatedList[targetIndex] = updatedList.last()
-                    updatedList.removeAt(updatedList.size - 1)
-                    uiState.value = uiState.value.copy(resumeList = updatedList)
-                } else {
-                    Log.w("UpdateResume", "Target index not found or list is empty")
-                }
             }
         }
     }
