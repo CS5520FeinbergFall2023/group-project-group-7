@@ -216,13 +216,14 @@ fun HomeScreen(
     onNavigateToMyApp: () -> Unit
 ) {
     // fetch data from DB
-    LaunchedEffect(key1 = "run only once") {
-        //jobViewModel.getJobFromAPI()
+    if(userViewModel.firstLaunch) {
+        jobViewModel.getJobFromAPI()
         jobViewModel.getJobSearchHistoryFromDB()
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
+        userViewModel.firstLaunch = false
         Log.d("debug", "test how many runs!!!!")
     }
     // define nav controller
