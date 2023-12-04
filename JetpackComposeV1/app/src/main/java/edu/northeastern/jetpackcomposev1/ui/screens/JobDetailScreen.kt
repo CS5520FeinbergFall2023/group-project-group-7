@@ -36,179 +36,152 @@ import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 
-// JobDetailScreen.kt
-// the index is the index in the job search result list
-// job: JobModel = jobViewModel.response.results[index]
-
 @Composable
 fun JobDetailScreen(
-    index: Int, jobViewModel: JobViewModel, modifier: Modifier = Modifier
+    listName: String,
+    index: Int,
+    jobViewModel: JobViewModel,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
         item {
-            JobDetailContent(job = jobViewModel.response.results[index], modifier = modifier.padding(horizontal = 8.dp) )
-
-
+            if (listName == "search") {
+                JobDetailContent(job = jobViewModel.response.results[index])
+            }
+            else if (listName == "favorite") {
+                JobDetailContent(job = jobViewModel.jobFavoriteList[index].job)
+            }
+            else if (listName == "application") {
+                /*TODO: when user click the job from the application screen*/
+            }
         }
     }
 }
-
-
-
 
 @Composable
-fun JobDetailContent(job: JobModel, modifier: Modifier = Modifier) {
-    val uri = Uri.parse(job.redirect_url)
-    val intent = Intent(Intent.ACTION_VIEW, uri)
+fun JobDetailContent(
+    job: JobModel,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
 
-    val context = LocalContext.current
-
-    /*var showDetailJobSheet by rememberSaveable { mutableStateOf(false) }
-    if (showDetailJobSheet) {
-        DetailJobSheet(
-            job = job,
-            onCloseSheet = { showDetailJobSheet = false }
-        )
-    }*/
-
-
-    OutlinedCard(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        border = BorderStroke(1.dp, Color.Black),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    )  {
-
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-
-        ) {
-            Text(
-                text = job.title,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = job.company.display_name,
-                color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = job.location.display_name,
-                color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(bottom = 8.dp)
-            )
-        }
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp)
-        ) {
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surfaceVariant
-            ) {
-                Text(
-                    text = job.contract_time.replaceFirstChar { it.uppercase() },
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = modifier.padding(all = 4.dp)
-                )
-            }
-            Surface(
-                modifier = modifier.padding(start = 4.dp),
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surfaceVariant
-            ) {
-                Text(
-                    text = convertSalary(
-                        job.salary_is_predicted,
-                        job.salary_min,
-                        job.salary_max
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontStyle = FontStyle.Italic,
-                    modifier = modifier.padding(all = 4.dp)
-                )
-            }
-        }
+    ) {
         Text(
-            text = "Job Description:",
+            text = job.title,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = job.company.display_name,
             color = MaterialTheme.colorScheme.secondary,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = job.location.display_name,
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.padding(bottom = 8.dp)
+        )
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp)
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.small,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Text(
+                text = job.contract_time.replaceFirstChar { it.uppercase() },
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = modifier.padding(all = 4.dp)
+            )
+        }
+        Surface(
+            modifier = modifier.padding(start = 4.dp),
+            shape = MaterialTheme.shapes.small,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Text(
+                text = convertSalary(
+                    job.salary_is_predicted,
+                    job.salary_min,
+                    job.salary_max
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium,
+                fontStyle = FontStyle.Italic,
+                modifier = modifier.padding(all = 4.dp)
+            )
+        }
+    }
+    Text(
+        text = "Job Description:",
+        color = MaterialTheme.colorScheme.secondary,
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = modifier.padding(16.dp)
+    )
+
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            // .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            text = job.description,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = modifier.padding(16.dp)
         )
-
-        BoxWithConstraints(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding( 16.dp)
-                // .verticalScroll(rememberScrollState())
-        ) {
-            Text(
-                text = job.description,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-        }
-        Spacer(modifier = modifier.height(8.dp))
-        Text(
-            text = convertDateTime(job.created),
-            color = MaterialTheme.colorScheme.tertiary,
-            style = MaterialTheme.typography.labelSmall
-        )
-
-        // Buttons section
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp)
-
-        ) {
-            Button(
-                onClick = {
-                    context.startActivity(intent)
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
-            ){
-                Text("Apply")
-            }
-            Button(
-                onClick = { /* Implement save functionality */ },
-                modifier = modifier
-                    .weight(1f)
-                    .padding(horizontal = 4.dp)
-            ) {
-                Text("Save")
-            }
-            Button(
-                onClick = { /* Implement share functionality */ },
-                modifier = modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
-            ) {
-                Text("Share")
-            }
-        }
-
     }
+    Spacer(modifier = modifier.height(8.dp))
+    Text(
+        text = convertDateTime(job.created),
+        color = MaterialTheme.colorScheme.tertiary,
+        style = MaterialTheme.typography.labelSmall
+    )
 
+    // button section here
+    JobDetailButton(job = job)
 }
 
-
+@Composable
+fun JobDetailButton(
+    job: JobModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val applyJobIntent = Intent(Intent.ACTION_VIEW, Uri.parse(job.redirect_url))
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, job.redirect_url)
+        type = "text/plain"
+    }
+    val shareJobIntent = Intent.createChooser(sendIntent, null)
+    Column {
+        Button(onClick = { /*TODO leave this blank for now*/ }) {
+            Text("Save")
+        }
+        Button(onClick = { context.startActivity(applyJobIntent) }) {
+            Text("Apply")
+        }
+        Button(onClick = { context.startActivity(shareJobIntent) }) {
+            Text("Share")
+        }
+        Button(onClick = { /*TODO leave this for next stage*/ }) {
+            Text("Add application")
+        }
+    }
+}
 
 
 /*@Preview

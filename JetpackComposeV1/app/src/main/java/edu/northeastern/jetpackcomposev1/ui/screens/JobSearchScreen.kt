@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -259,6 +260,7 @@ fun JobLists(
             navController = navController,
             jobViewedHistoryList = jobViewedHistoryList,
             jobApplicationList = jobApplicationList,
+            listName = "search",
             index = index,
             job = job,
             onSetJobViewedHistory = onSetJobViewedHistory,
@@ -273,6 +275,7 @@ fun JobCard(
     navController: NavHostController,
     jobViewedHistoryList: SnapshotStateList<JobViewedHistoryModel>,
     jobApplicationList: SnapshotStateList<JobApplicationModel>,
+    listName: String,
     index: Int,
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
@@ -293,6 +296,7 @@ fun JobCard(
             )
             JobContent(
                 navController = navController,
+                listName = listName,
                 index = index,
                 job = job,
                 onSetJobViewedHistory = onSetJobViewedHistory,
@@ -309,6 +313,7 @@ fun JobCard(
 @Composable
 fun JobContent(
     navController: NavHostController,
+    listName: String,
     index: Int,
     job: JobModel,
     onSetJobViewedHistory: (String) -> Unit,
@@ -319,7 +324,7 @@ fun JobContent(
             .fillMaxWidth()
             .clickable {
                 onSetJobViewedHistory(job.id)
-                navController.navigate("Job_Details/${index}")
+                navController.navigate("Job_Details/$listName/$index")
             }
     ) {
         Text(
