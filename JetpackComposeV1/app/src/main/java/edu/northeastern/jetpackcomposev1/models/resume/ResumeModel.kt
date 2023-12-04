@@ -13,7 +13,7 @@ class ResumeModel(
     val id: String = UUID.randomUUID().toString(), // save your life, auto generate one, no need to get one from the firebase
     var fileName: String = "", // name of the pdf file
     var filePath: String = "", // storage path
-    val time: String = getCurrentZonedDateTime(), // auto also
+    var time: String = getCurrentZonedDateTime(), // auto also
     var activeStatus: String = "true" // if delete the resume； it turns to false
 ) {
     var nickName: String by mutableStateOf("") // label
