@@ -1,6 +1,7 @@
 package edu.northeastern.jetpackcomposev1
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -215,14 +216,14 @@ fun HomeScreen(
     onNavigateToMyApp: () -> Unit
 ) {
     // fetch data from DB
-    val runOnlyOnce = true
-    LaunchedEffect(key1 = runOnlyOnce) {
+    LaunchedEffect(key1 = "run only once") {
         //jobViewModel.getJobFromAPI()
         jobViewModel.getJobSearchHistoryFromDB()
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
+        Log.d("debug", "test how many runs!!!!")
     }
     // define nav controller
     val navController = rememberNavController()
@@ -314,7 +315,7 @@ fun HomeScreen(
             ) {
                 NavHost(navController = navController, startDestination = "Job_Search") {
                     composable("Job_Search") { JobSearchScreen(navController, jobViewModel, applicationViewModel) }
-                    composable("My_Favorites") { JobFavoriteScreen(jobViewModel, applicationViewModel) }
+                    composable("My_Favorites") { JobFavoriteScreen(navController, jobViewModel, applicationViewModel) }
                     composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
                     composable("My_Resumes") { ResumesScreen(resumeViewModel,navController = navController) }
                     composable("Profile") { ProfileScreen() }
@@ -331,10 +332,11 @@ fun HomeScreen(
                             }
                         )
                     }
-                    composable("Job_Details/{index}") {navBackStackEntry ->
+                    composable("Job_Details/{listName}/{index}") {navBackStackEntry ->
+                        val listName = navBackStackEntry.arguments?.getString("listName")
                         val index = navBackStackEntry.arguments?.getString("index")?.toInt()
-                        if (index != null) {
-                            JobDetailScreen(index = index, jobViewModel = jobViewModel)
+                        if (listName != null && index != null) {
+                            JobDetailScreen(listName = listName, index = index, jobViewModel = jobViewModel)
                         }
                     }
                 }
