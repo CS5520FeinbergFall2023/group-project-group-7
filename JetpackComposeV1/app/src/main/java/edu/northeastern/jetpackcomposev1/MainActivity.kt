@@ -412,8 +412,8 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("Profile") { ProfileScreen() }
-                    composable("Settings") { SettingsScreen() }
+                    composable("Profile") { ProfileScreen(userViewModel) }
+                    composable("Settings") { SettingsScreen(userViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(
                             viewModel = resumeViewModel,
