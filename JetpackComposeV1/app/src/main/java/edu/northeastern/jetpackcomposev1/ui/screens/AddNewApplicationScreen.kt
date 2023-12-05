@@ -74,7 +74,6 @@ fun AddNewApplicationScreen(
     val resumeList = resumeViewModel.resumeList.filter {  it.activeStatus.equals("true", ignoreCase = true) }.map { it.nickName }
     val resumeOptions = resumeList + "Add a Resume"
 
-
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -186,15 +185,19 @@ fun AddNewApplicationScreen(
             Button(
                 onClick = {
                     val localSelectedResume = selectedResume
-                    if (localSelectedResume == null) {
+
+                    // Find the actual ResumeModel
+                    val actualResume = resumeViewModel.resumeList
+                        .firstOrNull { it.nickName == localSelectedResume }
+
+                    if (localSelectedResume == null || actualResume == null) {
                         // Ask the user to select a resume
                         Toast.makeText(context, "Please select a resume before submitting.", Toast.LENGTH_LONG).show()
                     } else {
                         if (job != null) {
                             newApplication = JobApplicationModel(job = job!!)
                         }
-                        //Todo: replace with actual resume list
-                        val resume = ResumeModel("1", localSelectedResume, "Resume1")
+
                         val newEvent: Event
                         if (selectedStatus.isNotBlank()) {
                             newEvent = Event(
@@ -210,7 +213,7 @@ fun AddNewApplicationScreen(
                         eventList.add(newEvent)
                         val timeLine = TimeLine(results = eventList, count = eventList.size)
                         //Todo: update the application or create a new application and update to db in applicationViewModel
-                        applicationViewModel.setJobApplicationToDB(job!!, resume, timeLine)
+                        applicationViewModel.setJobApplicationToDB(job!!, actualResume, timeLine)
 
                         navController.navigateUp()
                     }

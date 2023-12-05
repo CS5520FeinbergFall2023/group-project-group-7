@@ -16,6 +16,6 @@ class JobApplicationModel(
 ) {
     var resume: ResumeModel by mutableStateOf(ResumeModel())
     var date: String by mutableStateOf(ZonedDateTime.now().toString()) // default applied time
-    var status: String by mutableStateOf(ApplicationStatus.IN_PROGRESS.displayName) // default status
+    var status: String by mutableStateOf(ApplicationStatus.APPLIED.displayName) // default status
     var timeLine: TimeLine by mutableStateOf(TimeLine())
 }

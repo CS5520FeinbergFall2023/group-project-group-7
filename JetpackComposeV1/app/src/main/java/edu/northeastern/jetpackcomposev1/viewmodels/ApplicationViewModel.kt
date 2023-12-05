@@ -91,6 +91,7 @@ class ApplicationViewModel: ViewModel() {
         val newJobApplication = JobApplicationModel(job = job.copy())
         newJobApplication.resume = resume
         newJobApplication.timeLine = timeLine.copy()
+        newJobApplication.status = timeLine.results.last().status
         jobApplicationList.add(newJobApplication)
         selectApplication(newJobApplication)
         viewModelScope.launch {
