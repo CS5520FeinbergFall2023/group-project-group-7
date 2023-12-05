@@ -18,4 +18,15 @@ class ResumeModel(
 ) {
     var nickName: String by mutableStateOf("") // label
 //    var count: Int by mutableIntStateOf(0) // count how many applications use this resume
+    fun copy(
+        id: String = this.id,
+        fileName: String = this.fileName,
+        filePath: String = this.filePath,
+        activeStatus: String = this.activeStatus,
+        nickName: String = this.nickName
+    ): ResumeModel {
+        return ResumeModel(id, fileName, filePath, activeStatus, nickName).apply {
+            this.time = getCurrentZonedDateTime()
+        }
+    }
 }
