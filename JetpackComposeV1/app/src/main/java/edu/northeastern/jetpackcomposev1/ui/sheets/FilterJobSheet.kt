@@ -348,7 +348,6 @@ fun FilterJobButton(
                 .padding(vertical = 4.dp)
                 .fillMaxWidth(),
             onClick = {
-                jobViewModel.search.country = CountryCode.US.code
                 jobViewModel.search.results_per_page = 10
                 jobViewModel.search.distance = 5
                 jobViewModel.search.max_days_old = 365

@@ -1,5 +1,8 @@
 package edu.northeastern.jetpackcomposev1.ui.sheets
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +35,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import edu.northeastern.jetpackcomposev1.models.job.JobSearchHistoryModel
@@ -159,8 +163,8 @@ fun SearchJobHistory(
     Column {
         jobViewModel.jobSearchHistoryList.forEachIndexed { index, item ->
             ListItem(
-                headlineContent = { Text(item.what.ifEmpty { "Any job" }) },
-                supportingContent = { Text("${item.where.ifEmpty { "Any place" }} - ${item.distance} km") },
+                headlineContent = { Text("${item.what.ifEmpty { "Any job" }} - ${item.company.ifEmpty { "Any company" }}") },
+                supportingContent = { Text("${item.where.ifEmpty { "Any place" }} - ${item.distance}km - ${item.country}") },
                 trailingContent = {
                     IconButton(onClick = { jobViewModel.setJobSearchHistoryToDB(false, index) }) {
                         Icon(
@@ -170,7 +174,9 @@ fun SearchJobHistory(
                     }
                 },
                 modifier = modifier.clickable {
+                    jobViewModel.search.country = item.country
                     jobViewModel.search.what = item.what
+                    jobViewModel.search.company = item.company
                     jobViewModel.search.where = item.where
                     jobViewModel.search.distance = item.distance
                     jobViewModel.search.page = 1

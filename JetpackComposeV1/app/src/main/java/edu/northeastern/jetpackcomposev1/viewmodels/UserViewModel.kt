@@ -26,7 +26,6 @@ class UserViewModel: ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
     val database: FirebaseDatabase = Firebase.database
 
-    var firstLaunch: Boolean by mutableStateOf(true)
     var running: Boolean by mutableStateOf(false)
 
     var isSignedIn: Boolean by mutableStateOf(auth.currentUser != null)

@@ -32,6 +32,7 @@ import edu.northeastern.jetpackcomposev1.models.job.JobSearchHistoryModel
 import edu.northeastern.jetpackcomposev1.models.job.JobSearchResultModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
 import edu.northeastern.jetpackcomposev1.models.search.SearchModel
+import edu.northeastern.jetpackcomposev1.models.user.GeoLocationModel
 import edu.northeastern.jetpackcomposev1.utility.urlEncoding
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -49,6 +50,7 @@ class JobViewModel: ViewModel() {
     val database: FirebaseDatabase = Firebase.database
     val storage: FirebaseStorage = Firebase.storage
 
+    var firstLaunch: Boolean by mutableStateOf(true)
     var running: Boolean by mutableStateOf(false)
 
     var search: SearchModel by mutableStateOf(SearchModel())
@@ -117,6 +119,18 @@ class JobViewModel: ViewModel() {
                     }
                 }
                 // Make the HTTP request.
+                if (firstLaunch) {
+                    var httpResponse = client.get("https://icanhazip.com/")
+                    if (httpResponse.status.value == 200) {
+                        val ip: String = httpResponse.body()
+                        httpResponse = client.get("https://ipinfo.io/$ip/json")
+                        if (httpResponse.status.value == 200) {
+                            val geoLocation: GeoLocationModel = httpResponse.body()
+                            search.country = geoLocation.country.lowercase()
+                            search.where = "${geoLocation.city}, ${geoLocation.region}"
+                        }
+                    }
+                }
                 val httpResponse = client.get(setRequestURL())
                 if (httpResponse.status.value == 200) {
                     response = httpResponse.body()
@@ -160,8 +174,8 @@ class JobViewModel: ViewModel() {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
                 if (isInsert) {
-                    val newSearch = JobSearchHistoryModel(country = search.country, what = search.what, where = search.where, distance = search.distance)
-                    val index = jobSearchHistoryList.indexOfFirst { it.country == newSearch.country && it.what == newSearch.what && it.where == newSearch.where && it.distance == newSearch.distance }
+                    val newSearch = JobSearchHistoryModel(country = search.country, what = search.what, company = search.company, where = search.where, distance = search.distance)
+                    val index = jobSearchHistoryList.indexOfFirst { it.country == newSearch.country && it.what == newSearch.what && it.company == newSearch.company && it.where == newSearch.where && it.distance == newSearch.distance }
                     if (index != -1) {
                         jobSearchHistoryList.removeAt(index)
                     }
@@ -258,6 +272,30 @@ class JobViewModel: ViewModel() {
         }
     }
     /**********************************************************************************************/
+    fun getUserLocation() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                val client = HttpClient(Android) {
+                    install(ContentNegotiation) {
+                        json(Json { ignoreUnknownKeys = true })
+                    }
+                }
+                // Make the HTTP request.
+                var httpResponse = client.get("https://icanhazip.com/")
+                if (httpResponse.status.value == 200) {
+                    val ip: String = httpResponse.body()
+                    httpResponse = client.get("https://ipinfo.io/$ip/json")
+                    if (httpResponse.status.value == 200) {
+                        val geoLocation: GeoLocationModel = httpResponse.body()
+                        search.country = geoLocation.country.lowercase()
+                        search.where = "${geoLocation.city}, ${geoLocation.region}"
+                    }
+                }
+                client.close()
+            }
+        }
+    }
 
 
 

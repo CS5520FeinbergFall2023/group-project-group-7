@@ -40,7 +40,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -277,15 +276,15 @@ fun HomeScreen(
     onNavigateToMyApp: () -> Unit
 ) {
     // fetch data from DB
-    if(userViewModel.firstLaunch) {
-        jobViewModel.getJobFromAPI()
+    if(jobViewModel.firstLaunch) {
         jobViewModel.getJobSearchHistoryFromDB()
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
-        userViewModel.firstLaunch = false
-        Log.d("debug", "test how many runs!!!!")
+        // load initial set of jobs
+        jobViewModel.getJobFromAPI()
+        jobViewModel.firstLaunch = false
     }
     // define nav controller
     val navController = rememberNavController()
