@@ -93,4 +93,7 @@ dependencies {
 
     //pdf viewer
     implementation("io.github.grizzi91:bouquet:1.1.2")
+
+    // image viewer
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

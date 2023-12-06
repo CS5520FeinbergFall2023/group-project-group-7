@@ -188,6 +188,15 @@ class JobViewModel: ViewModel() {
             }
         }
     }
+    fun clearJobSearchHistoryToDB() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                jobSearchHistoryList.clear()
+                database.getReference("users/${auth.currentUser?.uid}/jobSearchHistory").setValue(jobSearchHistoryList.toList())
+            }
+        }
+    }
     /**********************************************************************************************/
     fun getJobViewedHistoryFromDB() {
         viewModelScope.launch {
@@ -224,6 +233,15 @@ class JobViewModel: ViewModel() {
                     jobViewedHistoryList.removeAt(index)
                 }
                 jobViewedHistoryList.add(0, jobViewHistory)
+                database.getReference("users/${auth.currentUser?.uid}/jobViewedHistory").setValue(jobViewedHistoryList.toList())
+            }
+        }
+    }
+    fun clearJobViewedHistoryToDB() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                jobViewedHistoryList.clear()
                 database.getReference("users/${auth.currentUser?.uid}/jobViewedHistory").setValue(jobViewedHistoryList.toList())
             }
         }
@@ -267,6 +285,15 @@ class JobViewModel: ViewModel() {
                     val favoriteJob = JobFavoriteModel(id = job.id, job = job.copy())
                     jobFavoriteList.add(0, favoriteJob)
                 }
+                database.getReference("users/${auth.currentUser?.uid}/jobFavorites").setValue(jobFavoriteList.toList())
+            }
+        }
+    }
+    fun clearJobFavoriteToDB() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                jobFavoriteList.clear()
                 database.getReference("users/${auth.currentUser?.uid}/jobFavorites").setValue(jobFavoriteList.toList())
             }
         }

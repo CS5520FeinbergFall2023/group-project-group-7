@@ -9,6 +9,7 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -44,6 +45,11 @@ fun checkIfNew(created: String): Boolean {
 
 fun getCurrentZonedDateTime(): String {
     return ZonedDateTime.now().toString()
+}
+
+fun convertJoinedDate(isoString: String): String {
+    val joinedDateTime: ZonedDateTime = parseDateTime(isoString)
+    return "Joined ${joinedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}"
 }
 
 fun dateToMillis(dateString: String): Long {

@@ -61,14 +61,14 @@ fun SignInScreen(
                 )
                 OutlinedTextField(
                     modifier = modifier.padding(top = 8.dp),
-                    value = userViewModel.user.profile.password,
-                    onValueChange = { userViewModel.user.profile.password = it.trim() },
+                    value = userViewModel.password,
+                    onValueChange = { userViewModel.password = it.trim() },
                     label = { Text("Password") },
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true,
                     supportingText = {
-                        if (userViewModel.user.profile.password.length in 1..5) {
+                        if (userViewModel.password.length in 1..5) {
                             Text("At least 6 characters")
                         }
                     }
@@ -76,7 +76,7 @@ fun SignInScreen(
                 Button(
                     modifier = modifier.padding(top = 32.dp),
                     onClick = { userViewModel.signIn() },
-                    enabled = userViewModel.user.profile.email != "" && userViewModel.user.profile.password != ""
+                    enabled = userViewModel.user.profile.email != "" && userViewModel.password != ""
                 ) {
                     Text("Sign In")
                 }

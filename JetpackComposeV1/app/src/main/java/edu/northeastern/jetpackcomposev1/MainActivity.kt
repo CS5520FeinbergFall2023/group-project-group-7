@@ -18,11 +18,14 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +40,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -48,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,6 +61,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import coil.compose.AsyncImage
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
@@ -273,7 +279,8 @@ fun HomeScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
-    onNavigateToMyApp: () -> Unit
+    onNavigateToMyApp: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // fetch data from DB
     if(jobViewModel.firstLaunch) {
@@ -298,22 +305,13 @@ fun HomeScreen(
                 LazyColumn {
                     // sheet head
                     item {
-                        Image(
-                            painter = painterResource(R.drawable.ic_launcher_background),
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                // Set image size to 40 dp
-                                .size(40.dp)
-                                // Clip image to be shaped as a circle
-                                .clip(CircleShape)
-                                .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        NavigationDrawerItem(
+                            label = { Text("Job Track Pro") },
+                            selected = false,
+                            onClick = {},
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
-                        Text(
-                            text = userViewModel.user.profile.name,
-                            modifier = Modifier.padding(12.dp)
-                        )
-                    }
-                    item {
                         Spacer(modifier = Modifier.height(12.dp))
                         Divider()
                         Spacer(modifier = Modifier.height(12.dp))
@@ -341,13 +339,11 @@ fun HomeScreen(
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
                     }
+                    // sheet foot
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         Divider()
                         Spacer(modifier = Modifier.height(12.dp))
-                    }
-                    // sheet foot
-                    item {
                         NavigationDrawerItem(
                             label = { Text("Sign Out") },
                             selected = false,
@@ -373,13 +369,27 @@ fun HomeScreen(
         // add screen content here
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text("Job Track Pro") },
+                CenterAlignedTopAppBar(
+                    title = { Text(text = navItems[selectedItemIndex].title, color = MaterialTheme.colorScheme.onPrimary) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu"
+                                imageVector = Icons.Outlined.Menu,
+                                contentDescription = "Menu",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {  }) {
+                            AsyncImage(
+                                model = userViewModel.user.profile.avatar.filePath,
+                                contentDescription = "Avatar",
+                                placeholder = painterResource(R.drawable.ic_launcher_foreground),
+                                error = painterResource(R.drawable.ic_launcher_foreground),
+                                contentScale = ContentScale.Crop,
+                                modifier = modifier.clip(CircleShape)
+                                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                             )
                         }
                     },
@@ -413,7 +423,7 @@ fun HomeScreen(
                         )
                     }
                     composable("Profile") { ProfileScreen(userViewModel) }
-                    composable("Settings") { SettingsScreen(userViewModel) }
+                    composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(
                             viewModel = resumeViewModel,

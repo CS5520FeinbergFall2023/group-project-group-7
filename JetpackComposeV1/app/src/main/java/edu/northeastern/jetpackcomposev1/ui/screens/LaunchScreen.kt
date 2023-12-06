@@ -14,7 +14,7 @@ fun LaunchScreen(
 ) {
     Log.d("debug", "Signed in: " + userViewModel.isSignedIn.toString())
     if (userViewModel.isSignedIn) {
-        userViewModel.getCurrentUser()
+        userViewModel.getCurrentUserFromDB()
         onNavigateToHome()
     } else {
         onNavigateToSignIn()

@@ -10,8 +10,8 @@ import java.time.ZonedDateTime
 class ProfileModel() {
     var avatar: AvatarModel by mutableStateOf(AvatarModel())
     var email: String by mutableStateOf("")
-    var password: String by mutableStateOf("")
+    //var password: String by mutableStateOf("") this feature is depressed
     var name: String by mutableStateOf("")
     var bio: String by mutableStateOf("")
-    var date: String by mutableStateOf(ZonedDateTime.now().toString()) // auto get one joined date
+    val date: String = ZonedDateTime.now().toString() // auto get one joined date
 }
