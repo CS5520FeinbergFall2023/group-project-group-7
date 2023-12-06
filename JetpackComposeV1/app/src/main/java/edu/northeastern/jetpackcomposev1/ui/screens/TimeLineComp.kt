@@ -1,6 +1,7 @@
-package edu.northeastern.jetpackcomposev1.ui.application
+package edu.northeastern.jetpackcomposev1.application
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -11,11 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -172,40 +170,43 @@ fun TimelineComp(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-    ) {
-        if(timeLine.count == 0 ) {
 
+    ) {
+
+        if (timeLine.count == 0) {
             Text(text = "No events")
         }
-        else if(timeLine.count == 1) {
+        if (timeLine.count == 1) {
             LastNode(timeLine, onEditClicked, onDeleteClicked)
-        } else{
-        LazyColumn() {
+        } else {
 
-            itemsIndexed(timeLine.results) { index, event ->
+            timeLine.results.forEachIndexed { index, event ->
                 val color = NodeColors.values()[index % NodeColors.values().size].modifiedColor
                 val nextColor =
                     NodeColors.values()[(index + 1) % NodeColors.values().size].modifiedColor
-                TimelineNode(
-                    circleParameters = CircleParametersDefaults.circleParameters(
-                        backgroundColor = color,
-                    ),
-                    lineParameters = LineParametersDefaults.linearGradient(
-                        startColor = color,
-                        endColor = nextColor
-                    )
-                ) { modifier ->
-                    EventCard(
-                        modifier,
-                        containerColor = color,
-                        event = timeLine.results[index],
-                        onEditClicked = { onEditClicked(it) },
-                        onDeleteClicked = { onDeleteClicked(it) }
-                    )
-                }
 
-                LastNode(timeLine, onEditClicked, onDeleteClicked)
-            }
+                if (index != timeLine.count - 1) {
+                    TimelineNode(
+                        circleParameters = CircleParametersDefaults.circleParameters(
+                            backgroundColor = color,
+                        ),
+                        lineParameters = LineParametersDefaults.linearGradient(
+                            startColor = color,
+                            endColor = nextColor
+                        )
+                    ) { modifier ->
+                        EventCard(
+                            modifier,
+                            containerColor = color,
+                            event = event,
+                            onEditClicked = { onEditClicked(it) },
+                            onDeleteClicked = { onDeleteClicked(it) }
+                        )
+                    }
+
+                } else {
+                    LastNode(timeLine, onEditClicked, onDeleteClicked)
+                }
 
             }
         }
@@ -215,65 +216,56 @@ fun TimelineComp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EventCard(
-    modifier: Modifier, containerColor: Color, event: Event, onEditClicked: (Event) -> Unit,
+    modifier: Modifier, containerColor: Color, event: Event,
+    onEditClicked: (Event) -> Unit,
     onDeleteClicked: (Event) -> Unit
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.CenterVertically),
-
+            .wrapContentHeight(align = Alignment.CenterVertically)
+            .clickable(onClick = { onEditClicked(event) }),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        onClick = { onEditClicked(event) }
-    ) {
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = event.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .align(Alignment.CenterVertically)
-
+                    .weight(3f)
             )
             Text(
                 text = event.status,
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .align(Alignment.CenterVertically)
+                    .weight(3f)
 
             )
-            Row(
+            IconButton(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .alignByBaseline(),
-                horizontalArrangement = Arrangement.End
+                    .padding(end = 16.dp)
+                    .weight(1f),
+                onClick = { onDeleteClicked(event) },
             ) {
-
-                IconButton(
-                    onClick = { onEditClicked(event) },
-                ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-                }
-
-                IconButton(
-                    onClick = { onDeleteClicked(event) },
-                ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Edit")
-                }
-
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
             }
         }
     }
 }
+
 @Composable
-fun LastNode(timeLine: TimeLine, onEditClicked: (Event) -> Unit,
-             onDeleteClicked: (Event) -> Unit ){
+fun LastNode(
+    timeLine: TimeLine,
+    onEditClicked: (Event) -> Unit,
+    onDeleteClicked: (Event) -> Unit
+) {
 
     TimelineNode(
         circleParameters = CircleParametersDefaults.circleParameters(
@@ -286,7 +278,7 @@ fun LastNode(timeLine: TimeLine, onEditClicked: (Event) -> Unit,
         EventCard(
             modifier,
             containerColor = Color.Green.copy(alpha = 0.5f),
-            event = timeLine.results[timeLine.count - 1],
+            event = timeLine.results[timeLine.results.size - 1],
             onEditClicked = { onEditClicked(it) },
             onDeleteClicked = { onDeleteClicked(it) }
         )

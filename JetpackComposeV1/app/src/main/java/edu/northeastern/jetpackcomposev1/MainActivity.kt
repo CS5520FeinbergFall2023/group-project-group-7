@@ -62,6 +62,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import edu.northeastern.jetpackcomposev1.application.ApplicationDetailScreen
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
@@ -415,7 +416,13 @@ fun HomeScreen(
                             onNavigateToJobDetail = { index -> navController.navigate("Job_Details/favorite/$index") }
                         )
                     }
-                    composable("My_Applications") { JobApplicationScreen(applicationViewModel) }
+                    composable("My_Applications") { JobApplicationScreen(applicationViewModel, onNavigateToApplicationDetail =  {
+                        navController.navigate("Application_Details") {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                        }
+                    }) }
                     composable("My_Resumes") {
                         ResumesScreen(
                             resumeViewModel,
@@ -452,6 +459,9 @@ fun HomeScreen(
                                     }
                                 })
                         }
+                    }
+                    composable("Application_Details"){
+                        ApplicationDetailScreen(applicationViewModel = applicationViewModel, jobViewModel = jobViewModel)
                     }
 
                     /*
