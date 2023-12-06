@@ -1,5 +1,6 @@
 package edu.northeastern.jetpackcomposev1.utility
 
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
@@ -52,15 +53,10 @@ fun convertJoinedDate(isoString: String): String {
     return "Joined ${joinedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}"
 }
 
-fun dateToMillis(dateString: String): Long {
-    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val date = format.parse(dateString)
-    return date?.time ?: 0L
-}
 
 fun millisToDate(millis: Long? = System.currentTimeMillis()): String {
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    format.timeZone = TimeZone.getDefault()
+    format.timeZone = TimeZone.getTimeZone("UTC")
     return format.format(Date(millis ?: System.currentTimeMillis()))
 }
 fun Long?.changeMillisToDateString(): String {

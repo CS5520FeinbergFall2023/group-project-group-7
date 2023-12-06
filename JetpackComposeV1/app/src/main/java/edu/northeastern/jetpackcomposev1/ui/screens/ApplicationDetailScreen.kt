@@ -18,6 +18,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -25,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import edu.northeastern.jetpackcomposev1.models.application.Event
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ApplicationResumeInfo
+import edu.northeastern.jetpackcomposev1.ui.sheets.EventUpdateSheet
+import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
@@ -43,6 +48,14 @@ fun ApplicationDetailScreen(
     var application = selectedApplication
     val event by applicationViewModel.selectedEvent
 
+    var showEventUpdateSheet by rememberSaveable { mutableStateOf(false) }
+    if (showEventUpdateSheet) {
+        EventUpdateSheet(
+            applicationViewModel = applicationViewModel,
+            onCloseSheet = { showEventUpdateSheet = false }
+        )
+    }
+
     LazyColumn(modifier = Modifier.padding(horizontal = 8.dp)) {
         item {
                 val job = application!!.job
@@ -53,7 +66,7 @@ fun ApplicationDetailScreen(
             AddEventFab(
                 modifier = Modifier.padding(top = 8.dp),
                 applicationViewModel = applicationViewModel,
-                //onNavigateToEventUpdate = onNavigateToEventUpdate
+                setShowEventUpdate = { showEventUpdateSheet = it }
             )
             TimelineComp(
                 application.timeLine,
@@ -63,7 +76,7 @@ fun ApplicationDetailScreen(
                 },
                 onEditClicked = { event ->
                     applicationViewModel.selectEvent(event)
-                    //onNavigateToEventUpdate()
+                    showEventUpdateSheet = true
                 },
             )
         }
@@ -142,14 +155,14 @@ fun ApplicationDetailJobInfo(
 fun AddEventFab(
     modifier: Modifier,
     applicationViewModel: ApplicationViewModel,
+    setShowEventUpdate:(Boolean)->Unit
 ) {
     Row(horizontalArrangement = Arrangement.Center) {
         FloatingActionButton(
             onClick = {
                 //create a new event when old event is empty
                 applicationViewModel.selectEvent(Event("", ""))
-                //onNavigateToEventUpdate()
-                //showEventUpdateSheet = true
+                setShowEventUpdate(true)
             }
         )
         {

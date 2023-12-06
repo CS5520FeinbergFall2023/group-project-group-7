@@ -186,9 +186,7 @@ fun ApplicationJobInfo(modifier: Modifier, job: JobModel){
             style = MaterialTheme.typography.labelSmall
         )
     }
-
     Spacer(modifier = Modifier.height(2.dp))
-
 }
 
 @Composable

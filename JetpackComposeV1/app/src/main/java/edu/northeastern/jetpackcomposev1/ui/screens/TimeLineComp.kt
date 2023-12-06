@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -239,14 +240,17 @@ private fun EventCard(
                 text = event.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .weight(3f)
+                    .weight(3f),
+                color = Color.Black,
+                style = MaterialTheme.typography.bodyMedium,
             )
             Text(
                 text = event.status,
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .weight(3f)
-
+                    .weight(3f),
+                color = Color.Black,
+                style = MaterialTheme.typography.bodyMedium,
             )
             IconButton(
                 modifier = Modifier
@@ -266,14 +270,12 @@ fun LastNode(
     onEditClicked: (Event) -> Unit,
     onDeleteClicked: (Event) -> Unit
 ) {
-
     TimelineNode(
         circleParameters = CircleParametersDefaults.circleParameters(
             backgroundColor = Color.Green,
             stroke = StrokeParameters(color = Color.Blue, width = 2.dp),
             icon = R.drawable.ic_bubble_warning_16
         ),
-
         ) { modifier ->
         EventCard(
             modifier,
@@ -283,6 +285,5 @@ fun LastNode(
             onDeleteClicked = { onDeleteClicked(it) }
         )
     }
-
 }
 
