@@ -65,7 +65,7 @@ fun AddNewApplicationScreen(
     var companyName by remember { mutableStateOf(job?.company?.display_name ?: "") }
     var location by remember { mutableStateOf(job?.location?.display_name ?: "") }
     var selectedResume by remember { mutableStateOf<String?>(null) }
-    var selectedStatus by remember { mutableStateOf(ApplicationStatus.IN_PROGRESS.displayName) }
+    var selectedStatus by remember { mutableStateOf(ApplicationStatus.APPLIED.displayName) }
     //Default date is today
     val dateState = rememberDatePickerState(initialSelectedDateMillis = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
     var eventList = mutableListOf<Event>()
@@ -173,7 +173,7 @@ fun AddNewApplicationScreen(
                     location = job?.location?.display_name ?: ""
                     dateState.setSelection(Instant.now().toEpochMilli())
                     selectedResume = null
-                    selectedStatus = ApplicationStatus.IN_PROGRESS.displayName
+                    selectedStatus = ApplicationStatus.APPLIED.displayName
                 },
                 modifier = Modifier.padding(16.dp)
             ) {

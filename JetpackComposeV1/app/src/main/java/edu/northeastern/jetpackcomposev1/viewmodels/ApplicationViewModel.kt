@@ -91,7 +91,7 @@ class ApplicationViewModel: ViewModel() {
         val newJobApplication = JobApplicationModel(job = job.copy())
         newJobApplication.resume = resume
         newJobApplication.timeLine = timeLine.copy()
-        newJobApplication.status = timeLine.results.last().status
+        newJobApplication.status = timeLine.results.first().status
         jobApplicationList.add(newJobApplication)
         selectApplication(newJobApplication)
         viewModelScope.launch {
@@ -155,6 +155,7 @@ class ApplicationViewModel: ViewModel() {
             count = mutableResults.size
         )
         newJobApplication.timeLine = updatedTimeLine
+        newJobApplication.status = updatedTimeLine.results.first().status
         selectApplication(newJobApplication)
         updateJobApplicationToDB(jobApplication, newJobApplication)
     }

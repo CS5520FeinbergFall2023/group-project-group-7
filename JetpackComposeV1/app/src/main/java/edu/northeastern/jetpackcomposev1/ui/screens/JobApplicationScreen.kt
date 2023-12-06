@@ -192,7 +192,7 @@ fun ApplicationJobInfo(modifier: Modifier, job: JobModel){
 @Composable
 fun ApplicationResumeInfo(modifier: Modifier, resume: ResumeModel){
     Text(
-        text = "Resume:  ${resume.fileName}",
+        text = "Resume:  ${resume.nickName}",
         color = MaterialTheme.colorScheme.secondary,
         style = MaterialTheme.typography.bodyMedium
     )
