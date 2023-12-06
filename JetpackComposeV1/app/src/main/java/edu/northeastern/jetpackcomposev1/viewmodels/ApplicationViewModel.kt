@@ -117,28 +117,6 @@ class ApplicationViewModel: ViewModel() {
         }
     }
 
-//    fun updateEventToDB(jobApplication: JobApplicationModel, oldEvent: Event, newEvent: Event) {
-//
-//        var newJobApplication = JobApplicationModel(job = jobApplication.job.copy())
-//        newJobApplication.resume = jobApplication.resume
-//        newJobApplication.timeLine = jobApplication.timeLine.copy()
-//        var mutableResults = newJobApplication.timeLine.results.toMutableList()
-//
-//        if (newEvent.date != "" && newEvent.status != "") {
-//            mutableResults.add(newEvent)
-//        }
-//        if (oldEvent.date != "" && oldEvent.status != "") {
-//            mutableResults.removeIf { it.date == oldEvent.date && it.status == oldEvent.status }
-//        }
-//        val updatedTimeLine = newJobApplication.timeLine.copy(
-//            results = mutableResults.sortedByDescending { it.date },
-//            count = mutableResults.size // Update count based on the sorted results
-//        )
-//        newJobApplication.timeLine = updatedTimeLine
-//        selectApplication(newJobApplication)
-//        updateJobApplicationToDB(jobApplication, newJobApplication)
-//        }
-
     fun updateEventToDB(jobApplication: JobApplicationModel, oldEvent: Event, newEvent: Event) {
         val newJobApplication = JobApplicationModel(job = jobApplication.job.copy())
         newJobApplication.resume = jobApplication.resume

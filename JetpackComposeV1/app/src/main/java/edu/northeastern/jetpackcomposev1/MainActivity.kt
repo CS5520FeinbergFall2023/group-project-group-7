@@ -489,7 +489,6 @@ fun HomeScreen(
                             jobViewModel = jobViewModel,
                             applicationViewModel = applicationViewModel,
                             resumeViewModel = resumeViewModel,
-                            navController = navController,
                             onNavigateToResume = {
                                 navController.navigate("My_Resumes") {
                                     /*popUpTo(navController.graph.startDestinationId) {
@@ -497,7 +496,13 @@ fun HomeScreen(
                                     }*/
                                 }
                             },
-                            applicationId = if (isEditMode) applicationId else null
+                            onNavigateToApplicationDetails = {
+                                navController.navigate("Application_Details") {
+                                    /*popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }*/
+                                }
+                            },
                         )
                     }
                 }
