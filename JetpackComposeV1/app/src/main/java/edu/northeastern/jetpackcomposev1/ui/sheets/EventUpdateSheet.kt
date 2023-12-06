@@ -52,12 +52,15 @@ fun EventUpdateSheet(
     val dateState = rememberDatePickerState(
         initialSelectedDateMillis = LocalDate.now().atStartOfDay(
             ZoneId.systemDefault()
-        ).toInstant().toEpochMilli()
-    )
+        ).toInstant().toEpochMilli(),
+        )
     val application by applicationViewModel.selectedApplication
     val event by applicationViewModel.selectedEvent
     var selectedStatus by rememberSaveable { mutableStateOf(event!!.status) }
     val sheetState = rememberModalBottomSheetState()
+    var showDateEmpty = rememberSaveable{ mutableStateOf(false)}
+    var showStatusEmpty = rememberSaveable{ mutableStateOf(false)}
+
 
     ModalBottomSheet(
         onDismissRequest = { onCloseSheet() },
@@ -100,6 +103,15 @@ fun EventUpdateSheet(
                     onDismissRequest = { datePickerExpanded = false },
                     onConfirmButtonClicked = { datePickerExpanded = false }
                 )
+
+                if(showDateEmpty.value){
+                    Text(
+                        text = "Please select a date",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
                 // Status Dropdown
                 DropdownMenu(
                     options = ApplicationStatus.values().map { it.displayName },
@@ -109,6 +121,14 @@ fun EventUpdateSheet(
                     },
                     label = "Application Status"
                 )
+                if(showStatusEmpty.value){
+                    Text(
+                        text = "Please select a status",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
 
                 //Buttons
@@ -137,11 +157,18 @@ fun EventUpdateSheet(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         ),
                         onClick = {
-                            if (selectedStatus.isNotBlank()) {
+                            if(selectedStatus.isBlank()){
+                                showStatusEmpty.value = true
+                            }
+                            if(dateState.selectedDateMillis == null){
+                                showDateEmpty.value = true
+                            }
+                            else if (selectedStatus.isNotBlank()) {
                                 val newEvent = selectedStatus?.takeIf { it.isNotBlank() }?.let { Event(it, millisToDate(dateState.selectedDateMillis!!)) }
                                 event?.let { applicationViewModel.updateEventToDB(application!!, it, newEvent!!) }
+                                onCloseSheet()
                             }
-                            onCloseSheet()
+
                         },
                     ) {
                         Text(
