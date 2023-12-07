@@ -82,6 +82,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
 
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
+import edu.northeastern.jetpackcomposev1.viewmodels.PostViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 import kotlinx.coroutines.launch
 
@@ -151,6 +152,7 @@ fun MyApp() {
     val jobViewModel: JobViewModel = viewModel()
     val applicationViewModel: ApplicationViewModel = viewModel()
     val resumeViewModel: ResumeViewModel = viewModel()
+    val postViewModel: PostViewModel = viewModel()
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Launch") {
@@ -250,6 +252,7 @@ fun MyApp() {
                 jobViewModel = jobViewModel,
                 applicationViewModel = applicationViewModel,
                 resumeViewModel = resumeViewModel,
+                postViewModel = postViewModel,
                 onNavigateToMyApp = {
                     navController.navigate("My_App") {
                         popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
@@ -280,6 +283,7 @@ fun HomeScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
+    postViewModel: PostViewModel,
     onNavigateToMyApp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -290,6 +294,7 @@ fun HomeScreen(
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
+        postViewModel.getPostFromDB()
         jobViewModel.firstLaunch = false
     }
     // define nav controller
@@ -387,7 +392,8 @@ fun HomeScreen(
                                 placeholder = painterResource(R.drawable.ic_launcher_foreground),
                                 error = painterResource(R.drawable.ic_launcher_foreground),
                                 contentScale = ContentScale.Crop,
-                                modifier = modifier.clip(CircleShape)
+                                modifier = modifier
+                                    .clip(CircleShape)
                                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                             )
                         }
@@ -427,7 +433,7 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("Profile") { ProfileScreen(userViewModel) }
+                    composable("Profile") { ProfileScreen(userViewModel, postViewModel) }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(

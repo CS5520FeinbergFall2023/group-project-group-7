@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -445,7 +446,7 @@ fun CardFoot(
             Icon(
                 painter = painterResource(id = if (onFindJobInFavorite(job.id)) fillIcon else outlineIcon),
                 contentDescription = "Saved",
-                tint = MaterialTheme.colorScheme.outline
+                tint = if (onFindJobInFavorite(job.id)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
             )
         }
         IconButton(onClick = { context.startActivity(applyJobIntent) }) {

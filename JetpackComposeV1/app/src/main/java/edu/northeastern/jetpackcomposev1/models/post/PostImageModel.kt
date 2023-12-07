@@ -9,6 +9,5 @@ data class PostImageModel(
     val id: String = UUID.randomUUID().toString(), // save your life, auto generate one, no need to get one from the firebase
     val fileName: String = "",
     val filePath: String = "",
-    val order: Int = 0,
     val time: String = ZonedDateTime.now().toString() // auto get one, no need to input
 )
