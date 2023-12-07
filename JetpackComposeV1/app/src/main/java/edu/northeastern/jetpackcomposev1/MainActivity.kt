@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
@@ -54,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -76,6 +78,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.AddNewApplicationScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.PostScreen
 
 import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
@@ -112,6 +115,11 @@ val navItems: List<NavigationItem> = listOf(
         title = "My Resumes",
         icon = Icons.Outlined.List,
         route = "My_Resumes"
+    ),
+    NavigationItem(
+        title = "Posts",
+        icon = Icons.Outlined.Send,
+        route = "Posts"
     ),
     NavigationItem(
         title = "Profile",
@@ -311,7 +319,7 @@ fun HomeScreen(
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         NavigationDrawerItem(
-                            label = { Text("Job Track Pro") },
+                            label = { Text(text = "Job Track Pro", fontWeight = FontWeight.Bold) },
                             selected = false,
                             onClick = {},
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -433,6 +441,7 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
+                    composable("posts") { PostScreen(postViewModel = postViewModel) }
                     composable("Profile") { ProfileScreen(userViewModel, postViewModel) }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {

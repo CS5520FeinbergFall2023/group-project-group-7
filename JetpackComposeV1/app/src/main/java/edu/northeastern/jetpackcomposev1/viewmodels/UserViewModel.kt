@@ -120,7 +120,6 @@ class UserViewModel: ViewModel() {
         isSignedIn = false
         authMessage = ""
         messageReturned = 0
-        user = UserModel()
         password = ""
         newPassword = ""
     }
@@ -206,10 +205,10 @@ class UserViewModel: ViewModel() {
                 running = true
                 if (password != "" && newPassword != "") {
                     val credential = EmailAuthProvider.getCredential(user.profile.email, password)
-                    auth.currentUser!!.reauthenticate(credential).addOnCompleteListener { task ->
+                    auth.currentUser?.reauthenticate(credential)?.addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             // The password is correct, now you can allow the user to update the password
-                            auth.currentUser!!.updatePassword(newPassword)
+                            auth.currentUser?.updatePassword(newPassword)!!
                                 .addOnCompleteListener { task ->
                                     if (task.isSuccessful) {
                                         Log.d("debug", "Password updated successfully")

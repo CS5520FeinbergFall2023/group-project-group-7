@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -21,6 +22,7 @@ import com.google.firebase.storage.storage
 import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
+import edu.northeastern.jetpackcomposev1.models.post.PostImageModel
 import edu.northeastern.jetpackcomposev1.models.post.PostModel
 import edu.northeastern.jetpackcomposev1.models.user.AvatarModel
 import edu.northeastern.jetpackcomposev1.models.user.ProfileModel
@@ -70,11 +72,13 @@ class PostViewModel: ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
-                post.user_id = auth.currentUser!!.uid
+                running = true
+                post.user_id = auth.currentUser?.uid!!
                 post.time = ZonedDateTime.now().toString()
                 postList.add(0, post)
                 database.getReference("posts").setValue(postList.toList())
                 post = PostModel()
+                running = false
             }
         }
     }
@@ -105,7 +109,7 @@ class PostViewModel: ViewModel() {
 
     /**********************************************************************************************/
     fun findUserInLikes(index: Int): Boolean {
-        return postList[index].likes.contains(auth.currentUser!!.uid)
+        return postList[index].likes.contains(auth.currentUser?.uid)
     }
 
     fun setPostLikeToDB(index: Int) {
@@ -113,11 +117,45 @@ class PostViewModel: ViewModel() {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
                 if (findUserInLikes(index)) {
-                    postList[index].likes = postList[index].likes.filter { it != auth.currentUser!!.uid }
+                    postList[index].likes = postList[index].likes.filter { it != auth.currentUser?.uid!! }
                 } else {
-                    postList[index].likes += auth.currentUser!!.uid
+                    postList[index].likes += auth.currentUser?.uid!!
                 }
                 database.getReference("posts").setValue(postList.toList())
+            }
+        }
+    }
+    /**********************************************************************************************/
+    fun setPostImageToStorage(index: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                running = true
+                val storageRef = storage.getReference("posts/${post.id}/images/${post.images[index].fileName}")
+                val uploadTask = storageRef.putFile(post.images[index].filePath.toUri())
+                // Register observers to listen for when the download is done or if it fails
+                uploadTask.addOnFailureListener {
+                    // Handle unsuccessful uploads
+                    Log.d("debug", "Post image upload unsuccessful")
+                    running = false
+                }.addOnSuccessListener {
+                    Log.d("debug", "Post image upload successful")
+                    storageRef.downloadUrl.addOnSuccessListener { uri ->
+                        // Got the download URL for the image
+                        Log.d("debug", "Post image public URL download successful")
+                        post.images[index].filePath = uri.toString()
+                        if ((index + 1) != post.images.size) {
+                            setPostImageToStorage(index + 1)
+                        }
+                        else {
+                            setPostToDB()
+                        }
+                    }.addOnFailureListener {
+                        // Handle any errors
+                        Log.d("debug", "Post image public URL download unsuccessful")
+                        running = false
+                    }
+                }
             }
         }
     }
