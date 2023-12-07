@@ -1,19 +1,12 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -32,6 +25,7 @@ import edu.northeastern.jetpackcomposev1.models.job.JobSearchHistoryModel
 import edu.northeastern.jetpackcomposev1.models.job.JobSearchResultModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
 import edu.northeastern.jetpackcomposev1.models.search.SearchModel
+import edu.northeastern.jetpackcomposev1.models.search.SortByCode
 import edu.northeastern.jetpackcomposev1.models.user.GeoLocationModel
 import edu.northeastern.jetpackcomposev1.utility.urlEncoding
 import io.ktor.client.HttpClient
@@ -119,18 +113,6 @@ class JobViewModel: ViewModel() {
                     }
                 }
                 // Make the HTTP request.
-                if (firstLaunch) {
-                    var httpResponse = client.get("https://icanhazip.com/")
-                    if (httpResponse.status.value == 200) {
-                        val ip: String = httpResponse.body()
-                        httpResponse = client.get("https://ipinfo.io/$ip/json")
-                        if (httpResponse.status.value == 200) {
-                            val geoLocation: GeoLocationModel = httpResponse.body()
-                            search.country = geoLocation.country.lowercase()
-                            search.where = "${geoLocation.city}, ${geoLocation.region}"
-                        }
-                    }
-                }
                 val httpResponse = client.get(setRequestURL())
                 if (httpResponse.status.value == 200) {
                     response = httpResponse.body()
@@ -143,12 +125,53 @@ class JobViewModel: ViewModel() {
             }
         }
     }
+
+    fun setJobRecommendation() {
+        if (jobSearchHistoryList.isNotEmpty()) {
+            search.what = jobSearchHistoryList[0].what
+            search.company = jobSearchHistoryList[0].company
+        }
+        search.sort_by = SortByCode.DATE.code
+        getJobFromAPI()
+    }
+    fun getJobRecommendationFromAPI() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                val client = HttpClient(Android) {
+                    install(ContentNegotiation) {
+                        json(Json { ignoreUnknownKeys = true })
+                    }
+                }
+                // Make the HTTP request.
+                var httpResponse = client.get("https://icanhazip.com/")
+                if (httpResponse.status.value == 200) {
+                    val ip: String = httpResponse.body()
+                    httpResponse = client.get("https://ipinfo.io/$ip/json")
+                    if (httpResponse.status.value == 200) {
+                        val geoLocation: GeoLocationModel = httpResponse.body()
+                        search.country = geoLocation.country.lowercase()
+                        search.where = "${geoLocation.city}, ${geoLocation.region}"
+                        setJobRecommendation()
+                    }
+                    else {
+                        setJobRecommendation()
+                    }
+                }
+                else {
+                    setJobRecommendation()
+                }
+                client.close()
+            }
+        }
+    }
     /**********************************************************************************************/
     fun getJobSearchHistoryFromDB() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
                 if (jobSearchHistoryList.isEmpty()) {
+                    running = true
                     val myRef = database.getReference("users/${auth.currentUser?.uid}/jobSearchHistory")
                     myRef.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -158,6 +181,7 @@ class JobViewModel: ViewModel() {
                                     jobSearchHistoryList.add(jobSearchHistoryModel)
                                 }
                             }
+                            getJobRecommendationFromAPI()
                         }
 
                         override fun onCancelled(error: DatabaseError) {

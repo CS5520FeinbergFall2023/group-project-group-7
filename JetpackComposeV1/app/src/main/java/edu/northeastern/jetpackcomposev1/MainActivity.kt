@@ -290,8 +290,6 @@ fun HomeScreen(
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
-        // load initial set of jobs
-        jobViewModel.getJobFromAPI()
         jobViewModel.firstLaunch = false
     }
     // define nav controller
