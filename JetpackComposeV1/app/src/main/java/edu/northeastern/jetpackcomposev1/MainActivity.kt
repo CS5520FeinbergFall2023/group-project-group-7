@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Menu
@@ -120,8 +121,8 @@ val navItems: List<NavigationItem> = listOf(
     ),
     NavigationItem(
         title = "Posts",
-        icon = Icons.Sharp.Info,
-        route = "My_Posts"
+        icon = Icons.Outlined.Info,
+        route = "Posts"
     ),
     NavigationItem(
         title = "Profile",
@@ -162,6 +163,7 @@ fun MyApp() {
     val jobViewModel: JobViewModel = viewModel()
     val applicationViewModel: ApplicationViewModel = viewModel()
     val resumeViewModel: ResumeViewModel = viewModel()
+    val postViewModel: PostViewModel = viewModel()
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Launch") {
@@ -261,6 +263,7 @@ fun MyApp() {
                 jobViewModel = jobViewModel,
                 applicationViewModel = applicationViewModel,
                 resumeViewModel = resumeViewModel,
+                postViewModel = postViewModel,
                 onNavigateToMyApp = {
                     navController.navigate("My_App") {
                         popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
@@ -291,6 +294,7 @@ fun HomeScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
+    postViewModel: PostViewModel,
     onNavigateToMyApp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -301,6 +305,7 @@ fun HomeScreen(
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
+        postViewModel.getPostFromDB()
         jobViewModel.firstLaunch = false
     }
     // define nav controller
@@ -438,7 +443,7 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("My_Posts") { PostScreen(postViewModel = postViewModel) }
+                    composable("Posts") { PostScreen(postViewModel = postViewModel) }
                     composable("Profile") {
                         ProfileScreen(
                             userViewModel = userViewModel,
