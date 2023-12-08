@@ -20,7 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
@@ -103,12 +105,12 @@ val navItems: List<NavigationItem> = listOf(
     ),
     NavigationItem(
         title = "My Favorites",
-        icon = Icons.Outlined.List,
+        icon = Icons.Outlined.FavoriteBorder,
         route = "My_Favorites"
     ),
     NavigationItem(
         title = "My Applications",
-        icon = Icons.Outlined.List,
+        icon = Icons.Outlined.MailOutline,
         route = "My_Applications"
     ),
     NavigationItem(
@@ -441,8 +443,15 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("posts") { PostScreen(postViewModel = postViewModel) }
-                    composable("Profile") { ProfileScreen(userViewModel, postViewModel) }
+                    composable("Posts") { PostScreen(postViewModel = postViewModel) }
+                    composable("Profile") {
+                        ProfileScreen(
+                            userViewModel = userViewModel,
+                            jobViewModel = jobViewModel,
+                            postViewModel = postViewModel,
+                            onNavigateToSetting = { navController.navigate("Settings") }
+                        )
+                    }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(
