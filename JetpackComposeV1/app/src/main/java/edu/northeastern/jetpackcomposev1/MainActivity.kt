@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -113,6 +114,11 @@ val navItems: List<NavigationItem> = listOf(
         title = "My Resumes",
         icon = Icons.Outlined.List,
         route = "My_Resumes"
+    ),
+    NavigationItem(
+        title = "Posts",
+        icon = Icons.Sharp.Info,
+        route = "My_Posts"
     ),
     NavigationItem(
         title = "Profile",
@@ -429,7 +435,14 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("Profile") { ProfileScreen(userViewModel) }
+                    composable("My_Posts") {
+                       /************TO DO *************/
+                    }
+
+                    composable("Profile") { ProfileScreen(userViewModel,jobViewModel = jobViewModel, onNavigateToSetting = {
+                        navController.navigate("Settings")
+                        })
+                    }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(
@@ -516,3 +529,4 @@ fun HomeScreen(
     }
 //    Log.d("debug", "Home render finished")
 }
+
