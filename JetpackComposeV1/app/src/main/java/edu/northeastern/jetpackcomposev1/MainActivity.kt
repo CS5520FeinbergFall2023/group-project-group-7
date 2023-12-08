@@ -26,8 +26,8 @@ import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -120,8 +120,8 @@ val navItems: List<NavigationItem> = listOf(
     ),
     NavigationItem(
         title = "Posts",
-        icon = Icons.Outlined.Send,
-        route = "Posts"
+        icon = Icons.Sharp.Info,
+        route = "My_Posts"
     ),
     NavigationItem(
         title = "Profile",
@@ -162,7 +162,6 @@ fun MyApp() {
     val jobViewModel: JobViewModel = viewModel()
     val applicationViewModel: ApplicationViewModel = viewModel()
     val resumeViewModel: ResumeViewModel = viewModel()
-    val postViewModel: PostViewModel = viewModel()
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Launch") {
@@ -262,7 +261,6 @@ fun MyApp() {
                 jobViewModel = jobViewModel,
                 applicationViewModel = applicationViewModel,
                 resumeViewModel = resumeViewModel,
-                postViewModel = postViewModel,
                 onNavigateToMyApp = {
                     navController.navigate("My_App") {
                         popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
@@ -293,7 +291,6 @@ fun HomeScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
-    postViewModel: PostViewModel,
     onNavigateToMyApp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -304,7 +301,6 @@ fun HomeScreen(
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
-        postViewModel.getPostFromDB()
         jobViewModel.firstLaunch = false
     }
     // define nav controller
@@ -321,7 +317,7 @@ fun HomeScreen(
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         NavigationDrawerItem(
-                            label = { Text(text = "Job Track Pro", fontWeight = FontWeight.Bold) },
+                            label = { Text("Job Track Pro") },
                             selected = false,
                             onClick = {},
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -402,8 +398,7 @@ fun HomeScreen(
                                 placeholder = painterResource(R.drawable.ic_launcher_foreground),
                                 error = painterResource(R.drawable.ic_launcher_foreground),
                                 contentScale = ContentScale.Crop,
-                                modifier = modifier
-                                    .clip(CircleShape)
+                                modifier = modifier.clip(CircleShape)
                                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                             )
                         }
@@ -443,7 +438,7 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("Posts") { PostScreen(postViewModel = postViewModel) }
+                    composable("My_Posts") { PostScreen(postViewModel = postViewModel) }
                     composable("Profile") {
                         ProfileScreen(
                             userViewModel = userViewModel,
