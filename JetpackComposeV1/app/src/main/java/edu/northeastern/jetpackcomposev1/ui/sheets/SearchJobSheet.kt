@@ -141,7 +141,7 @@ fun SearchJobButton(
 ) {
     Button(
         modifier = modifier
-            .padding(vertical = 4.dp)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
             .fillMaxWidth(),
         onClick = {
             jobViewModel.search.page = 1

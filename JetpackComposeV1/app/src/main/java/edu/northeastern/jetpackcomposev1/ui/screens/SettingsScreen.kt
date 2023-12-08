@@ -130,7 +130,7 @@ fun SettingProfileSection(
         Button(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp, horizontal = 8.dp),
             onClick = { userViewModel.setProfileToDB() }
         ) {
             Text("Save")
@@ -186,7 +186,7 @@ fun SettingPasswordSection(
         Button(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp, horizontal = 8.dp),
             onClick = { userViewModel.setPasswordToAuth() }
         ) {
             Text("Change Password")
@@ -207,10 +207,10 @@ fun SettingHistorySection(
         Button(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp, horizontal = 8.dp),
             onClick = { jobViewModel.clearJobSearchHistoryToDB() }
         ) {
-            Text("Clear Search History")
+            Text("Clear Search")
         }
         Text(
             text = "View History: ${jobViewModel.jobViewedHistoryList.size}",
@@ -219,10 +219,10 @@ fun SettingHistorySection(
         Button(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp, horizontal = 8.dp),
             onClick = { jobViewModel.clearJobViewedHistoryToDB() }
         ) {
-            Text("Clear View History")
+            Text("Clear View")
         }
         Text(
             text = "Favorite History: ${jobViewModel.jobFavoriteList.size}",
@@ -231,10 +231,10 @@ fun SettingHistorySection(
         Button(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp, horizontal = 8.dp),
             onClick = { jobViewModel.clearJobFavoriteToDB() }
         ) {
-            Text("Clear Favorite History")
+            Text("Clear Favorite")
         }
     }
 }

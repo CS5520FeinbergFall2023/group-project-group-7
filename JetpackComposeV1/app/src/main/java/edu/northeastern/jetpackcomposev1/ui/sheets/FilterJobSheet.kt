@@ -333,7 +333,7 @@ fun FilterJobButton(
     Column {
         Button(
             modifier = modifier
-                .padding(vertical = 4.dp)
+                .padding(vertical = 4.dp, horizontal = 8.dp)
                 .fillMaxWidth(),
             onClick = {
                 jobViewModel.search.page = 1
@@ -345,7 +345,7 @@ fun FilterJobButton(
         }
         Button(
             modifier = modifier
-                .padding(vertical = 4.dp)
+                .padding(vertical = 4.dp, horizontal = 8.dp)
                 .fillMaxWidth(),
             onClick = {
                 jobViewModel.search.results_per_page = 10
