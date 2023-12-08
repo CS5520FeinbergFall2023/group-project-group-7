@@ -168,7 +168,7 @@ fun ProfileSection(
         }
         // bio here
         OutlinedCard(
-            modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+            modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             Column(modifier = modifier.padding(all = 16.dp)) {
                 Text(profile.bio.ifEmpty { "Say hi to me!" })
