@@ -4,6 +4,7 @@ package edu.northeastern.jetpackcomposev1.ui.screens
 import androidx.compose.material3.Text
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -82,9 +83,11 @@ fun JobDetailScreen(
                     jobViewModel.selectJob(job)
                     JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply, postViewModel = postViewModel)
                 }
-//            else if (listName == "application") {
-//                /* when user click the job from the application screen*/
-//            }
+                else if (listName == "recommendation") {
+                    val job = applicationViewModel.jobRecommendationList[index]
+                    jobViewModel.selectJob(job)
+                    JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply, postViewModel = postViewModel)
+                }
             }
         }
     }

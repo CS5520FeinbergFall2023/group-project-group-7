@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
@@ -81,6 +82,7 @@ import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.AddNewApplicationScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.JobRecommendationScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.PostScreen
 
 import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
@@ -103,6 +105,11 @@ val navItems: List<NavigationItem> = listOf(
         title = "Job Search",
         icon = Icons.Outlined.Search,
         route = "Job_Search"
+    ),
+    NavigationItem(
+        title = "Job Recommendation",
+        icon = Icons.Outlined.Notifications,
+        route = "Job_Recommendation"
     ),
     NavigationItem(
         title = "My Favorites",
@@ -304,6 +311,7 @@ fun HomeScreen(
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
+        applicationViewModel.getJobRecommendationFromDB()
         resumeViewModel.getResumeFromDB()
         postViewModel.getPostFromDB()
         jobViewModel.firstLaunch = false
@@ -429,6 +437,13 @@ fun HomeScreen(
                             onNavigateToJobDetail = { index -> navController.navigate("Job_Details/search/$index") }
                         )
                     }
+                    composable("Job_Recommendation"){
+                        JobRecommendationScreen(
+                            jobViewModel = jobViewModel,
+                            applicationViewModel = applicationViewModel,
+                            onNavigateToJobDetail = { index -> navController.navigate("Job_Details/recommendation/$index") }
+                        )
+                    }
                     composable("My_Favorites") {
                         JobFavoriteScreen(
                             jobViewModel = jobViewModel,
@@ -436,13 +451,18 @@ fun HomeScreen(
                             onNavigateToJobDetail = { index -> navController.navigate("Job_Details/favorite/$index") }
                         )
                     }
-                    composable("My_Applications") { JobApplicationScreen(applicationViewModel, onNavigateToApplicationDetail =  {
-                        navController.navigate("Application_Details") {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
+                    composable("My_Applications") {
+                        JobApplicationScreen(
+                            applicationViewModel = applicationViewModel,
+                            onNavigateToApplicationDetail =  {
+                                navController.navigate("Application_Details") {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        inclusive = true
+                                    }
+                                }
                             }
-                        }
-                    }) }
+                        )
+                    }
                     composable("My_Resumes") {
                         ResumesScreen(
                             resumeViewModel,

@@ -21,6 +21,7 @@ import edu.northeastern.jetpackcomposev1.models.application.Event
 import edu.northeastern.jetpackcomposev1.models.application.TimeLine
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
+import edu.northeastern.jetpackcomposev1.models.post.PostModel
 import edu.northeastern.jetpackcomposev1.models.resume.ResumeModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -34,7 +35,9 @@ class ApplicationViewModel: ViewModel() {
     val storage: FirebaseStorage = Firebase.storage
 
     var jobApplicationList: SnapshotStateList<JobApplicationModel> = mutableStateListOf()
+    var jobRecommendationList: SnapshotStateList<JobModel> = mutableStateListOf()
 
+    /**********************************************************************************************/
     //Jun's modification
     //adding state for recording the selected application and selected event
     private val _selectedApplication = mutableStateOf<JobApplicationModel?>(null)
@@ -100,6 +103,8 @@ class ApplicationViewModel: ViewModel() {
                     .setValue(jobApplicationList.toList())
             }
         }
+        // add this job to recommendation list
+        setJobRecommendationToDB(job = job)
     }
 
     private fun updateJobApplicationToDB(
@@ -138,4 +143,44 @@ class ApplicationViewModel: ViewModel() {
         updateJobApplicationToDB(jobApplication, newJobApplication)
     }
 
+    /**********************************************************************************************/
+    fun getJobRecommendationFromDB() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                if (jobRecommendationList.isEmpty()) {
+                    val myRef = database.getReference("recommendations")
+                    myRef.addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            jobRecommendationList.clear()
+                            for (snapshot in dataSnapshot.children) {
+                                val JobModel = snapshot.getValue(JobModel::class.java)
+                                if (JobModel != null) {
+                                    jobRecommendationList.add(JobModel)
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            // Failed to read value
+                            Log.w("debug", "Failed to read job recommendation from DB.", error.toException())
+                        }
+                    })
+                }
+            }
+        }
+    }
+    fun setJobRecommendationToDB(job: JobModel) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                // Your long-running operation here
+                val index = jobRecommendationList.indexOfFirst { it.id == job.id }
+                if (index != -1) {
+                    jobRecommendationList.removeAt(index)
+                }
+                jobRecommendationList.add(0, job.copy())
+                database.getReference("recommendations").setValue(jobRecommendationList.toList())
+            }
+        }
+    }
 }
