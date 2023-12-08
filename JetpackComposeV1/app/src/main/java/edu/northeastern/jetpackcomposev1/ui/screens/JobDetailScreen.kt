@@ -18,24 +18,34 @@ import androidx.compose.material3.Surface
 
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.tooling.preview.Preview
+import edu.northeastern.jetpackcomposev1.models.job.JobCompanyModel
+import edu.northeastern.jetpackcomposev1.models.job.JobLocationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
+
 
 @Composable
 fun JobDetailScreen(
@@ -163,6 +173,12 @@ fun JobDetailContent(
     JobDetailButton(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
 }
 
+
+
+
+
+
+
 @Composable
 fun JobDetailButton(
     job: JobModel,
@@ -178,27 +194,54 @@ fun JobDetailButton(
         type = "text/plain"
     }
     val shareJobIntent = Intent.createChooser(sendIntent, null)
-    Column {
-        Button(onClick = { /*TODO leave this blank for now*/ }) {
-            Text("Save")
-        }
-        Button(onClick = { context.startActivity(applyJobIntent) }) {
+    Column (modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp), // Adjust horizontal padding as needed
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+
+        Button( shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.height(60.dp).width(300.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            onClick = { context.startActivity(applyJobIntent) }) {
             Text("Apply")
         }
-        Button(onClick = { context.startActivity(shareJobIntent) }) {
+        Button(shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Gray
+        ),
+        modifier = Modifier.height(60.dp).width(300.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+            onClick = {  /*TODO leave this blank for now*/ }) {
+            Text("Save")
+
+        }
+
+        Button(shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Gray),
+            modifier = Modifier.height(60.dp).width(300.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            onClick = { context.startActivity(shareJobIntent) }) {
             Text("Share")
         }
         // if not applied, add one
         if (!applicationViewModel.jobApplicationList.any { it.job.id == job.id }) {
-            Button(onClick = onNavigateToApply) {
+            Button(shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray
+                ),
+                modifier = Modifier.height(60.dp).width(300.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                onClick = onNavigateToApply) {
                 Text("Add application")
             }
         }
     }
 }
 
-
-/*@Preview
+/*
+@Preview
 @Composable
 fun JobDetailContentPreview() {
     val sampleJob = JobModel(
@@ -239,7 +282,8 @@ fun JobDetailContentPreview() {
         created = "2023-11-27T12:34:56Z"
     )
 
-    JobDetailContent(job = sampleJob)
-}*/
+    JobDetailContent(job = sampleJob, )
+}
 
 
+*/
