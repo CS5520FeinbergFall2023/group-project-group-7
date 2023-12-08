@@ -322,7 +322,7 @@ fun HomeScreen(
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         NavigationDrawerItem(
-                            label = { Text("Job Track Pro") },
+                            label = { Text("Job Track Pro", fontWeight = FontWeight.Bold) },
                             selected = false,
                             onClick = {},
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
