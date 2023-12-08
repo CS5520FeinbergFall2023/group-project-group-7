@@ -1,12 +1,9 @@
 package edu.northeastern.jetpackcomposev1.utility
 
-import android.util.Log
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -48,9 +45,9 @@ fun getCurrentZonedDateTime(): String {
     return ZonedDateTime.now().toString()
 }
 
-fun convertJoinedDate(isoString: String): String {
-    val joinedDateTime: ZonedDateTime = parseDateTime(isoString)
-    return "Joined ${joinedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}"
+fun convertToDate(isoString: String): String {
+    val zonedDateTime: ZonedDateTime = parseDateTime(isoString)
+    return zonedDateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
 }
 
 

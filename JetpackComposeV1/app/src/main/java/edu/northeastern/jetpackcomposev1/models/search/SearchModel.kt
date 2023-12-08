@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.serialization.Serializable
 
+@Serializable
 class SearchModel(
     val app_id: String = "f849217d",
     val app_key: String = "bd6b77c6a91d653f01015217390221f2"

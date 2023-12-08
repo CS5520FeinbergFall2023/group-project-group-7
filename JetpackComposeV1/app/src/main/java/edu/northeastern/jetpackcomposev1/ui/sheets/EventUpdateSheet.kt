@@ -68,7 +68,6 @@ fun EventUpdateSheet(
     ) {
         LazyColumn(
             modifier = modifier
-                .fillMaxWidth()
                 .fillMaxHeight()
                 //add this for the keyboard to not overlap the input
                 .imePadding(),
@@ -82,53 +81,67 @@ fun EventUpdateSheet(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 // Date Picker Field
-                OutlinedTextField(
-                    value = event!!.date.ifEmpty { dateState.selectedDateMillis.changeMillisToDateString() },
-                    onValueChange = { /* Read Only */ },
-                    readOnly = true,
-                    label = { Text("Application Date") },
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.DateRange,
-                            "Select Date",
-                            Modifier.clickable { datePickerExpanded = true })
-                    },
-                    modifier = Modifier.clickable { datePickerExpanded = true }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                // DatePickerDialog
-                ApplicationDatePicker(
-                    state = dateState,
-                    isOpen = datePickerExpanded,
-                    onDismissRequest = { datePickerExpanded = false },
-                    onConfirmButtonClicked = { datePickerExpanded = false }
-                )
+                Row(modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween){
+                    OutlinedTextField(
+                        value = event!!.date.ifEmpty { dateState.selectedDateMillis.changeMillisToDateString() },
+                        onValueChange = { /* Read Only */ },
+                        readOnly = true,
+                        label = { Text("Application Date") },
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.DateRange,
+                                "Select Date",
+                                Modifier.clickable { datePickerExpanded = true })
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable { datePickerExpanded = true }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    // DatePickerDialog
+                    ApplicationDatePicker(
+                        state = dateState,
+                        isOpen = datePickerExpanded,
+                        onDismissRequest = { datePickerExpanded = false },
+                        onConfirmButtonClicked = { datePickerExpanded = false }
+                    )
 
-                if(showDateEmpty.value){
-                    Text(
-                        text = "Please select a date",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    if(showDateEmpty.value){
+                        Text(
+                            text = "Please select a date",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+
                 }
+
                 // Status Dropdown
-                DropdownMenu(
-                    options = ApplicationStatus.values().map { it.displayName },
-                    selectedOption = selectedStatus,
-                    onSelectionChange = { status ->
-                        selectedStatus = status
-                    },
-                    label = "Application Status"
-                )
-                if(showStatusEmpty.value){
-                    Text(
-                        text = "Please select a status",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween){
+                    DropdownMenu(
+                        options = ApplicationStatus.values().map { it.displayName },
+                        selectedOption = selectedStatus,
+                        onSelectionChange = { status ->
+                            selectedStatus = status
+                        },
+                        label = "Application Status"
                     )
+                    if(showStatusEmpty.value){
+                        Text(
+                            text = "Please select a status",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 //Buttons
@@ -140,9 +153,7 @@ fun EventUpdateSheet(
 
                     Button(
                         //onCloseSheet,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        ),
+
                         onClick = onCloseSheet,
                     ) {
                         Text(
@@ -153,9 +164,7 @@ fun EventUpdateSheet(
                         )
                     }
                     Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        ),
+
                         onClick = {
                             if(selectedStatus.isBlank()){
                                 showStatusEmpty.value = true

@@ -20,11 +20,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -54,6 +58,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -76,12 +81,14 @@ import edu.northeastern.jetpackcomposev1.ui.screens.ProfileScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.ResumesScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.AddNewApplicationScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.PostScreen
 
 import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
 
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
+import edu.northeastern.jetpackcomposev1.viewmodels.PostViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.ResumeViewModel
 import kotlinx.coroutines.launch
 
@@ -99,18 +106,23 @@ val navItems: List<NavigationItem> = listOf(
     ),
     NavigationItem(
         title = "My Favorites",
-        icon = Icons.Outlined.List,
+        icon = Icons.Outlined.FavoriteBorder,
         route = "My_Favorites"
     ),
     NavigationItem(
         title = "My Applications",
-        icon = Icons.Outlined.List,
+        icon = Icons.Outlined.MailOutline,
         route = "My_Applications"
     ),
     NavigationItem(
         title = "My Resumes",
         icon = Icons.Outlined.List,
         route = "My_Resumes"
+    ),
+    NavigationItem(
+        title = "Posts",
+        icon = Icons.Outlined.Info,
+        route = "Posts"
     ),
     NavigationItem(
         title = "Profile",
@@ -151,6 +163,7 @@ fun MyApp() {
     val jobViewModel: JobViewModel = viewModel()
     val applicationViewModel: ApplicationViewModel = viewModel()
     val resumeViewModel: ResumeViewModel = viewModel()
+    val postViewModel: PostViewModel = viewModel()
 
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Launch") {
@@ -250,6 +263,7 @@ fun MyApp() {
                 jobViewModel = jobViewModel,
                 applicationViewModel = applicationViewModel,
                 resumeViewModel = resumeViewModel,
+                postViewModel = postViewModel,
                 onNavigateToMyApp = {
                     navController.navigate("My_App") {
                         popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
@@ -280,6 +294,7 @@ fun HomeScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     resumeViewModel: ResumeViewModel,
+    postViewModel: PostViewModel,
     onNavigateToMyApp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -290,8 +305,7 @@ fun HomeScreen(
         jobViewModel.getJobFavoriteFromDB()
         applicationViewModel.getJobApplicationFromDB()
         resumeViewModel.getResumeFromDB()
-        // load initial set of jobs
-        jobViewModel.getJobFromAPI()
+        postViewModel.getPostFromDB()
         jobViewModel.firstLaunch = false
     }
     // define nav controller
@@ -308,7 +322,7 @@ fun HomeScreen(
                     item {
                         Spacer(modifier = Modifier.height(12.dp))
                         NavigationDrawerItem(
-                            label = { Text("Job Track Pro") },
+                            label = { Text("Job Track Pro", fontWeight = FontWeight.Bold) },
                             selected = false,
                             onClick = {},
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -429,7 +443,15 @@ fun HomeScreen(
                             navController = navController
                         )
                     }
-                    composable("Profile") { ProfileScreen(userViewModel) }
+                    composable("Posts") { PostScreen(postViewModel = postViewModel) }
+                    composable("Profile") {
+                        ProfileScreen(
+                            userViewModel = userViewModel,
+                            jobViewModel = jobViewModel,
+                            postViewModel = postViewModel,
+                            onNavigateToSetting = { navController.navigate("Settings") }
+                        )
+                    }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(

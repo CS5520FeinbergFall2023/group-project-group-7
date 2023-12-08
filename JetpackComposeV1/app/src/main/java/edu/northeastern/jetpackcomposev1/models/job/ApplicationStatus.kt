@@ -5,9 +5,6 @@ package edu.northeastern.jetpackcomposev1.models.job
  */
 enum class ApplicationStatus(val displayName: String) {
     APPLIED("Applied"),
-    IN_PROGRESS("In Progress"),
-    UNDER_CONSIDERATION("Under Consideration"),
-    INTERVIEWING("Interviewing"),
     INTERVIEWED("Interviewed"),
     REJECTED("Rejected"),
     OFFER("Offer"),
