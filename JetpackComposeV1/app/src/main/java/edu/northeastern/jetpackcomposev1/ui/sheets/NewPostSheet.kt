@@ -119,7 +119,7 @@ fun AddPost(
                     multiPhotoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
             ) {
-                Text("Add photo")
+                Text("Add Photo")
             }
             Spacer(modifier = modifier.width(8.dp))
             Button(

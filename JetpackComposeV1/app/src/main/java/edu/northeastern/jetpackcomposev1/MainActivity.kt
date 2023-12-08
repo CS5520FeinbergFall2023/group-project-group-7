@@ -323,6 +323,12 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         NavigationDrawerItem(
                             label = { Text("Job Track Pro", fontWeight = FontWeight.Bold) },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.job_track_pro_logo),
+                                    contentDescription = "Logo"
+                                )
+                            },
                             selected = false,
                             onClick = {},
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)

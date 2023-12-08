@@ -2,6 +2,7 @@ package edu.northeastern.jetpackcomposev1.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,9 +17,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -29,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -39,6 +43,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import edu.northeastern.jetpackcomposev1.R
@@ -115,6 +121,7 @@ fun PostCard(
     onSetPostLikeToDB: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isExpanded: Boolean by rememberSaveable { mutableStateOf(false) }
     OutlinedCard(modifier = modifier.padding(vertical = 4.dp)) {
         Column(modifier = modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -145,7 +152,12 @@ fun PostCard(
             Spacer(modifier = modifier.padding(vertical = 4.dp))
             Divider()
             Spacer(modifier = modifier.padding(vertical = 4.dp))
-            Text(post.text)
+            Text(
+                text = post.text,
+                maxLines = if (isExpanded) Int.MAX_VALUE else 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = modifier.clickable { isExpanded = !isExpanded }
+            )
             LazyRow {
                 items(post.images) { image ->
                     AsyncImage(
@@ -158,7 +170,11 @@ fun PostCard(
                             .padding(vertical = 4.dp)
                             .size(150.dp)
                             .clip(MaterialTheme.shapes.small)
-                            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.small
+                            )
                     )
                     Spacer(modifier = modifier.width(8.dp))
                 }

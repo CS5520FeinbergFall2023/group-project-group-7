@@ -189,7 +189,7 @@ fun SettingPasswordSection(
                 .padding(vertical = 4.dp),
             onClick = { userViewModel.setPasswordToAuth() }
         ) {
-            Text("Change password")
+            Text("Change Password")
         }
     }
 }
@@ -201,7 +201,7 @@ fun SettingHistorySection(
 ) {
     Column(modifier = modifier.padding(vertical = 4.dp)) {
         Text(
-            text = "Search history: ${jobViewModel.jobSearchHistoryList.size}",
+            text = "Search History: ${jobViewModel.jobSearchHistoryList.size}",
             modifier = modifier.padding(vertical = 4.dp)
         )
         Button(
@@ -210,10 +210,10 @@ fun SettingHistorySection(
                 .padding(vertical = 4.dp),
             onClick = { jobViewModel.clearJobSearchHistoryToDB() }
         ) {
-            Text("Clear search history")
+            Text("Clear Search History")
         }
         Text(
-            text = "View history: ${jobViewModel.jobViewedHistoryList.size}",
+            text = "View History: ${jobViewModel.jobViewedHistoryList.size}",
             modifier = modifier.padding(vertical = 4.dp)
         )
         Button(
@@ -222,10 +222,10 @@ fun SettingHistorySection(
                 .padding(vertical = 4.dp),
             onClick = { jobViewModel.clearJobViewedHistoryToDB() }
         ) {
-            Text("Clear view history")
+            Text("Clear View History")
         }
         Text(
-            text = "Favorite history: ${jobViewModel.jobFavoriteList.size}",
+            text = "Favorite History: ${jobViewModel.jobFavoriteList.size}",
             modifier = modifier.padding(vertical = 4.dp)
         )
         Button(
@@ -234,7 +234,7 @@ fun SettingHistorySection(
                 .padding(vertical = 4.dp),
             onClick = { jobViewModel.clearJobFavoriteToDB() }
         ) {
-            Text("Clear favorite history")
+            Text("Clear Favorite History")
         }
     }
 }
