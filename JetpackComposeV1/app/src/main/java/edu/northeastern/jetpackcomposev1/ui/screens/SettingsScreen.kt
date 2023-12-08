@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -129,8 +130,8 @@ fun SettingProfileSection(
         )
         Button(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = { userViewModel.setProfileToDB() }
         ) {
             Text("Save")
@@ -185,8 +186,8 @@ fun SettingPasswordSection(
         )
         Button(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = { userViewModel.setPasswordToAuth() }
         ) {
             Text("Change Password")
@@ -199,39 +200,42 @@ fun SettingHistorySection(
     jobViewModel: JobViewModel,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
+    Column(
+        modifier = modifier.padding(vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = "Search History: ${jobViewModel.jobSearchHistoryList.size}",
-            modifier = modifier.padding(vertical = 4.dp)
+            modifier = modifier.padding(vertical = 4.dp).fillMaxWidth()
         )
         Button(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = { jobViewModel.clearJobSearchHistoryToDB() }
         ) {
             Text("Clear Search")
         }
         Text(
             text = "View History: ${jobViewModel.jobViewedHistoryList.size}",
-            modifier = modifier.padding(vertical = 4.dp)
+            modifier = modifier.padding(vertical = 4.dp).fillMaxWidth()
         )
         Button(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = { jobViewModel.clearJobViewedHistoryToDB() }
         ) {
             Text("Clear View")
         }
         Text(
             text = "Favorite History: ${jobViewModel.jobFavoriteList.size}",
-            modifier = modifier.padding(vertical = 4.dp)
+            modifier = modifier.padding(vertical = 4.dp).fillMaxWidth()
         )
         Button(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = { jobViewModel.clearJobFavoriteToDB() }
         ) {
             Text("Clear Favorite")

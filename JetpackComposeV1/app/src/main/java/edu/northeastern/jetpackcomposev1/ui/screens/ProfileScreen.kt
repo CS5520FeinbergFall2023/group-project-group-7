@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -176,7 +177,7 @@ fun ProfileSection(
         }
         // last button here
         Button(
-            modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
+            modifier = modifier.width(250.dp),
             onClick = { onNavigateToSetting() }
         ) {
             Text("Edit Profile")

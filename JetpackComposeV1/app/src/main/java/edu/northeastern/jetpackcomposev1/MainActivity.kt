@@ -485,7 +485,9 @@ fun HomeScreen(
                                             inclusive = true
                                         }*/
                                     }
-                                })
+                                },
+                                postViewModel = postViewModel
+                            )
                         }
                     }
                     composable("Application_Details"){

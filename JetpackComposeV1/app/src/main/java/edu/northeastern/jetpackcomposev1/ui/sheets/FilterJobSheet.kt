@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
@@ -330,11 +331,14 @@ fun FilterJobButton(
     onCloseSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxWidth()
+    ) {
         Button(
             modifier = modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
-                .fillMaxWidth(),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = {
                 jobViewModel.search.page = 1
                 jobViewModel.getJobFromAPI()
@@ -345,8 +349,8 @@ fun FilterJobButton(
         }
         Button(
             modifier = modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
-                .fillMaxWidth(),
+                .width(250.dp)
+                .padding(vertical = 4.dp),
             onClick = {
                 jobViewModel.search.results_per_page = 10
                 jobViewModel.search.distance = 5

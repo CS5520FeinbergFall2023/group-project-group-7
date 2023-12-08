@@ -31,20 +31,29 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import edu.northeastern.jetpackcomposev1.models.job.JobCompanyModel
+import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobLocationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
+import edu.northeastern.jetpackcomposev1.ui.sheets.NewPostSheet
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
+import edu.northeastern.jetpackcomposev1.viewmodels.PostViewModel
 
 
 @Composable
@@ -54,22 +63,28 @@ fun JobDetailScreen(
     jobViewModel: JobViewModel,
     applicationViewModel: ApplicationViewModel,
     onNavigateToApply: () -> Unit,
+    postViewModel: PostViewModel,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
-        item {
-            if (listName == "search") {
-                val job = jobViewModel.response.results[index]
-                jobViewModel.selectJob(job)
-                JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
-            }
-            else if (listName == "favorite") {
-                val job = jobViewModel.jobFavoriteList[index].job
-                jobViewModel.selectJob(job)
-                JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
-            }
-            else if (listName == "application") {
-                /*TODO: when user click the job from the application screen*/
+    if (postViewModel.running) {
+        ShowCircularProgressIndicator()
+    }
+    else {
+        LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
+            item {
+                if (listName == "search") {
+                    val job = jobViewModel.response.results[index]
+                    jobViewModel.selectJob(job)
+                    JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply, postViewModel = postViewModel)
+                }
+                else if (listName == "favorite") {
+                    val job = jobViewModel.jobFavoriteList[index].job
+                    jobViewModel.selectJob(job)
+                    JobDetailContent(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply, postViewModel = postViewModel)
+                }
+//            else if (listName == "application") {
+//                /* when user click the job from the application screen*/
+//            }
             }
         }
     }
@@ -80,18 +95,18 @@ fun JobDetailContent(
     job: JobModel,
     applicationViewModel: ApplicationViewModel,
     onNavigateToApply: () -> Unit,
+    postViewModel: PostViewModel,
     modifier: Modifier = Modifier
 ) {
+    val topPadding: Int = 16
+    // title, company, location
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(
             text = job.title,
             color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             modifier = modifier.padding(bottom = 8.dp)
         )
         Text(
@@ -107,26 +122,60 @@ fun JobDetailContent(
             modifier = modifier.padding(bottom = 8.dp)
         )
     }
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 8.dp)
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
+    Divider()
+    // full location
+    Column(modifier = modifier.padding(top = topPadding.dp)) {
+        Text(text = "Location", fontWeight = FontWeight.Bold, modifier = modifier.padding(bottom = 4.dp))
+        for (area in job.location.area.reversed()) {
             Text(
-                text = job.contract_time.replaceFirstChar { it.uppercase() },
-                color = MaterialTheme.colorScheme.primary,
+                text = area,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(all = 4.dp)
+                modifier = modifier.padding(horizontal = 16.dp)
             )
         }
+    }
+    // contract time, type
+    Column(modifier = modifier.padding(top = topPadding.dp)) {
+        Text(text = "Job Type", fontWeight = FontWeight.Bold, modifier = modifier.padding(bottom = 4.dp))
+        Row(modifier = modifier.padding(horizontal = 16.dp)) {
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = job.contract_time.replaceFirstChar { it.uppercase() },
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = modifier.padding(all = 4.dp)
+                )
+            }
+            if (job.contract_type.isNotEmpty()) {
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = modifier.padding(start = 4.dp)
+                ) {
+                    Text(
+                        text = job.contract_type.replaceFirstChar { it.uppercase() },
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = modifier.padding(all = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+    // salary
+    Column(modifier = modifier.padding(top = topPadding.dp)) {
+        Text(
+            text = "Salary",
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 4.dp)
+        )
         Surface(
-            modifier = modifier.padding(start = 4.dp),
             shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surfaceVariant
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = modifier.padding(horizontal = 16.dp)
         ) {
             Text(
                 text = convertSalary(
@@ -141,42 +190,55 @@ fun JobDetailContent(
             )
         }
     }
-    Text(
-        text = "Job Description:",
-        color = MaterialTheme.colorScheme.secondary,
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = modifier.padding(16.dp)
-    )
-
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            // .verticalScroll(rememberScrollState())
-    ) {
+    // job description
+    Column(modifier = modifier.padding(top = topPadding.dp)) {
+        Text(
+            text = "Description",
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 4.dp)
+        )
         Text(
             text = job.description,
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = modifier.padding(16.dp)
+            modifier = modifier.padding(horizontal = 16.dp)
         )
     }
-    Spacer(modifier = modifier.height(8.dp))
-    Text(
-        text = convertDateTime(job.created),
-        color = MaterialTheme.colorScheme.tertiary,
-        style = MaterialTheme.typography.labelSmall
-    )
+    // category
+    Column(modifier = modifier.padding(top = topPadding.dp)) {
+        Text(
+            text = "Category",
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = job.category.label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.padding(horizontal = 16.dp)
+        )
+    }
+    // date and time
+    Column(modifier = modifier.padding(vertical = topPadding.dp)) {
+        Text(
+            text = "Posted Date",
+            fontWeight = FontWeight.Bold,
+            modifier = modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = convertDateTime(job.created),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.padding(horizontal = 16.dp)
+        )
+    }
+    Divider()
 
     // button section here
-    JobDetailButton(job = job, applicationViewModel = applicationViewModel, onNavigateToApply = onNavigateToApply)
+    JobDetailButton(
+        job = job,
+        applicationViewModel = applicationViewModel,
+        onNavigateToApply = onNavigateToApply,
+        postViewModel = postViewModel
+    )
 }
-
-
-
-
-
 
 
 @Composable
@@ -184,6 +246,7 @@ fun JobDetailButton(
     job: JobModel,
     applicationViewModel: ApplicationViewModel,
     onNavigateToApply: () -> Unit,
+    postViewModel: PostViewModel,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -194,48 +257,60 @@ fun JobDetailButton(
         type = "text/plain"
     }
     val shareJobIntent = Intent.createChooser(sendIntent, null)
-    Column (modifier = Modifier
+
+    // sub sheets are here
+    var showNewPostSheet by rememberSaveable { mutableStateOf(false) }
+    if (showNewPostSheet) {
+        NewPostSheet(
+            postViewModel = postViewModel,
+            onCloseSheet = { showNewPostSheet = false }
+        )
+    }
+
+    Column (modifier = modifier
         .fillMaxWidth()
-        .padding(horizontal = 16.dp), // Adjust horizontal padding as needed
+        .padding(vertical = 8.dp), // Adjust horizontal padding as needed
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-
-        Button( shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.height(60.dp).width(300.dp)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            onClick = { context.startActivity(applyJobIntent) }) {
+        Button(
+            modifier = Modifier
+                .width(250.dp)
+                .padding(vertical = 8.dp),
+            onClick = { context.startActivity(applyJobIntent) }
+        ) {
             Text("Apply")
         }
-        Button(shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Gray
-        ),
-        modifier = Modifier.height(60.dp).width(300.dp)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-            onClick = {  /*TODO leave this blank for now*/ }) {
-            Text("Save")
-
-        }
-
-        Button(shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Gray),
-            modifier = Modifier.height(60.dp).width(300.dp)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            onClick = { context.startActivity(shareJobIntent) }) {
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            modifier = Modifier
+                .width(250.dp)
+                .padding(vertical = 8.dp),
+            onClick = { context.startActivity(shareJobIntent) }
+        ) {
             Text("Share")
         }
-        // if not applied, add one
-        if (!applicationViewModel.jobApplicationList.any { it.job.id == job.id }) {
-            Button(shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Gray
-                ),
-                modifier = Modifier.height(60.dp).width(300.dp)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                onClick = onNavigateToApply) {
-                Text("Add application")
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            modifier = Modifier
+                .width(250.dp)
+                .padding(vertical = 8.dp),
+            onClick = {
+                showNewPostSheet = true
+                postViewModel.post.text = "Check out this job!\n----------------------------\n${job.title}\n${job.company.display_name}\n${job.location.display_name}"
             }
+        ) {
+            Text("Post Job")
+        }
+        // add local application
+        Button(
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            modifier = Modifier
+                .width(250.dp)
+                .padding(vertical = 8.dp),
+            onClick = onNavigateToApply,
+            enabled = !applicationViewModel.jobApplicationList.any { it.job.id == job.id }
+        ) {
+            Text(if (!applicationViewModel.jobApplicationList.any { it.job.id == job.id }) "Add Application" else "Applied")
         }
     }
 }
