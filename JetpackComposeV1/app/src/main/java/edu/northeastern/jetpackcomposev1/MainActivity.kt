@@ -343,6 +343,11 @@ fun HomeScreen(
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
+                        if (index == 1 || index == 4) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Divider()
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                     // sheet foot
                     item {
@@ -447,6 +452,7 @@ fun HomeScreen(
                             postViewModel = postViewModel,
                             onNavigateToSetting = {
                                 navController.navigate("Settings") {
+                                    selectedItemIndex = 7
                                     popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                                 }
                             }
@@ -526,5 +532,5 @@ fun HomeScreen(
     if (!userViewModel.isSignedIn) {
         onNavigateToMyApp()
     }
-    Log.d("debug", "Home render finished")
+//    Log.d("debug", "Home render finished")
 }

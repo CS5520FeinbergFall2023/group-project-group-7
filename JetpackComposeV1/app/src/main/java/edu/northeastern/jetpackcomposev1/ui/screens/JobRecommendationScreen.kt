@@ -44,7 +44,8 @@ fun JobRecommendationScreen(
                     onSetJobViewedHistory = { jobId -> jobViewModel.setJobViewedHistoryToDB(jobId) },
                     onFindJobInFavorite = { jobId -> jobViewModel.findJobInFavoriteList(jobId) },
                     onSetJobFavorite = { job -> jobViewModel.setJobFavoriteToDB(job) },
-                    onNavigateToJobDetail = onNavigateToJobDetail
+                    onNavigateToJobDetail = onNavigateToJobDetail,
+                    onFindJobInApplication = { jobId -> applicationViewModel.findJobInApplicationList(jobId) }
                 )
             }
         }
@@ -60,19 +61,22 @@ fun RecommendationLists(
     onFindJobInFavorite: (String) -> Boolean,
     onSetJobFavorite: (JobModel) -> Unit,
     onNavigateToJobDetail: (Int) -> Unit,
+    onFindJobInApplication: (String) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     Spacer(modifier = modifier.height(4.dp))
     jobRecommendationList.forEachIndexed { index, job ->
-        JobCard(
-            jobViewedHistoryList = jobViewedHistoryList,
-            jobApplicationList = jobApplicationList,
-            job = job,
-            onSetJobViewedHistory = onSetJobViewedHistory,
-            onFindJobInFavorite = onFindJobInFavorite,
-            onSetJobFavorite = onSetJobFavorite,
-            onNavigateToJobDetail = { onNavigateToJobDetail(index) }
-        )
+        if (!onFindJobInApplication(job.id)) {
+            JobCard(
+                jobViewedHistoryList = jobViewedHistoryList,
+                jobApplicationList = jobApplicationList,
+                job = job,
+                onSetJobViewedHistory = onSetJobViewedHistory,
+                onFindJobInFavorite = onFindJobInFavorite,
+                onSetJobFavorite = onSetJobFavorite,
+                onNavigateToJobDetail = { onNavigateToJobDetail(index) }
+            )
+        }
     }
     Spacer(modifier = modifier.height(4.dp))
 }

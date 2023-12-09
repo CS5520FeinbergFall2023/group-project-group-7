@@ -14,6 +14,7 @@ class PostModel(
     var text: String by mutableStateOf("")
     var images: List<PostImageModel> by mutableStateOf(emptyList())
     var likes: List<String> by mutableStateOf(emptyList()) // this will store user id
-    var comments: List<PostCommentModel> by mutableStateOf(emptyList())
+    //var comments: List<PostCommentModel> by mutableStateOf(emptyList())
+    var url: String by mutableStateOf("")
     var time: String = ""
 }

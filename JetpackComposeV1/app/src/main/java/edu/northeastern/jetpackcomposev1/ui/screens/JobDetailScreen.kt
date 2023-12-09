@@ -300,6 +300,7 @@ fun JobDetailButton(
             onClick = {
                 showNewPostSheet = true
                 postViewModel.post.text = "Check out this job!\n----------------------------\n${job.title}\n${job.company.display_name}\n${job.location.display_name}"
+                postViewModel.post.url = job.redirect_url
             }
         ) {
             Text("Post Job")

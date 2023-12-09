@@ -183,4 +183,8 @@ class ApplicationViewModel: ViewModel() {
             }
         }
     }
+    fun findJobInApplicationList(jobId: String): Boolean {
+        return jobApplicationList.any { it.job.id == jobId }
+    }
+    /**********************************************************************************************/
 }

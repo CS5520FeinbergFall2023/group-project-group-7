@@ -92,7 +92,11 @@ fun AddPost(
             Text("What's new?")
             Text(
                 text = if(postViewModel.post.text.isNotEmpty()) "Clear" else "",
-                modifier = modifier.clickable { postViewModel.post.text = "" }
+                modifier = modifier.clickable {
+                    postViewModel.post.text = ""
+                    postViewModel.post.url = ""
+                    postViewModel.post.images = emptyList()
+                }
             )
         }
         OutlinedTextField(
@@ -105,6 +109,13 @@ fun AddPost(
             singleLine = false,
             minLines = 3
         )
+        if(postViewModel.post.url.isNotEmpty()) {
+            Text(
+                text = "Job link added",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
         LazyRow {
             items(postViewModel.post.images) { image ->
                 AsyncImage(

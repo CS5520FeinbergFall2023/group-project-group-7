@@ -1,6 +1,7 @@
 package edu.northeastern.jetpackcomposev1.ui.screens
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +23,13 @@ import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -121,7 +124,10 @@ fun PostCard(
     onSetPostLikeToDB: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val applyJobIntent = Intent(Intent.ACTION_VIEW, Uri.parse(post.url))
     var isExpanded: Boolean by rememberSaveable { mutableStateOf(false) }
+
     OutlinedCard(modifier = modifier.padding(vertical = 4.dp)) {
         Column(modifier = modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -158,6 +164,26 @@ fun PostCard(
                 overflow = TextOverflow.Ellipsis,
                 modifier = modifier.clickable { isExpanded = !isExpanded }
             )
+            if (post.url.isNotEmpty()) {
+                Row(
+                    modifier = modifier
+                        .padding( top = 4.dp)
+                        .clickable { context.startActivity(applyJobIntent) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Send,
+                        contentDescription = "Apply",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = modifier.padding(start = 4.dp))
+                    Text(
+                        text = "Easily Apply",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
             LazyRow {
                 items(post.images) { image ->
                     AsyncImage(
