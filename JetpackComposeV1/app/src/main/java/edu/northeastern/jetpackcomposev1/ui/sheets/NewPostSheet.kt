@@ -6,6 +6,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -84,7 +85,16 @@ fun AddPost(
         }
     )
     Column {
-        Text("What's new?")
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = modifier.fillMaxWidth()
+        ) {
+            Text("What's new?")
+            Text(
+                text = if(postViewModel.post.text.isNotEmpty()) "Clear" else "",
+                modifier = modifier.clickable { postViewModel.post.text = "" }
+            )
+        }
         OutlinedTextField(
             modifier = modifier
                 .fillMaxWidth()

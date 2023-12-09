@@ -179,16 +179,12 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToHome = {
                     navController.navigate("Home") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 },
                 onNavigateToSignIn = {
                     navController.navigate("Sign_In") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 }
             )
@@ -198,23 +194,17 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToSignUp = {
                     navController.navigate("Sign_Up") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate("Forgot_Password") {
-                        popUpTo(
-                            navController.currentBackStackEntry?.destination?.route!!
-                        ) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 },
                 onNavigateToHome = {
                     navController.navigate("Home") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 }
             )
@@ -224,23 +214,17 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToSignIn = {
                     navController.navigate("Sign_In") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate("Forgot_Password") {
-                        popUpTo(
-                            navController.currentBackStackEntry?.destination?.route!!
-                        ) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 },
                 onNavigateToHome = {
                     navController.navigate("Home") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 }
             )
@@ -250,16 +234,12 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToSignIn = {
                     navController.navigate("Sign_In") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 },
                 onNavigateToSignUp = {
                     navController.navigate("Sign_Up") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 }
             )
@@ -273,9 +253,7 @@ fun MyApp() {
                 postViewModel = postViewModel,
                 onNavigateToMyApp = {
                     navController.navigate("My_App") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                     }
                 }
             )
@@ -354,9 +332,7 @@ fun HomeScreen(
                                 selectedItemIndex = index
                                 scope.launch { drawerState.close() }
                                 navController.navigate(item.route) {
-                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
-                                        inclusive = true
-                                    }
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
                                 }
                             },
                             icon = {
@@ -454,18 +430,12 @@ fun HomeScreen(
                     composable("My_Applications") {
                         JobApplicationScreen(
                             applicationViewModel = applicationViewModel,
-                            onNavigateToApplicationDetail =  {
-                                navController.navigate("Application_Details") {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
-                                    }
-                                }
-                            }
+                            onNavigateToApplicationDetail = { navController.navigate("Application_Details") }
                         )
                     }
                     composable("My_Resumes") {
                         ResumesScreen(
-                            resumeViewModel,
+                            viewModel = resumeViewModel,
                             navController = navController
                         )
                     }
@@ -475,20 +445,18 @@ fun HomeScreen(
                             userViewModel = userViewModel,
                             jobViewModel = jobViewModel,
                             postViewModel = postViewModel,
-                            onNavigateToSetting = { navController.navigate("Settings") }
+                            onNavigateToSetting = {
+                                navController.navigate("Settings") {
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                                }
+                            }
                         )
                     }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
                     composable("PDFViewScreen") {
                         PDFViewScreen(
                             viewModel = resumeViewModel,
-                            onNavigateToResumeManagement = {
-                                navController.navigate("My_Resumes") {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
-                                    }
-                                }
-                            }
+                            onNavigateToResumeManagement = { navController.popBackStack() }
                         )
                     }
                     composable("Job_Details/{listName}/{index}") { navBackStackEntry ->
@@ -499,13 +467,7 @@ fun HomeScreen(
                                 index = index,
                                 jobViewModel = jobViewModel,
                                 applicationViewModel = applicationViewModel,
-                                onNavigateToApply = {
-                                    navController.navigate("Add_New_Application/add") {
-                                        /*popUpTo(navController.currentBackStackEntry?.destination?.route.toString()) {
-                                            inclusive = true
-                                        }*/
-                                    }
-                                },
+                                onNavigateToApply = { navController.navigate("Add_New_Application/add") },
                                 postViewModel = postViewModel
                             )
                         }
@@ -550,9 +512,9 @@ fun HomeScreen(
                             },
                             onNavigateToApplicationDetails = {
                                 navController.navigate("Application_Details") {
-                                    /*popUpTo(navController.graph.startDestinationId) {
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
                                         inclusive = true
-                                    }*/
+                                    }
                                 }
                             },
                         )
@@ -564,5 +526,5 @@ fun HomeScreen(
     if (!userViewModel.isSignedIn) {
         onNavigateToMyApp()
     }
-//    Log.d("debug", "Home render finished")
+    Log.d("debug", "Home render finished")
 }
