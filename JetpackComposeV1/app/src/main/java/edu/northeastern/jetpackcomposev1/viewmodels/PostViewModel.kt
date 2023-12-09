@@ -1,11 +1,14 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
+import android.app.NotificationManager
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +22,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import edu.northeastern.jetpackcomposev1.R
 import edu.northeastern.jetpackcomposev1.models.job.JobFavoriteModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.job.JobViewedHistoryModel
@@ -36,13 +40,14 @@ class PostViewModel: ViewModel() {
     val database: FirebaseDatabase = Firebase.database
     val storage: FirebaseStorage = Firebase.storage
 
+    var firstLaunch: Boolean by mutableStateOf(true)
     var running: Boolean by mutableStateOf(false)
 
     var post: PostModel by mutableStateOf(PostModel())
     var postList: SnapshotStateList<PostModel> = mutableStateListOf()
 
     /**********************************************************************************************/
-    fun getPostFromDB() {
+    fun getPostFromDB(context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
@@ -57,6 +62,11 @@ class PostViewModel: ViewModel() {
                                     postList.add(postModel)
                                 }
                             }
+                            // push notification to user
+                            if (!firstLaunch && postList[0].user_id != auth.currentUser?.uid!!) {
+                                setPostNotificationToUser(context)
+                            }
+                            firstLaunch = false
                         }
 
                         override fun onCancelled(error: DatabaseError) {
@@ -160,4 +170,14 @@ class PostViewModel: ViewModel() {
         }
     }
     /**********************************************************************************************/
+    fun setPostNotificationToUser(context: Context) {
+        val notification = NotificationCompat.Builder(context, "channel_post")
+            .setSmallIcon(R.drawable.job_track_pro_logo)
+            .setContentTitle("New Post")
+            .setContentText(postList[0].text)
+            .build()
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(2, notification)
+    }
+
 }

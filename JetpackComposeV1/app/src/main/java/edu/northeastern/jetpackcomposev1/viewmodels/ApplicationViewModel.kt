@@ -1,10 +1,22 @@
 package edu.northeastern.jetpackcomposev1.viewmodels
 
+import android.Manifest
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -17,6 +29,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
+import edu.northeastern.jetpackcomposev1.R
 import edu.northeastern.jetpackcomposev1.models.application.Event
 import edu.northeastern.jetpackcomposev1.models.application.TimeLine
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
@@ -33,6 +46,8 @@ class ApplicationViewModel: ViewModel() {
     val auth: FirebaseAuth = Firebase.auth
     val database: FirebaseDatabase = Firebase.database
     val storage: FirebaseStorage = Firebase.storage
+
+    var firstLaunch: Boolean by mutableStateOf(true)
 
     var jobApplicationList: SnapshotStateList<JobApplicationModel> = mutableStateListOf()
     var jobRecommendationList: SnapshotStateList<JobModel> = mutableStateListOf()
@@ -144,7 +159,7 @@ class ApplicationViewModel: ViewModel() {
     }
 
     /**********************************************************************************************/
-    fun getJobRecommendationFromDB() {
+    fun getJobRecommendationFromDB(context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 // Your long-running operation here
@@ -159,6 +174,12 @@ class ApplicationViewModel: ViewModel() {
                                     jobRecommendationList.add(JobModel)
                                 }
                             }
+                            // push notification to user
+                            if (!firstLaunch &&
+                                (jobApplicationList.isEmpty() || jobRecommendationList[0].id != jobApplicationList.last().job.id)) {
+                                setJobNotificationToUser(context)
+                            }
+                            firstLaunch = false
                         }
 
                         override fun onCancelled(error: DatabaseError) {
@@ -187,4 +208,13 @@ class ApplicationViewModel: ViewModel() {
         return jobApplicationList.any { it.job.id == jobId }
     }
     /**********************************************************************************************/
+    fun setJobNotificationToUser(context: Context) {
+        val notification = NotificationCompat.Builder(context, "channel_recommendation")
+            .setSmallIcon(R.drawable.job_track_pro_logo)
+            .setContentTitle("New Job Recommendation")
+            .setContentText("${jobRecommendationList[0].title}\n${jobRecommendationList[0].company.display_name}")
+            .build()
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1, notification)
+    }
 }

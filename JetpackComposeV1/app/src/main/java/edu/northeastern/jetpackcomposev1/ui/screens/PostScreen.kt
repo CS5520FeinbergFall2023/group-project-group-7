@@ -2,6 +2,8 @@ package edu.northeastern.jetpackcomposev1.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +58,7 @@ import edu.northeastern.jetpackcomposev1.ui.sheets.NewPostSheet
 import edu.northeastern.jetpackcomposev1.utility.convertToDate
 import edu.northeastern.jetpackcomposev1.viewmodels.PostViewModel
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun PostScreen(
     postViewModel: PostViewModel,
@@ -93,6 +96,7 @@ fun PostScreen(
             }
         }
     }// scaffold
+    AskForNotificationPermission()
 }
 
 @Composable
