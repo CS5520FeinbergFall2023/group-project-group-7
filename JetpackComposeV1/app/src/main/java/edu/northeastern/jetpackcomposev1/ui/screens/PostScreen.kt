@@ -174,13 +174,13 @@ fun PostCard(
                     Icon(
                         imageVector = Icons.Outlined.Send,
                         contentDescription = "Apply",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = modifier.padding(start = 4.dp))
                     Text(
                         text = "Easily Apply",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
