@@ -1,20 +1,18 @@
 package edu.northeastern.jetpackcomposev1.application
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +28,6 @@ import edu.northeastern.jetpackcomposev1.models.application.Event
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ApplicationResumeInfo
 import edu.northeastern.jetpackcomposev1.ui.sheets.EventUpdateSheet
-import edu.northeastern.jetpackcomposev1.ui.sheets.SearchJobSheet
 import edu.northeastern.jetpackcomposev1.utility.convertDateTime
 import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
@@ -47,8 +44,6 @@ fun ApplicationDetailScreen(
 ) {
     val selectedApplication by applicationViewModel.selectedApplication
     var application = selectedApplication
-    val event by applicationViewModel.selectedEvent
-
     var showEventUpdateSheet by rememberSaveable { mutableStateOf(false) }
     if (showEventUpdateSheet) {
         EventUpdateSheet(
@@ -61,28 +56,43 @@ fun ApplicationDetailScreen(
         item {
             val job = application!!.job
             ApplicationDetailJobInfo(
-                modifier = Modifier, jobViewModel,job, //onNavigateToJobDetail
-                 )
-            Row(modifier = Modifier.padding(start = 8.dp)) {
-                ApplicationResumeInfo(modifier = Modifier, resume = application.resume)
+                modifier = Modifier, jobViewModel, job, //onNavigateToJobDetail
+            )
+            ApplicationResumeInfo(modifier = Modifier.padding(4.dp), resume = application.resume)
+
+            Row(){
+                Text(
+                    text = "Time Line",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                AddEventFab(
+                    modifier = Modifier.padding(top = 8.dp),
+                    applicationViewModel = applicationViewModel,
+                    setShowEventUpdate = { showEventUpdateSheet = it }
+                )
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            AddEventFab(
-                modifier = Modifier.padding(top = 8.dp),
-                applicationViewModel = applicationViewModel,
-                setShowEventUpdate = { showEventUpdateSheet = it }
-            )
-            TimelineComp(
-                application.timeLine,
-                onDeleteClicked = { event ->
-                    applicationViewModel.selectEvent(event)
-                    applicationViewModel.updateEventToDB(application, event, Event("", ""))
-                },
-                onEditClicked = { event ->
-                    applicationViewModel.selectEvent(event)
-                    showEventUpdateSheet = true
-                },
-            )
+            if (application.timeLine.count==0) {
+                Text(
+                    text = "No events yet, add one now!",
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            } else{
+                TimelineComp(
+                    application.timeLine,
+                    onDeleteClicked = { event ->
+                        applicationViewModel.selectEvent(event)
+                        applicationViewModel.updateEventToDB(application, event, Event("", ""))
+                    },
+                    onEditClicked = { event ->
+                        applicationViewModel.selectEvent(event)
+                        showEventUpdateSheet = true
+                    },
+                )}
         }
     }
 }
@@ -92,7 +102,6 @@ fun ApplicationDetailJobInfo(
     modifier: Modifier,
     jobViewModel: JobViewModel,
     job: JobModel,
-    //onNavigateToJobDetail: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -119,7 +128,7 @@ fun ApplicationDetailJobInfo(
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.padding(vertical = 4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(
                 shape = MaterialTheme.shapes.small,
                 color = MaterialTheme.colorScheme.surfaceVariant,
@@ -151,7 +160,7 @@ fun ApplicationDetailJobInfo(
             color = MaterialTheme.colorScheme.tertiary,
             style = MaterialTheme.typography.labelSmall
         )
-        Divider(modifier = modifier.padding(vertical = 8.dp))
+        Divider(modifier = modifier.padding(vertical = 4.dp))
     }
 }
 
@@ -159,21 +168,13 @@ fun ApplicationDetailJobInfo(
 fun AddEventFab(
     modifier: Modifier,
     applicationViewModel: ApplicationViewModel,
-    setShowEventUpdate:(Boolean)->Unit
+    setShowEventUpdate: (Boolean) -> Unit
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier.padding(start = 8.dp)
-    ) {
-        FloatingActionButton(
-            onClick = {
-                //create a new event when old event is empty
-                applicationViewModel.selectEvent(Event("", ""))
-                setShowEventUpdate(true)
-            }
-        )
-        {
-            Icon(Icons.Filled.Add, "Add Event.")
-        }
-    }
+    SmallFloatingActionButton(
+        onClick = {
+            //create a new event when old event is empty
+            applicationViewModel.selectEvent(Event("", ""))
+            setShowEventUpdate(true)
+        })
+    { Icon(Icons.Filled.Add, "Add Event.") }
 }

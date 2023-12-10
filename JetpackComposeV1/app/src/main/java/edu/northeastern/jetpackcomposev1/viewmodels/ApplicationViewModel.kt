@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -53,7 +54,7 @@ class ApplicationViewModel: ViewModel() {
 
     var jobApplicationList: SnapshotStateList<JobApplicationModel> = mutableStateListOf()
     var jobRecommendationList: SnapshotStateList<JobModel> = mutableStateListOf()
-
+    var sortedApplicationList: SnapshotStateList<JobApplicationModel> = mutableStateListOf()
     /**********************************************************************************************/
     //Jun's modification
     //adding state for recording the selected application and selected event
@@ -72,6 +73,55 @@ class ApplicationViewModel: ViewModel() {
 
     fun selectApplication(application: JobApplicationModel) {
         _selectedApplication.value = application
+    }
+
+
+    fun getFilteredJobApplicationList(filter: String): List<JobApplicationModel> {
+        return when (filter) {
+            "Interviewed" -> sortedApplicationList.filter { jobApplication ->
+                jobApplication.timeLine.results.any { event ->
+                    event.status == "Interviewed"
+                }
+            }.toList()
+
+            "Offer" -> sortedApplicationList.filter { jobApplication ->
+                jobApplication.timeLine.results.any { event ->
+                    event.status == "Offer"
+                }
+            }.toList()
+
+            "Rejected" -> sortedApplicationList.filter { jobApplication ->
+                jobApplication.timeLine.results.any { event ->
+                    event.status == "Rejected"
+                }
+            }.toList()
+
+            "Offer Accepted" -> sortedApplicationList.filter { jobApplication ->
+                jobApplication.timeLine.results.any { event ->
+                    event.status == "Offer Accepted"
+                }
+            }.toList()
+
+            else -> sortedApplicationList.toList()
+        }
+    }
+
+
+    fun sortJobApplicationListOnDate() {
+        sortedApplicationList =
+            jobApplicationList.sortedByDescending { it.timeLine.results.first().date }
+                .toMutableStateList()
+    }
+
+    fun deleteApplicationFromDB(application: JobApplicationModel) {
+        sortedApplicationList.remove(application)
+        jobApplicationList.remove(application)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                database.getReference("users/${auth.currentUser?.uid}/jobApplications")
+                    .setValue(jobApplicationList.toList())
+            }
+        }
     }
 
 
@@ -140,15 +190,22 @@ class ApplicationViewModel: ViewModel() {
         newJobApplication.timeLine = jobApplication.timeLine.copy()
         val mutableResults = newJobApplication.timeLine.results.toMutableList()
         if (newEvent.date.isNotBlank() && newEvent.status.isNotBlank()) {
-            mutableResults.add(newEvent)
+            mutableResults.add(0, newEvent)
         }
         if (oldEvent.date.isNotBlank() && oldEvent.status.isNotBlank()) {
-            mutableResults.removeIf { it.date == oldEvent.date && it.status == oldEvent.status }
+            if (mutableResults.size >= 2) {
+                mutableResults.removeIf { it.date == oldEvent.date && it.status == oldEvent.status }
+            }
         }
         val updatedTimeLine = newJobApplication.timeLine.copy(
-            results = mutableResults.sortedByDescending { it.date },
+            results = if (newEvent.date != jobApplication.timeLine.results.first().date) {
+                mutableResults.sortedByDescending { it.date }
+            } else {
+                mutableResults
+            },
             count = mutableResults.size
         )
+
         newJobApplication.timeLine = updatedTimeLine
         newJobApplication.status = updatedTimeLine.results.first().status
         selectApplication(newJobApplication)
