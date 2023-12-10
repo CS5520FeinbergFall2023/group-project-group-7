@@ -194,7 +194,6 @@ fun ApplicationSearch(
         modifier = Modifier.padding(start = 8.dp, top = 16.dp, bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
         item {
             SearchChip(
                 text = "All",
@@ -202,33 +201,24 @@ fun ApplicationSearch(
                 applicationSearchChipState = applicationSearchChipState
             )
             Spacer(modifier = Modifier.width(36.dp))
-        }
-
-        item {
             SearchChip(
                 text = "Interviewed",
                 size = interviewedSize,
                 applicationSearchChipState = applicationSearchChipState
             )
             Spacer(modifier = Modifier.width(36.dp))
-        }
-        item {
             SearchChip(
                 text = "Offer",
                 size = offerSize,
                 applicationSearchChipState = applicationSearchChipState
             )
             Spacer(modifier = Modifier.width(36.dp))
-        }
-        item {
             SearchChip(
                 text = "Rejected",
                 size = rejectedSize,
                 applicationSearchChipState = applicationSearchChipState
             )
             Spacer(modifier = Modifier.width(36.dp))
-        }
-        item {
             SearchChip(
                 text = "Offer Accepted",
                 size = offerAcceptedSize,
