@@ -32,6 +32,7 @@ import com.google.firebase.storage.storage
 import edu.northeastern.jetpackcomposev1.R
 import edu.northeastern.jetpackcomposev1.models.application.Event
 import edu.northeastern.jetpackcomposev1.models.application.TimeLine
+import edu.northeastern.jetpackcomposev1.models.job.ApplicationStatus
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
 import edu.northeastern.jetpackcomposev1.models.job.JobModel
 import edu.northeastern.jetpackcomposev1.models.post.PostModel
@@ -48,6 +49,7 @@ class ApplicationViewModel: ViewModel() {
     val storage: FirebaseStorage = Firebase.storage
 
     var firstLaunch: Boolean by mutableStateOf(true)
+    var firstLaunch2: Boolean by mutableStateOf(true)
 
     var jobApplicationList: SnapshotStateList<JobApplicationModel> = mutableStateListOf()
     var jobRecommendationList: SnapshotStateList<JobModel> = mutableStateListOf()
@@ -74,33 +76,28 @@ class ApplicationViewModel: ViewModel() {
 
 
     /**********************************************************************************************/
-
-
     fun getJobApplicationFromDB() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val myRef = database.getReference("users/${auth.currentUser?.uid}/jobApplications")
-                myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for (snapshot in dataSnapshot.children) {
-                            val jobApplicationModel =
-                                snapshot.getValue(JobApplicationModel::class.java)
-                            if (jobApplicationModel != null) {
-                                val index =
-                                    jobApplicationList.indexOfFirst { it.id == jobApplicationModel.id }
-                                if (index == -1) {
+                // Your long-running operation here
+                if (jobApplicationList.isEmpty()) {
+                    val myRef = database.getReference("users/${auth.currentUser?.uid}/jobApplications")
+                    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            for (snapshot in dataSnapshot.children) {
+                                val jobApplicationModel = snapshot.getValue(JobApplicationModel::class.java)
+                                if (jobApplicationModel != null) {
                                     jobApplicationList.add(jobApplicationModel)
                                 }
-
                             }
                         }
-                    }
 
-                    override fun onCancelled(error: DatabaseError) {
-                        // Failed to read value
-                        Log.w("debug", "Failed to read applications from DB.", error.toException())
-                    }
-                })
+                        override fun onCancelled(error: DatabaseError) {
+                            // Failed to read value
+                            Log.w("debug", "Failed to read applications from DB.", error.toException())
+                        }
+                    })
+                }
             }
         }
     }
@@ -216,5 +213,33 @@ class ApplicationViewModel: ViewModel() {
             .build()
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(1, notification)
+    }
+    fun calculateNumberOfPendingApplication(): Int {
+        var count = 0
+        for (application in jobApplicationList) {
+            if(application.status == ApplicationStatus.APPLIED.displayName || application.status == ApplicationStatus.INTERVIEWED.displayName) {
+                count++
+            }
+        }
+        return count
+    }
+    fun setJobReminderToUser(context: Context) {
+        val count = calculateNumberOfPendingApplication()
+        val notification = NotificationCompat.Builder(context, "channel_reminder")
+            .setSmallIcon(R.drawable.job_track_pro_logo)
+            .setContentTitle("Application Reminder")
+            .setContentText(
+                if(count == 0) {
+                    "Good job!\nNo pending applications"
+                }
+                else if(count == 1) {
+                    "You have 1 pending application that requires a status update"
+                } else {
+                    "You have ${count} pending applications that require a status update"
+                }
+            )
+            .build()
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(3, notification)
     }
 }

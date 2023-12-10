@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -58,11 +59,14 @@ fun ApplicationDetailScreen(
 
     LazyColumn(modifier = Modifier.padding(horizontal = 8.dp)) {
         item {
-                val job = application!!.job
-                ApplicationDetailJobInfo(
-                    modifier = Modifier, jobViewModel,job, //onNavigateToJobDetail
-                     )
+            val job = application!!.job
+            ApplicationDetailJobInfo(
+                modifier = Modifier, jobViewModel,job, //onNavigateToJobDetail
+                 )
+            Row(modifier = Modifier.padding(start = 8.dp)) {
                 ApplicationResumeInfo(modifier = Modifier, resume = application.resume)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             AddEventFab(
                 modifier = Modifier.padding(top = 8.dp),
                 applicationViewModel = applicationViewModel,
@@ -115,7 +119,7 @@ fun ApplicationDetailJobInfo(
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.padding(vertical = 4.dp)) {
             Surface(
                 shape = MaterialTheme.shapes.small,
                 color = MaterialTheme.colorScheme.surfaceVariant,
@@ -147,7 +151,7 @@ fun ApplicationDetailJobInfo(
             color = MaterialTheme.colorScheme.tertiary,
             style = MaterialTheme.typography.labelSmall
         )
-        Divider(modifier = modifier.padding(vertical = 4.dp))
+        Divider(modifier = modifier.padding(vertical = 8.dp))
     }
 }
 
@@ -157,7 +161,10 @@ fun AddEventFab(
     applicationViewModel: ApplicationViewModel,
     setShowEventUpdate:(Boolean)->Unit
 ) {
-    Row(horizontalArrangement = Arrangement.Center) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier.padding(start = 8.dp)
+    ) {
         FloatingActionButton(
             onClick = {
                 //create a new event when old event is empty

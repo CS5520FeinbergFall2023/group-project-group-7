@@ -1,10 +1,14 @@
 package edu.northeastern.jetpackcomposev1.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import edu.northeastern.jetpackcomposev1.models.job.JobApplicationModel
@@ -29,6 +34,7 @@ import edu.northeastern.jetpackcomposev1.utility.convertSalary
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun JobApplicationScreen(
     applicationViewModel: ApplicationViewModel,
@@ -37,9 +43,18 @@ fun JobApplicationScreen(
 ) {
     val applicationList = applicationViewModel.jobApplicationList.toList()
     if (applicationList.isEmpty()) {
-        Text(text = "No Application Found")
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) { Text("No Application Found") }
     } else {
-        LazyColumn(modifier = modifier.padding( 4.dp)) {
+        // launch reminder
+        if (applicationViewModel.firstLaunch2 && applicationList.isNotEmpty()) {
+            applicationViewModel.setJobReminderToUser(LocalContext.current)
+        }
+        applicationViewModel.firstLaunch2 = false
+        LazyColumn(modifier = modifier.padding(horizontal = 8.dp)) {
             item {
                 ApplicationList(
                     applications = applicationList,
@@ -50,6 +65,7 @@ fun JobApplicationScreen(
             }
         }
     }
+    AskForNotificationPermission()
 }
 
 @Composable
@@ -81,9 +97,8 @@ fun ApplicationCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = modifier.padding(vertical = 4.dp)
-
     ) {
-        Column(modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
+        Column(modifier = modifier.padding(all = 16.dp)) {
             ApplicationContent(
                 application = application,
                 modifier = Modifier.padding(8.dp),
@@ -114,7 +129,11 @@ fun ApplicationContent(
         horizontalAlignment = Alignment.Start
     ) {
         //Job Info
-        ApplicationJobInfo(modifier = modifier, job = job)
+        ApplicationJobInfo(job = job)
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Divider()
+        Spacer(modifier = Modifier.height(8.dp))
 
         //Resume Info
         ApplicationResumeInfo(modifier = modifier, resume = application.resume)
@@ -126,18 +145,16 @@ fun ApplicationContent(
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
-            text = "Current Status:  ${latestEvent.status}",
+            text = "Current Status: ${latestEvent.status}",
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Spacer(modifier = modifier.height(4.dp))
-
     }
 }
 
 @Composable
-fun ApplicationJobInfo(modifier: Modifier, job: JobModel){
-    Column(modifier= Modifier.padding(bottom = 4.dp)){
+fun ApplicationJobInfo(modifier: Modifier = Modifier, job: JobModel){
+    Column {
         Text(
             text = job.title,
             color = MaterialTheme.colorScheme.primary,
@@ -153,11 +170,10 @@ fun ApplicationJobInfo(modifier: Modifier, job: JobModel){
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.bodyMedium
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = modifier.padding(vertical = 4.dp)){
             Surface(
                 shape = MaterialTheme.shapes.small,
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = modifier.padding(end = 4.dp)
             ) {
                 Text(
                     text = job.contract_time.replaceFirstChar { it.uppercase() },
@@ -186,13 +202,12 @@ fun ApplicationJobInfo(modifier: Modifier, job: JobModel){
             style = MaterialTheme.typography.labelSmall
         )
     }
-    Spacer(modifier = Modifier.height(2.dp))
 }
 
 @Composable
 fun ApplicationResumeInfo(modifier: Modifier, resume: ResumeModel){
     Text(
-        text = "Resume:  ${resume.nickName}",
+        text = "Resume: ${resume.nickName}",
         color = MaterialTheme.colorScheme.secondary,
         style = MaterialTheme.typography.bodyMedium
     )
