@@ -233,9 +233,9 @@ class ApplicationViewModel: ViewModel() {
                     "Good job!\nNo pending applications"
                 }
                 else if(count == 1) {
-                    "You have 1 pending application that requires a status update"
+                    "You have 1 pending application"
                 } else {
-                    "You have ${count} pending applications that require a status update"
+                    "You have ${count} pending applications"
                 }
             )
             .build()

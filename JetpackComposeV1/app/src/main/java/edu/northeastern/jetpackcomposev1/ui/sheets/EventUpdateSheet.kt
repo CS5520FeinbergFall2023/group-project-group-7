@@ -68,9 +68,8 @@ fun EventUpdateSheet(
     ) {
         LazyColumn(
             modifier = modifier
-                .fillMaxHeight()
-                //add this for the keyboard to not overlap the input
-                .imePadding(),
+                .padding(horizontal = 8.dp)
+                .fillMaxHeight(0.95f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
@@ -146,7 +145,7 @@ fun EventUpdateSheet(
 
                 //Buttons
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(48.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 48.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -160,7 +159,6 @@ fun EventUpdateSheet(
                             text = "Cancel",
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     Button(
@@ -184,11 +182,10 @@ fun EventUpdateSheet(
                             text = "Save",
                             modifier = Modifier.padding(4.dp),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
-                Spacer(modifier = modifier.height(16.dp))
+                Spacer(modifier = modifier.height(128.dp))
             }
         }
     }

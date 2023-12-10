@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,6 +46,7 @@ class PostViewModel: ViewModel() {
 
     var post: PostModel by mutableStateOf(PostModel())
     var postList: SnapshotStateList<PostModel> = mutableStateListOf()
+    var postListSize: Int by mutableIntStateOf(0)
 
     /**********************************************************************************************/
     fun getPostFromDB(context: Context) {
@@ -63,10 +65,11 @@ class PostViewModel: ViewModel() {
                                 }
                             }
                             // push notification to user
-                            if (!firstLaunch && postList[0].user_id != auth.currentUser?.uid!!) {
+                            if (!firstLaunch && postListSize != postList.size && postList[0].user_id != auth.currentUser?.uid!!) {
                                 setPostNotificationToUser(context)
                             }
                             firstLaunch = false
+                            postListSize = postList.size
                         }
 
                         override fun onCancelled(error: DatabaseError) {
@@ -173,8 +176,8 @@ class PostViewModel: ViewModel() {
     fun setPostNotificationToUser(context: Context) {
         val notification = NotificationCompat.Builder(context, "channel_post")
             .setSmallIcon(R.drawable.job_track_pro_logo)
-            .setContentTitle("New Post")
-            .setContentText(postList[0].text)
+            .setContentTitle("Post Update")
+            .setContentText("New post discovered!")
             .build()
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(2, notification)
