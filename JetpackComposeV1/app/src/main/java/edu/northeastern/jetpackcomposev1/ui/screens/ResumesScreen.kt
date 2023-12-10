@@ -304,7 +304,7 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
                 )
 
                 OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(10.dp),
                     value = viewModel.updateResume.nickName,
                     onValueChange = { newValue ->
                         viewModel.updateResume.nickName = newValue
@@ -313,7 +313,8 @@ fun ResumeUI(viewModel: ResumeViewModel, resume: ResumeModel, onDeleteClick:(res
                     singleLine = true
                 )
 
-                Text(text = "Selected file: " + viewModel.updateResume.fileName)
+                Text(modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
+                    text = "Selected file: " + viewModel.updateResume.fileName)
 
                 Button(
                     modifier = Modifier
