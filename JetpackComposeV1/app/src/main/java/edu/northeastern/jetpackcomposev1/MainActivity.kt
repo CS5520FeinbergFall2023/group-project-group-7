@@ -1,24 +1,20 @@
 package edu.northeastern.jetpackcomposev1
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
@@ -29,7 +25,6 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -44,8 +39,6 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -70,6 +63,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import edu.northeastern.jetpackcomposev1.application.ApplicationDetailScreen
+import edu.northeastern.jetpackcomposev1.ui.screens.AboutScreen
 import edu.northeastern.jetpackcomposev1.viewmodels.UserViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.JobViewModel
 import edu.northeastern.jetpackcomposev1.ui.screens.ForgotPasswordScreen
@@ -85,10 +79,8 @@ import edu.northeastern.jetpackcomposev1.ui.screens.SettingsScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.AddNewApplicationScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.JobRecommendationScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.PostScreen
-
 import edu.northeastern.jetpackcomposev1.ui.screens.SignInScreen
 import edu.northeastern.jetpackcomposev1.ui.screens.SignUpScreen
-
 import edu.northeastern.jetpackcomposev1.ui.theme.JetpackComposeV1Theme
 import edu.northeastern.jetpackcomposev1.viewmodels.ApplicationViewModel
 import edu.northeastern.jetpackcomposev1.viewmodels.PostViewModel
@@ -129,7 +121,7 @@ val navItems: List<NavigationItem> = listOf(
     ),
     NavigationItem(
         title = "Posts",
-        icon = Icons.Outlined.Info,
+        icon = Icons.Outlined.DateRange,
         route = "Posts"
     ),
     NavigationItem(
@@ -141,6 +133,11 @@ val navItems: List<NavigationItem> = listOf(
         title = "Settings",
         icon = Icons.Outlined.Settings,
         route = "Settings"
+    ),
+    NavigationItem(
+        title = "About",
+        icon = Icons.Outlined.Info,
+        route = "About"
     ),
 )
 
@@ -180,12 +177,16 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToHome = {
                     navController.navigate("Home") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 },
                 onNavigateToSignIn = {
                     navController.navigate("Sign_In") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 }
             )
@@ -195,17 +196,23 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToSignUp = {
                     navController.navigate("Sign_Up") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate("Forgot_Password") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 },
                 onNavigateToHome = {
                     navController.navigate("Home") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 }
             )
@@ -215,17 +222,23 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToSignIn = {
                     navController.navigate("Sign_In") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate("Forgot_Password") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 },
                 onNavigateToHome = {
                     navController.navigate("Home") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 }
             )
@@ -235,12 +248,16 @@ fun MyApp() {
                 userViewModel = userViewModel,
                 onNavigateToSignIn = {
                     navController.navigate("Sign_In") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 },
                 onNavigateToSignUp = {
                     navController.navigate("Sign_Up") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 }
             )
@@ -254,7 +271,9 @@ fun MyApp() {
                 postViewModel = postViewModel,
                 onNavigateToMyApp = {
                     navController.navigate("My_App") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                        popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                            inclusive = true
+                        }
                     }
                 }
             )
@@ -285,7 +304,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     // fetch data from DB
-    if(jobViewModel.firstLaunch) {
+    if (jobViewModel.firstLaunch) {
         jobViewModel.getJobSearchHistoryFromDB()
         jobViewModel.getJobViewedHistoryFromDB()
         jobViewModel.getJobFavoriteFromDB()
@@ -333,7 +352,9 @@ fun HomeScreen(
                                 selectedItemIndex = index
                                 scope.launch { drawerState.close() }
                                 navController.navigate(item.route) {
-                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                                        inclusive = true
+                                    }
                                 }
                             },
                             icon = {
@@ -381,7 +402,12 @@ fun HomeScreen(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = navItems[selectedItemIndex].title, color = MaterialTheme.colorScheme.onPrimary) },
+                    title = {
+                        Text(
+                            text = navItems[selectedItemIndex].title,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(
@@ -392,14 +418,15 @@ fun HomeScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = {  }) {
+                        IconButton(onClick = { }) {
                             AsyncImage(
                                 model = userViewModel.user.profile.avatar.filePath,
                                 contentDescription = "Avatar",
                                 placeholder = painterResource(R.drawable.ic_launcher_foreground),
                                 error = painterResource(R.drawable.ic_launcher_foreground),
                                 contentScale = ContentScale.Crop,
-                                modifier = modifier.clip(CircleShape)
+                                modifier = modifier
+                                    .clip(CircleShape)
                                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                             )
                         }
@@ -419,7 +446,7 @@ fun HomeScreen(
                             onNavigateToJobDetail = { index -> navController.navigate("Job_Details/search/$index") }
                         )
                     }
-                    composable("Job_Recommendation"){
+                    composable("Job_Recommendation") {
                         JobRecommendationScreen(
                             jobViewModel = jobViewModel,
                             applicationViewModel = applicationViewModel,
@@ -454,12 +481,15 @@ fun HomeScreen(
                             onNavigateToSetting = {
                                 navController.navigate("Settings") {
                                     selectedItemIndex = 7
-                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) { inclusive = true }
+                                    popUpTo(navController.currentBackStackEntry?.destination?.route!!) {
+                                        inclusive = true
+                                    }
                                 }
                             }
                         )
                     }
                     composable("Settings") { SettingsScreen(userViewModel, jobViewModel) }
+                    composable("About") {  AboutScreen() }
                     composable("PDFViewScreen") {
                         PDFViewScreen(
                             viewModel = resumeViewModel,
@@ -470,7 +500,8 @@ fun HomeScreen(
                         val listName = navBackStackEntry.arguments?.getString("listName")
                         val index = navBackStackEntry.arguments?.getString("index")?.toInt()
                         if (listName != null && index != null) {
-                            JobDetailScreen(listName = listName,
+                            JobDetailScreen(
+                                listName = listName,
                                 index = index,
                                 jobViewModel = jobViewModel,
                                 applicationViewModel = applicationViewModel,
@@ -479,8 +510,11 @@ fun HomeScreen(
                             )
                         }
                     }
-                    composable("Application_Details"){
-                        ApplicationDetailScreen(applicationViewModel = applicationViewModel, jobViewModel = jobViewModel)
+                    composable("Application_Details") {
+                        ApplicationDetailScreen(
+                            applicationViewModel = applicationViewModel,
+                            jobViewModel = jobViewModel
+                        )
                     }
 
                     /*
