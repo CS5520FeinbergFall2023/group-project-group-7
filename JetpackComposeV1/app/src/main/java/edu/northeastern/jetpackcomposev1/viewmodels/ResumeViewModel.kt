@@ -178,7 +178,8 @@ class ResumeViewModel: ViewModel() {
                                     if (targetIndex != -1) {
                                         // find
                                         currentState.resumeList[targetIndex].activeStatus = "false"
-                                        uiState.value = currentState.copy(resumeList = currentState.resumeList.toList())
+                                        val updatedResumeList = currentState.resumeList.filterNot { it == viewEvent.resume }
+                                        uiState.value = currentState.copy(resumeList = updatedResumeList)
                                     } else {
                                         Log.w("error in change activeStatus", "Not find target resume")
                                     }
