@@ -37,15 +37,18 @@ Career Counselors and Coaches: Professionals providing career guidance and couns
 
 ![detail](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/9fc81c4d-dfca-495d-b128-15708355c39d)
 
-
 ![application](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/1cf4fb62-0496-4fd4-b4eb-6d4d1435978b)
+
 ![applicationnew](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/8de36c57-b58b-4e83-bd88-278211b90908)
 
-
 ![resume](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/34b3eaa8-d789-4a2f-8b50-1ade7eaef9f6)
+
 ![profile](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/3bb59f6f-bf23-4179-b27c-42116d972992)
+
 ![post](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/f4dcd324-a1b1-4597-8e9b-2dea0c78fb4f)
+
 ![timeline](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/db9c36d3-6a5e-4f4b-b05c-e48dab9a9ab2)
+
 ![sort2](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/d1d8141b-1456-467b-8171-4730391a7828)
 ![sort](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/bf4a1fa9-d8d4-4d38-8069-c0e8b5bb8808)
 ![setting](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/d22c4667-b625-426c-b8c2-8a6254557745)
