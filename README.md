@@ -28,6 +28,8 @@ Students and Graduates: College students and recent graduates can use the app to
 Experienced Professionals: Seasoned professionals seeking new job opportunities or career advancement can benefit from the app's features.
 Recruitment Agencies: Recruiters and HR professionals can use the app to help their candidates organize their job application processes.
 Career Counselors and Coaches: Professionals providing career guidance and counseling can recommend the app to their clients for better job search management.
+
+
 ![menu](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/a25276be-faf1-4bfe-8d97-d1b3aed80191)
 
 
