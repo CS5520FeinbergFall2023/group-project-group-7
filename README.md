@@ -7,7 +7,8 @@ JobTrack Pro
 Are you tired of losing track of your job applications, resume updates, and the details of your job-hunting journey? JobTrack Pro is here to simplify and supercharge your job search experience. Whether you're a recent graduate starting your career or a seasoned professional exploring new opportunities, JobTrack Pro is the ultimate tool to help you organize, optimize, and succeed in your job hunt.
 
 ## Tech Stack:
-- Database: Google Firebase realtime database
+- API:  Adzuna 
+- Database: Google Firebase real-time database
 - Language: Kotlin
 - UI: Jetpack Compose
 ## Key Features:
