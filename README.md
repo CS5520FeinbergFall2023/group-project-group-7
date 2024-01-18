@@ -28,11 +28,11 @@ Are you tired of losing track of your job applications, resume updates, and the 
 "Apply, Track, Thrive: Your Job Search Companion"
 
 ## The target users of the application:
-Job Seekers: This is the primary user group, including recent graduates, professionals looking for a career change, and unemployed individuals.
-Students and Graduates: College students and recent graduates can use the app to track internships, part-time jobs, and post-graduation career opportunities.
-Experienced Professionals: Seasoned professionals seeking new job opportunities or career advancement can benefit from the app's features.
-Recruitment Agencies: Recruiters and HR professionals can use the app to help their candidates organize their job application processes.
-Career Counselors and Coaches: Professionals providing career guidance and counseling can recommend the app to their clients for better job search management.
+* Job Seekers: This is the primary user group, including recent graduates, professionals looking for a career change, and unemployed individuals.
+* Students and Graduates: College students and recent graduates can use the app to track internships, part-time jobs, and post-graduation career opportunities.
+* Experienced Professionals: Seasoned professionals seeking new job opportunities or career advancement can benefit from the app's features.
+* Recruitment Agencies: Recruiters and HR professionals can use the app to help their candidates organize their job application processes.
+* Career Counselors and Coaches: Professionals providing career guidance and counseling can recommend the app to their clients for better job search management.
 
 
 ![menu](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/a25276be-faf1-4bfe-8d97-d1b3aed80191)
