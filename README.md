@@ -50,6 +50,9 @@ Career Counselors and Coaches: Professionals providing career guidance and couns
 ![timeline](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/db9c36d3-6a5e-4f4b-b05c-e48dab9a9ab2)
 
 ![sort2](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/d1d8141b-1456-467b-8171-4730391a7828)
+
 ![sort](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/bf4a1fa9-d8d4-4d38-8069-c0e8b5bb8808)
+
 ![setting](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/d22c4667-b625-426c-b8c2-8a6254557745)
+
 ![searchApplication](https://github.com/CS5520FeinbergFall2023/group-project-group-7/assets/77699526/c217f01d-ef9b-4f2a-939d-79e783ff5866)
