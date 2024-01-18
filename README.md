@@ -5,6 +5,11 @@ Bowen Xu, Jun Wang, Qiaochu Zhang, Shiqi Feng, Yiwei Wang
 JobTrack Pro
 ## App description:
 Are you tired of losing track of your job applications, resume updates, and the details of your job-hunting journey? JobTrack Pro is here to simplify and supercharge your job search experience. Whether you're a recent graduate starting your career or a seasoned professional exploring new opportunities, JobTrack Pro is the ultimate tool to help you organize, optimize, and succeed in your job hunt.
+
+## Tech Stack:
+- Database: Google Firebase realtime database
+- Language: Kotlin
+- UI: Jetpack Compose
 ## Key Features:
 - Job Application and Resume Tracking JobTrack Pro lets you effortlessly record and organize your job applications and resume updates. Easily log application deadlines, company information, job descriptions, and your tailored resume versions in one convenient place. Say goodbye to scattered documents and missed opportunities.
 - Job Hunt History Keep a comprehensive history of your job search. Document your interview experiences, networking events, and valuable insights you've gained throughout your job hunt. Reflect on your journey and learn from each step to boost your success.
